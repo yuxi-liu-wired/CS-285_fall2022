@@ -1,3 +1,4 @@
+from turtle import forward
 from typing import Union
 
 import torch
@@ -44,10 +45,17 @@ def build_mlp(
         activation = _str_to_activation[activation]
     if isinstance(output_activation, str):
         output_activation = _str_to_activation[output_activation]
-
-    # TODO: return a MLP. This should be an instance of nn.Module
-    # Note: nn.Sequential is an instance of nn.Module.
-    raise NotImplementedError
+    
+    if n_layers == 0:
+        return nn.Linear(input_size, output_size)
+    
+    layers = [nn.Linear(input_size, size), activation]
+    for i in range(n_layers-1):
+        layers += [nn.Linear(size, size), activation]
+    layers += [nn.Linear(size, output_size), output_activation]
+    model = nn.Sequential(*layers)
+    
+    return model
 
 
 device = None
