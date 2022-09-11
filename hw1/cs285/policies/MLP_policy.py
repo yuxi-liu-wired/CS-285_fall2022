@@ -118,7 +118,8 @@ class MLPPolicySL(MLPPolicy):
         # DOING update the policy and return the loss
         prediction_dist = self.forward(observations)
         target = ptu.from_numpy(actions)
-        loss_value = -prediction_dist.log_prob(target).sum()
+        loss_value = -prediction_dist.log_prob(target).sum() 
+        # TODO: does it make sense for it to be around negative 1600?
 
         self.optimizer.zero_grad()
         loss_value.backward()
