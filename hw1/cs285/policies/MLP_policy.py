@@ -96,7 +96,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     # through it. For example, you can return a torch.FloatTensor. You can also
     # return more flexible objects, such as a
     # `torch.distributions.Distribution` object. It's up to you!
-    def forward(self, observation: torch.FloatTensor) -> Any:
+    def forward(self, observation) -> Any:
         observation = ptu.from_numpy(observation)
         action_dist = distributions.Normal(loc=self.mean_net(observation), scale=self.logstd.exp())
         return action_dist
