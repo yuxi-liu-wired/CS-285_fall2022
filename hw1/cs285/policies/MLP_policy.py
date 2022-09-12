@@ -79,10 +79,6 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
             observation = obs
         else:
             observation = obs[None]
-
-        # DOING return the action that the policy prescribes
-
-        # observation = ptu.from_numpy(observation.astype(np.float32))
         action_dist = self(observation)
         action = action_dist.sample()
         return ptu.to_numpy(action)
@@ -109,13 +105,13 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
 class MLPPolicySL(MLPPolicy):
     def __init__(self, ac_dim, ob_dim, n_layers, size, **kwargs):
         super().__init__(ac_dim, ob_dim, n_layers, size, **kwargs)
-        self.loss = nn.MSELoss() # lol is this supposed to be ignored??
+        self.loss = nn.MSELoss()
 
     def update(
             self, observations, actions,
             adv_n=None, acs_labels_na=None, qvals=None
     ):
-        # DOING update the policy and return the loss
+        # update the policy and return the loss
         prediction_dist = self.forward(observations)
         target = ptu.from_numpy(actions)
         loss_value = -prediction_dist.log_prob(target).sum()

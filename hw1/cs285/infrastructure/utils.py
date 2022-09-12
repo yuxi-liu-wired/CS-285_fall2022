@@ -26,7 +26,7 @@ def sample_trajectory(env, policy, max_path_length, render=False):
                 image_obs.append(env.render())
 
         # use the most recent ob to decide what to do
-        obs.append(ob) # DOING
+        obs.append(ob)
         ac = policy.get_action(ob) # `obs` is a list. We want a `numpy.ndarry`.
         assert ac.shape[0] == 1
         assert ac.shape[1] >= 1
@@ -41,8 +41,6 @@ def sample_trajectory(env, policy, max_path_length, render=False):
         next_obs.append(ob)
         rewards.append(rew)
 
-        # DOING end the rollout if the rollout ended
-        # rollout can end due to done, or due to max_path_length
         rollout_done = done or steps >= max_path_length
         terminals.append(rollout_done)
 
@@ -54,8 +52,6 @@ def sample_trajectory(env, policy, max_path_length, render=False):
 def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, render=False):
     """
         Collect rollouts until we have collected min_timesteps_per_batch steps.
-
-        DOING implement this function
     """
     timesteps_this_batch = 0
     paths = []
@@ -72,8 +68,6 @@ def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, r
 def sample_n_trajectories(env, policy, ntraj, max_path_length, render=False):
     """
         Collect ntraj rollouts.
-
-        DOING implement this function
     """
     paths = []
 
