@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.189">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>report</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="report_files/libs/clipboard/clipboard.min.js"></script>
+<script src="report_files/libs/quarto-html/quarto.js"></script>
+<script src="report_files/libs/quarto-html/popper.min.js"></script>
+<script src="report_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="report_files/libs/quarto-html/anchor.min.js"></script>
+<link href="report_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="report_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="report_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="report_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="report_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+<div class="cell" data-jupyter="{&quot;source_hidden&quot;:true}" data-tags="[]" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tbparse <span class="im">import</span> SummaryReader</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>base <span class="op">=</span> <span class="vs">r"..\..\data"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_tb(base, filename):</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    reader <span class="op">=</span> SummaryReader(os.path.join(base, filename))</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> reader.scalars</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_data_array(df, tag):</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df[df.tag.<span class="bu">str</span>.contains(tag)][<span class="st">'value'</span>].to_numpy().squeeze()</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> filter_df(df):</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> get_data_array(df, <span class="st">'Eval_AverageReturn'</span>), get_data_array(df, <span class="st">'Eval_StdReturn'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="problem-1" class="level2">
+<h2 class="anchored" data-anchor-id="problem-1">Problem 1</h2>
+<p>For BC Ant, we use the following choice of parameters, which is the default parameters except where noted.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>  <span class="co">#@markdown expert data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  expert_policy_file <span class="op">=</span> <span class="st">'cs285/policies/experts/Ant.pkl'</span> <span class="co">#@param</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  expert_data <span class="op">=</span> <span class="st">'cs285/expert_data/expert_data_Ant-v4.pkl'</span> <span class="co">#@param</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  env_name <span class="op">=</span> <span class="st">'Ant-v4'</span> <span class="co">#@param ['Ant-v4', 'Walker2d-v4', 'HalfCheetah-v4', 'Hopper-v4']</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  exp_name <span class="op">=</span> <span class="st">'bc_Ant'</span> <span class="co">#@param</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  do_dagger <span class="op">=</span> <span class="va">False</span> <span class="co">#@param {type: "boolean"}</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  ep_len <span class="op">=</span> <span class="dv">10000</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  save_params <span class="op">=</span> <span class="va">False</span> <span class="co">#@param {type: "boolean"}</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  num_agent_train_steps_per_iter <span class="op">=</span> <span class="dv">10000</span> <span class="co">#@param {type: "integer"})</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  n_iter <span class="op">=</span> <span class="dv">1</span> <span class="co">#@param {type: "integer"})</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">#@markdown batches &amp; buffers</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  batch_size <span class="op">=</span> <span class="dv">10000</span> <span class="co">#@param {type: "integer"})</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  eval_batch_size <span class="op">=</span> <span class="dv">10000</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  train_batch_size <span class="op">=</span> <span class="dv">100</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  max_replay_buffer_size <span class="op">=</span> <span class="dv">1000000</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="co">#@markdown network</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  n_layers <span class="op">=</span> <span class="dv">2</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  size <span class="op">=</span> <span class="dv">64</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  learning_rate <span class="op">=</span> <span class="fl">5e-3</span> <span class="co">#@param {type: "number"}</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="co">#@markdown logging</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  video_log_freq <span class="op">=</span> <span class="op">-</span><span class="dv">1</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  scalar_log_freq <span class="op">=</span> <span class="dv">1</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="co">#@markdown gpu &amp; run-time settings</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  no_gpu <span class="op">=</span> <span class="va">False</span> <span class="co">#@param {type: "boolean"}</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  which_gpu <span class="op">=</span> <span class="dv">0</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  seed <span class="op">=</span> <span class="dv">1</span> <span class="co">#@param {type: "integer"}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The data is recorded in <code>q1_bc_Ant_10evals_Ant-v4_12-09-2022_09-09-39</code>.</p>
+<div class="cell" data-jupyter="{&quot;source_hidden&quot;:true}" data-tags="[]" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_bc_ant <span class="op">=</span> read_tb(base, <span class="st">'q1_bc_Ant_10evals_Ant-v4_12-09-2022_09-09-39'</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Same parameters, just with the task changed to Hopper. We tried all four available tasks. The Hopper task is the only one that managed to reach below 30% with the above parameters. The agent is just too good.</p>
+<p>The data is recorded in <code>q1_bc_Hopper_10evals_Hopper-v4_12-09-2022_09-12-03</code></p>
+<div class="cell" data-jupyter="{&quot;source_hidden&quot;:true}" data-tags="[]" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df_bc_hopper <span class="op">=</span> read_tb(base, <span class="st">'q1_bc_Hopper_10evals_Hopper-v4_12-09-2022_09-12-03'</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-jupyter="{&quot;source_hidden&quot;:true}" data-tags="[]" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(filter_df(df_bc_ant))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(get_data_array(df_bc_ant, <span class="st">'Initial_DataCollection_AverageReturn'</span>))</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(filter_df(df_bc_hopper))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(get_data_array(df_bc_hopper, <span class="st">'Initial_DataCollection_AverageReturn'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(array(4730.07714844), array(97.9336853))
+4713.6533203125
+(array(984.69366455), array(156.83201599))
+3772.67041015625</code></pre>
+</div>
+</div>
+<table class="table">
+<thead>
+<tr class="header">
+<th></th>
+<th>mean of return</th>
+<th>std of return</th>
+<th>expert performance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>BC Ant</td>
+<td>4730</td>
+<td>98</td>
+<td>4713</td>
+</tr>
+<tr class="even">
+<td>BC Hopper</td>
+<td>984</td>
+<td>156</td>
+<td>3773</td>
+</tr>
+</tbody>
+</table>
+<center>
+<b>Table 1.</b> The mean and standard deviation of the policy returns over 10 evaluation rollouts, in Ant and Hopper environments. The hyperparameters are described above. Note that the mean of return for Ant is <em>larger</em> than the expert performance.
+</center>
+<hr>
+<p>For experiment on Hopper, we changed the episodes per training iteration, because seeing the exponential convergence (in DAgger Hopper), we think that it lacks both expert data and training steps. We first tried varying only the number of episodes per training iteration from 1 gradually to 100, but obtained the same agent (up to floating point error).</p>
+<p>At first we thought there was a bug, but then I realized that the Behavior Cloning agent <em>NEVER</em> interacted with the environment! That’s why it never improved – it obtained exactly the same expert-behavior dataset, loaded from the pickled file! There’s no bug in the code, only a bug in my mind.</p>
+<p>So we varied number of training steps from <span class="math inline">\(10^2\)</span> to <span class="math inline">\(10^6\)</span> and got the desired variation in performance. It appears that the training has converged at <span class="math inline">\(10^5\)</span> steps, and just in time. To train it for <span class="math inline">\(10^7\)</span> steps would have costed 200 minutes of computing time.</p>
+<p>The data is recorded in</p>
+<ul>
+<li><code>q1_bc_Hopper_100trainsteps_Hopper-v4_12-09-2022_09-30-13</code></li>
+<li><code>q1_bc_Hopper_1000trainsteps_Hopper-v4_12-09-2022_09-31-01</code></li>
+<li><code>q1_bc_Hopper_10000trainsteps_Hopper-v4_12-09-2022_09-32-00</code></li>
+<li><code>q1_bc_Hopper_100000trainsteps_Hopper-v4_12-09-2022_09-32-41</code></li>
+<li><code>q1_bc_Hopper_1000000trainsteps_Hopper-v4_12-09-2022_09-35-42</code></li>
+</ul>
+<div class="cell" data-jupyter="{&quot;source_hidden&quot;:true}" data-tags="[]" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df_bc_hopper_1e2 <span class="op">=</span> read_tb(base, <span class="st">'q1_bc_Hopper_100trainsteps_Hopper-v4_12-09-2022_09-30-13'</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>df_bc_hopper_1e3 <span class="op">=</span> read_tb(base, <span class="st">'q1_bc_Hopper_1000trainsteps_Hopper-v4_12-09-2022_09-31-01'</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>df_bc_hopper_1e4 <span class="op">=</span> read_tb(base, <span class="st">'q1_bc_Hopper_10000trainsteps_Hopper-v4_12-09-2022_09-32-00'</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>df_bc_hopper_1e5 <span class="op">=</span> read_tb(base, <span class="st">'q1_bc_Hopper_100000trainsteps_Hopper-v4_12-09-2022_09-32-41'</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>df_bc_hopper_1e6 <span class="op">=</span> read_tb(base, <span class="st">'q1_bc_Hopper_1000000trainsteps_Hopper-v4_12-09-2022_09-35-42'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-jupyter="{&quot;source_hidden&quot;:true}" data-tags="[]" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> [<span class="fl">1e2</span>, <span class="fl">1e3</span>, <span class="fl">1e4</span>, <span class="fl">1e5</span>, <span class="fl">1e6</span>]</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>ys <span class="op">=</span> []</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>yerrs <span class="op">=</span> []</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> df <span class="kw">in</span> [df_bc_hopper_1e2, df_bc_hopper_1e3, df_bc_hopper_1e4, df_bc_hopper_1e5, df_bc_hopper_1e6]:</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    ys.append(get_data_array(df, <span class="st">'Eval_AverageReturn'</span>))</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    yerrs.append(get_data_array(df, <span class="st">'Eval_StdReturn'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-jupyter="{&quot;source_hidden&quot;:true}" data-tags="[]" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">8</span>))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>plt.errorbar(xs, ys, yerr<span class="op">=</span>yerrs)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>plt.xscale(<span class="st">'log'</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>caption <span class="op">=</span> <span class="st">"Figure 2. "</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'number of training steps'</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'average return'</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Figure 1. Average return as a function of number of training steps."</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="report_files/figure-html/cell-8-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="problem-2" class="level2">
+<h2 class="anchored" data-anchor-id="problem-2">Problem 2</h2>
+<p>The DAgger Ant experiment uses the same parameters as the BC Ant, but with 40 iterations.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>  <span class="co">#@markdown expert data</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  expert_policy_file <span class="op">=</span> <span class="st">'cs285/policies/experts/Ant.pkl'</span> <span class="co">#@param</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  expert_data <span class="op">=</span> <span class="st">'cs285/expert_data/expert_data_Ant-v4.pkl'</span> <span class="co">#@param</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  env_name <span class="op">=</span> <span class="st">'Ant-v4'</span> <span class="co">#@param ['Ant-v4', 'Walker2d-v4', 'HalfCheetah-v4', 'Hopper-v4']</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  exp_name <span class="op">=</span> <span class="st">'dagger_ant_10eval'</span> <span class="co">#@param</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  do_dagger <span class="op">=</span> <span class="va">True</span> <span class="co">#@param {type: "boolean"}</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  ep_len <span class="op">=</span> <span class="dv">10000</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  save_params <span class="op">=</span> <span class="va">False</span> <span class="co">#@param {type: "boolean"}</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  num_agent_train_steps_per_iter <span class="op">=</span> <span class="dv">10000</span> <span class="co">#@param {type: "integer"})</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  n_iter <span class="op">=</span> <span class="dv">40</span> <span class="co">#@param {type: "integer"})</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">#@markdown batches &amp; buffers</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  batch_size <span class="op">=</span> <span class="dv">10000</span> <span class="co">#@param {type: "integer"})</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  eval_batch_size <span class="op">=</span> <span class="dv">100000</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  train_batch_size <span class="op">=</span> <span class="dv">100</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  max_replay_buffer_size <span class="op">=</span> <span class="dv">1000000</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="co">#@markdown network</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  n_layers <span class="op">=</span> <span class="dv">2</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  size <span class="op">=</span> <span class="dv">64</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  learning_rate <span class="op">=</span> <span class="fl">5e-3</span> <span class="co">#@param {type: "number"}</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="co">#@markdown logging</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  video_log_freq <span class="op">=</span> <span class="op">-</span><span class="dv">1</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  scalar_log_freq <span class="op">=</span> <span class="dv">1</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  <span class="co">#@markdown gpu &amp; run-time settings</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  no_gpu <span class="op">=</span> <span class="va">False</span> <span class="co">#@param {type: "boolean"}</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  which_gpu <span class="op">=</span> <span class="dv">0</span> <span class="co">#@param {type: "integer"}</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>  seed <span class="op">=</span> <span class="dv">1</span> <span class="co">#@param {type: "integer"}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The data is recorded in <code>q2_dagger_ant_10eval_Ant-v4_11-09-2022_22-38-54</code></p>
+<div class="cell" data-jupyter="{&quot;source_hidden&quot;:true}" data-tags="[]" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>df_dagger_ant <span class="op">=</span> read_tb(base, <span class="st">'q2_dagger_ant_10eval_Ant-v4_11-09-2022_22-38-54'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-jupyter="{&quot;source_hidden&quot;:true}" data-tags="[]" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df_dagger_ant</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>ys, yerrs <span class="op">=</span> filter_df(df)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>reference_y <span class="op">=</span> get_data_array(df, <span class="st">'Initial_DataCollection_AverageReturn'</span>)[<span class="dv">0</span>]</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>reference_y_bc <span class="op">=</span> get_data_array(df_bc_ant, <span class="st">'Eval_AverageReturn'</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">8</span>))</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>plt.errorbar(<span class="bu">range</span>(<span class="bu">len</span>(ys)), ys, yerr<span class="op">=</span>yerrs)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'number of training steps'</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'average return'</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>plt.hlines([reference_y], xmin <span class="op">=</span> <span class="dv">0</span>, xmax<span class="op">=</span><span class="bu">len</span>(ys), linestyle<span class="op">=</span><span class="st">'--'</span>, color<span class="op">=</span><span class="st">'red'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, </span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>           label<span class="op">=</span><span class="st">"expert policy"</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>plt.hlines([reference_y_bc], xmin <span class="op">=</span> <span class="dv">0</span>, xmax<span class="op">=</span><span class="bu">len</span>(ys), linestyle<span class="op">=</span><span class="st">'--'</span>, color<span class="op">=</span><span class="st">'black'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, </span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>           label<span class="op">=</span><span class="st">"BC policy"</span>)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Figure 2.1. DAgger Ant performance."</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="report_files/figure-html/cell-10-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>The Hopper DAgger experiment uses the same parameters as the DAgger Ant, just with a different environment.</p>
+<p>The data is recorded in <code>q2_dagger_hopper_10eval_Hopper-v4_11-09-2022_21-55-24</code>.</p>
+<div class="cell" data-jupyter="{&quot;source_hidden&quot;:true}" data-tags="[]" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df_dagger_hopper <span class="op">=</span> read_tb(base, <span class="st">'q2_dagger_hopper_10eval_Hopper-v4_11-09-2022_21-55-24'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-jupyter="{&quot;source_hidden&quot;:true}" data-tags="[]" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df_dagger_hopper</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>ys, yerrs <span class="op">=</span> filter_df(df)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>reference_y <span class="op">=</span> get_data_array(df, <span class="st">'Initial_DataCollection_AverageReturn'</span>)[<span class="dv">0</span>]</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>reference_y_bc <span class="op">=</span> get_data_array(df_bc_hopper, <span class="st">'Eval_AverageReturn'</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">8</span>))</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>plt.errorbar(<span class="bu">range</span>(<span class="bu">len</span>(ys)), ys, yerr<span class="op">=</span>yerrs)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'number of training steps'</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'average return'</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>plt.hlines([reference_y], xmin <span class="op">=</span> <span class="dv">0</span>, xmax<span class="op">=</span><span class="bu">len</span>(ys), linestyle<span class="op">=</span><span class="st">'--'</span>, color<span class="op">=</span><span class="st">'red'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>           label<span class="op">=</span><span class="st">"expert policy"</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>plt.hlines([reference_y_bc], xmin <span class="op">=</span> <span class="dv">0</span>, xmax<span class="op">=</span><span class="bu">len</span>(ys), linestyle<span class="op">=</span><span class="st">'--'</span>, color<span class="op">=</span><span class="st">'black'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, </span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>           label<span class="op">=</span><span class="st">"BC policy"</span>)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Figure 2.2. DAgger Hopper performance."</span>)</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="report_files/figure-html/cell-12-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
