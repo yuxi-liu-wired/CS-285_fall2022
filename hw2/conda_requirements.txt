@@ -1,0 +1,15 @@
+torch=??? (needs work to get the GPU working)
+
+mujoco
+gym
+gym[box2d]
+tensorboard
+tensorboardX
+matplotlib
+ipython
+moviepy
+pyvirtualdisplay
+opencv-python
+ipdb
+swig
+box2d-py
