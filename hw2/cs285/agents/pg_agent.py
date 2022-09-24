@@ -1,7 +1,7 @@
 from typing import List
 import numpy as np
 
-from hw2.cs285.infrastructure.utils import unnormalize
+from cs285.infrastructure.utils import unnormalize
 
 from .base_agent import BaseAgent
 from cs285.policies.MLP_policy import MLPPolicyPG

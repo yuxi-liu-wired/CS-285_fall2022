@@ -1,6 +1,6 @@
 import abc
 import itertools
-from hw2.cs285.infrastructure.utils import mean_squared_error
+from cs285.infrastructure.utils import mean_squared_error
 from torch import nn
 from torch.nn import functional as F
 from torch import optim
