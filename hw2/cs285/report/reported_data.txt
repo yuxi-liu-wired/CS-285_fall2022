@@ -1,0 +1,6 @@
+q2_pg_q1_lb_no_rtg_dsa_CartPole-v0_23-09-2022_23-42-06
+q2_pg_q1_lb_rtg_na_CartPole-v0_23-09-2022_23-45-10
+q2_pg_q1_sb_no_rtg_dsa_CartPole-v0_23-09-2022_23-31-14
+q2_pg_q1_sb_rtg_dsa_CartPole-v0_23-09-2022_23-33-44
+q2_pg_q1_sb_rtg_na_CartPole-v0_23-09-2022_23-38-45
+q2_pg_q2_b300_r9e-3_InvertedPendulum-v4_24-09-2022_00-18-39

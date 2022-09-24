@@ -91,9 +91,12 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
             observation = obs
         else:
             observation = obs[None]
-        action_dist = self(observation)
-        action = action_dist.sample()
+
+        observation = ptu.from_numpy(observation)
+        action_distribution = self(observation)
+        action = action_distribution.sample()  # don't bother with rsample
         return ptu.to_numpy(action)
+
     
     # update/train this policy
     def update(self, observations, actions, **kwargs):
@@ -158,8 +161,8 @@ class MLPPolicyPG(MLPPolicy):
             
             target_values = normalize(q_values)
             target_values = ptu.from_numpy(target_values)
-            baseline_loss = nn.MSELoss()(self.baseline(observations), target_values)
-            
+            baseline_loss = self.baseline_loss(torch.squeeze(self.baseline(observations)), target_values)
+
             self.baseline_optimizer.zero_grad()
             baseline_loss.backward()
             self.baseline_optimizer.step()

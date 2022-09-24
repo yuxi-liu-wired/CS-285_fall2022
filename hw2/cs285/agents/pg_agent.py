@@ -128,10 +128,11 @@ class PGAgent(BaseAgent):
                                                np.mean(q_values_episode), 
                                                np.std(q_values_episode)))
                 count += episode_len
-            assert count + 1 == q_values.size
+            assert count == q_values.size
             values = np.concatenate(values_list)
 
             if self.gae_lambda is not None:
+                advantages = np.zeros(shape=q_values.shape)
                 count = 0
                 for i in range(len(rews_list)):
                     episode_len = len(rews_list[i])
