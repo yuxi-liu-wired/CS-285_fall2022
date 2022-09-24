@@ -162,7 +162,11 @@ def convert_listofrollouts(paths):
 def get_pathlength(path):
     return len(path["reward"])
 
-def normalize(data, mean, std, eps=1e-8):
+def normalize(data, mean=None, std=None, eps=1e-8):
+    if mean is None:
+        mean = np.mean(data)
+    if std is None:
+        std = np.std(data)
     return (data-mean)/(std+eps)
 
 def unnormalize(data, mean, std):

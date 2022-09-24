@@ -1,5 +1,6 @@
 import abc
 import itertools
+from hw2.cs285.infrastructure.utils import mean_squared_error
 from torch import nn
 from torch.nn import functional as F
 from torch import optim
@@ -10,7 +11,7 @@ from torch import distributions
 
 from cs285.infrastructure import pytorch_util as ptu
 from cs285.policies.base_policy import BasePolicy
-
+from cs285.infrastructure.utils import normalize
 
 class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
 
@@ -128,29 +129,40 @@ class MLPPolicyPG(MLPPolicy):
         super().__init__(ac_dim, ob_dim, n_layers, size, **kwargs)
         self.baseline_loss = nn.MSELoss()
 
-    def update(self, observations, actions, advantages, q_values=None):
+    def update(self, observations: np.ndarray, actions: np.ndarray, advantages: np.ndarray, q_values: np.ndarray=None):
+        # the conversion also stops the gradient from 
+        # backpropagating into observations, actions, and advantages
         observations = ptu.from_numpy(observations)
         actions = ptu.from_numpy(actions)
         advantages = ptu.from_numpy(advantages)
 
-        # TODO: update the policy using policy gradient
-        # HINT1: Recall that the expression that we want to MAXIMIZE
-            # is the expectation over collected trajectories of:
-            # sum_{t=0}^{T-1} [grad [log pi(a_t|s_t) * (Q_t - b_t)]]
-        # HINT2: you will want to use the `log_prob` method on the distribution returned
-            # by the `forward` method
+        # DOING: update the policy network πθ using policy gradient.
+        # MAXIMIZE expectation over collected trajectories of
+        #   sum_{t=0}^{T-1} [ ∇θ [log πθ(a_t|s_t) * A_t]]
+        
+        n_trajectory = observations.shape[0]
+        action_distribution = self.forward(observations)
+        loss = -(action_distribution.log_prob(actions) * advantages).sum()/n_trajectory
 
-        TODO
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
 
-        if self.nn_baseline:
-            ## TODO: update the neural network baseline using the q_values as
+        if self.nn_baseline and q_values is not None:
+            ## DOING: update the neural network baseline using the q_values as
             ## targets. The q_values should first be normalized to have a mean
             ## of zero and a standard deviation of one.
 
-            ## Note: You will need to convert the targets into a tensor using
-                ## ptu.from_numpy before using it in the loss
-
-            TODO
+            # normalize the q_values, then convert into a pytorch tensor
+            assert len(q_values.shape) == 1 # this function should only work if `q_values` is a 1D numpy array.
+            
+            target_values = normalize(q_values)
+            target_values = ptu.from_numpy(target_values)
+            baseline_loss = nn.MSELoss()(self.baseline(observations), target_values)
+            
+            self.baseline_optimizer.zero_grad()
+            baseline_loss.backward()
+            self.baseline_optimizer.step()
 
         train_log = {
             'Training Loss': ptu.to_numpy(loss),
