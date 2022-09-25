@@ -136,13 +136,12 @@ class PGAgent(BaseAgent):
                 count = 0
                 for i in range(len(rews_list)):
                     episode_len = len(rews_list[i])
-                    advantages_episode = advantages[count:count+episode_len]
                     values_episode = values[count:count+episode_len]
                     
                     delta_episode = rews_list[i] - values_episode
                     delta_episode[:-1] += self.gamma * values_episode[1:]
                     
-                    advantages_episode = self._discounted_cumsum(delta_episode, self.gamma * self.gae_lambda)
+                    advantages[count:count+episode_len] = self._discounted_cumsum(delta_episode, self.gamma * self.gae_lambda)
                     count += episode_len
 
             else: 
