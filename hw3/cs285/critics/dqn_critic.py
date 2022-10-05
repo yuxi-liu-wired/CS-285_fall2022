@@ -1,4 +1,4 @@
-from .base_critic import BaseCritic
+from cs285.critics.base_critic import BaseCritic
 import torch
 import torch.optim as optim
 from torch.nn import utils
@@ -21,13 +21,16 @@ class DQNCritic(BaseCritic):
 
         self.ac_dim = hparams['ac_dim']
         self.double_q = hparams['double_q']
-        self.grad_norm_clipping = hparams['grad_norm_clipping']
-        self.gamma = hparams['gamma']
 
-        self.optimizer_spec = optimizer_spec
-        network_initializer = hparams['q_func']
+        network_initializer = hparams['q_func'] # `create_atari_q_network` or `create_lander_q_network`
         self.q_net = network_initializer(self.ob_dim, self.ac_dim)
         self.q_net_target = network_initializer(self.ob_dim, self.ac_dim)
+        self.q_net.to(ptu.device)
+        self.q_net_target.to(ptu.device)
+        
+        self.grad_norm_clipping = hparams['grad_norm_clipping']
+        self.gamma = hparams['gamma']
+        self.optimizer_spec = optimizer_spec
         self.optimizer = self.optimizer_spec.constructor(
             self.q_net.parameters(),
             **self.optimizer_spec.optim_kwargs
@@ -37,8 +40,6 @@ class DQNCritic(BaseCritic):
             self.optimizer_spec.learning_rate_schedule,
         )
         self.loss = nn.SmoothL1Loss()  # AKA Huber loss
-        self.q_net.to(ptu.device)
-        self.q_net_target.to(ptu.device)
 
     def update(self, ob_no, ac_na, next_ob_no, reward_n, terminal_n):
         """
@@ -48,6 +49,7 @@ class DQNCritic(BaseCritic):
             let num_paths be the number of paths sampled from Agent.sample_trajectories
             arguments:
                 ob_no: shape: (sum_of_path_lengths, ob_dim)
+                ac_na: shape: (sum_of_path_lengths,)
                 next_ob_no: shape: (sum_of_path_lengths, ob_dim). The observation after taking one step forward
                 reward_n: length: sum_of_path_lengths. Each element in reward_n is a scalar containing
                     the reward for each timestep
@@ -62,26 +64,29 @@ class DQNCritic(BaseCritic):
         reward_n = ptu.from_numpy(reward_n)
         terminal_n = ptu.from_numpy(terminal_n)
 
-        qa_t_values = self.q_net(ob_no)
-        q_t_values = torch.gather(qa_t_values, 1, ac_na.unsqueeze(1)).squeeze(1)
+        qa_t_values = self.q_net(ob_no) # Q(o_t, ·)
+        # ob_no: (sum_of_path_lengths, ob_dim)
+        # qa_t_values: (sum_of_path_lengths, ac_dim)
+        q_t_values = torch.gather(qa_t_values, 1, ac_na.unsqueeze(1)).squeeze(1) # Q(o_t, a_t)
+        # q_t_values[i] = qa_t_values[i][ac_na[i]]
         
-        # TODO compute the Q-values from the target network 
-        qa_tp1_values = TODO
+        # compute the Q-values from the target network 
+        qa_tp1_values = self.q_target_net(next_ob_no) # Q(o_{t+1}, ·)
 
         if self.double_q:
-            # You must fill this part for Q2 of the Q-learning portion of the homework.
-            # In double Q-learning, the best action is selected using the Q-network that
-            # is being updated, but the Q-value for this action is obtained from the
-            # target Q-network. Please review Lecture 8 for more details,
-            # and page 4 of https://arxiv.org/pdf/1509.06461.pdf is also a good reference.
-            TODO
+            # define the greedy policy according to the online network
+            best_tp1_ac = qa_tp1_values.argmax(dim=1) # argmax_a Q(o_{t+1}, a)
+            
+            # use the target network to estimate its value.
+            qa_tp1_values_double = self.q_target_net(ob_no)
+            q_tp1_values = torch.gather(qa_tp1_values_double, 1, best_tp1_ac.unsqueeze(1)).squeeze(1)
+            # q_tp1_values[i] = qa_tp1_values_double[i][best_tp1_ac[i]]
+            # Q'(o_{t+1}, argmax_a Q(o_{t+1}, a))
         else:
-            q_tp1, _ = qa_tp1_values.max(dim=1)
+            q_tp1_values, _ = qa_tp1_values.max(dim=1)
 
-        # TODO compute targets for minimizing Bellman error
-        # HINT: as you saw in lecture, this would be:
-            #currentReward + self.gamma * qValuesOfNextTimestep * (not terminal)
-        target = TODO
+        # targets for Bellman equation of the Q function.
+        target = reward_n + self.gamma * q_tp1_values * (not terminal_n)
         target = target.detach()
 
         assert q_t_values.shape == target.shape
