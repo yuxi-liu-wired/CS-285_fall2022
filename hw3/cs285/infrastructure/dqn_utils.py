@@ -113,7 +113,7 @@ def create_atari_q_network(ob_dim, num_actions):
         nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1),
         nn.ReLU(),
         Flatten(),
-        nn.Linear(3136, 512),  # 3136 hard-coded based on img size + CNN layers
+        nn.Linear(3136, 512),  # 3136 = 7^2 pixels * 64 channels
         nn.ReLU(),
         nn.Linear(512, num_actions),
     )
@@ -218,7 +218,7 @@ class PiecewiseSchedule(object):
     def __init__(self, endpoints, interpolation=linear_interpolation, outside_value=None):
         """Piecewise schedule.
         endpoints: [(int, int)]
-            list of pairs `(time, value)` meanining that schedule should output
+            list of pairs `(time, value)` meaning that schedule should output
             `value` when `t==time`. All the values for time must be sorted in
             an increasing order. When t is between two times, e.g. `(time_a, value_a)`
             and `(time_b, value_b)`, such that `time_a <= t < time_b` then value outputs
@@ -343,17 +343,16 @@ class MemoryOptimizedReplayBuffer(object):
         The sepecific memory optimizations use here are:
             - only store each frame once rather than k times
               even if every observation normally consists of k last frames
-            - store frames as np.uint8 (actually it is most time-performance
+            - store frames as np.uint8 (actually it is most time-performant
               to cast them back to float32 on GPU to minimize memory transfer
               time)
             - store frame_t and frame_(t+1) in the same buffer.
 
-        For the tipical use case in Atari Deep RL buffer with 1M frames the total
+        For the typical use case in Atari Deep RL buffer with 1M frames, the total
         memory footprint of this buffer is 10^6 * 84 * 84 bytes ~= 7 gigabytes
 
-        Warning! Assumes that returning frame of zeros at the beginning
-        of the episode, when there is less frames than `frame_history_len`,
-        is acceptable.
+        Warning! Assumes that it's acceptable to return all-zero frames at the
+        start of the episode, when there are < `frame_history_len` frames.
 
         Parameters
         ----------
@@ -376,7 +375,7 @@ class MemoryOptimizedReplayBuffer(object):
         self.reward   = None
         self.done     = None
 
-    def can_sample(self, batch_size):
+    def can_sample(self, batch_size) -> bool:
         """Returns true if `batch_size` different transitions can be sampled from the buffer."""
         return batch_size + 1 <= self.num_in_buffer
 
@@ -427,14 +426,14 @@ class MemoryOptimizedReplayBuffer(object):
         idxes = sample_n_unique(lambda: random.randint(0, self.num_in_buffer - 2), batch_size)
         return self._encode_sample(idxes)
 
-    def encode_recent_observation(self):
+    def encode_recent_observation(self) -> np.array:
         """Return the most recent `frame_history_len` frames.
 
         Returns
         -------
         observation: np.array
-            Array of shape (img_h, img_w, img_c * frame_history_len)
-            and dtype np.uint8, where observation[:, :, i*img_c:(i+1)*img_c]
+            Array of shape `(img_h, img_w, img_c * frame_history_len)`
+            and dtype np.uint8, where `observation[:, :, i*img_c:(i+1)*img_c]`
             encodes frame at time `t - frame_history_len + i`
         """
         assert self.num_in_buffer > 0
@@ -466,7 +465,7 @@ class MemoryOptimizedReplayBuffer(object):
             img_h, img_w = self.obs.shape[1], self.obs.shape[2]
             return self.obs[start_idx:end_idx].transpose(1, 2, 0, 3).reshape(img_h, img_w, -1)
 
-    def store_frame(self, frame):
+    def store_frame(self, frame: np.array) -> int:
         """Store a single frame in the buffer at the next available index, overwriting
         old frames if necessary.
 
@@ -488,16 +487,16 @@ class MemoryOptimizedReplayBuffer(object):
             self.done     = np.empty([self.size],                     dtype=np.bool)
         self.obs[self.next_idx] = frame
 
-        ret = self.next_idx
+        idx = self.next_idx
         self.next_idx = (self.next_idx + 1) % self.size
         self.num_in_buffer = min(self.size, self.num_in_buffer + 1)
 
-        return ret
+        return idx
 
-    def store_effect(self, idx, action, reward, done):
+    def store_effect(idx: int, action: int, reward: float, done: bool):
         """Store effects of action taken after obeserving frame stored
         at index idx. The reason `store_frame` and `store_effect` is broken
-        up into two functions is so that once can call `encode_recent_observation`
+        up into two functions is so that one can call `encode_recent_observation`
         in between.
 
         Paramters
