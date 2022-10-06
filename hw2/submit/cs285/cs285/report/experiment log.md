@@ -112,9 +112,9 @@ The data is in `q2_pg_q3_b40000_r5e-3_LunarLanderContinuous-v2_24-09-2022_08-39-
 
 I made another run with video-logging to see how it is working. The videos showed the RL agent learned around step 40 to soft-land and *usually* close to the target area, and then did not improve. `q_pg_q_b_re-3_LunarLanderContinuous-v_24-09-2022_22-59-18`	
 
-### Experiment 4 (HalfCheetah-v2)
+### Experiment 4 (HalfCheetah-v4)
 
-You will be using your policy gradient implementation to learn a controller for the HalfCheetah-v2 benchmark environment with an episode length of 150. This is shorter than the default episode length (1000), which speeds up training significantly. Search over batch sizes b ∈ [10000, 30000, 50000] and learning rates r ∈ [0.005, 0.01, 0.02] to replace <b> and <r> below.
+You will be using your policy gradient implementation to learn a controller for the HalfCheetah-v4 benchmark environment with an episode length of 150. This is shorter than the default episode length (1000), which speeds up training significantly. Search over batch sizes b ∈ [10000, 30000, 50000] and learning rates r ∈ [0.005, 0.01, 0.02] to replace <b> and <r> below.
 
 Run the following script with `python .\cs285\scripts\exp_4_1.py`.
 
