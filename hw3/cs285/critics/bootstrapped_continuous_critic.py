@@ -1,4 +1,5 @@
 from .base_critic import BaseCritic
+import torch
 from torch import nn
 from torch import optim
 
@@ -7,17 +8,7 @@ from cs285.infrastructure import pytorch_util as ptu
 
 class BootstrappedContinuousCritic(nn.Module, BaseCritic):
     """
-        Notes on notation:
-
-        Prefixes and suffixes:
-        ob - observation
-        ac - action
-        _no - this tensor should have shape (batch self.size /n/, observation dim)
-        _na - this tensor should have shape (batch self.size /n/, action dim)
-        _n  - this tensor should have shape (batch self.size /n/)
-
-        Note: batch self.size /n/ is defined at runtime.
-        is None
+        A critic using the V function.
     """
     def __init__(self, hparams):
         super().__init__()
@@ -63,6 +54,7 @@ class BootstrappedContinuousCritic(nn.Module, BaseCritic):
 
             arguments:
                 ob_no: shape: (sum_of_path_lengths, ob_dim)
+                ac_na: unused
                 next_ob_no: shape: (sum_of_path_lengths, ob_dim). The observation after taking one step forward
                 reward_n: length: sum_of_path_lengths. Each element in reward_n is a scalar containing
                     the reward for each timestep
@@ -72,18 +64,30 @@ class BootstrappedContinuousCritic(nn.Module, BaseCritic):
             returns:
                 training loss
         """
-        # TODO: Implement the pseudocode below: do the following (
-        # self.num_grad_steps_per_target_update * self.num_target_updates)
-        # times:
-        # every self.num_grad_steps_per_target_update steps (which includes the
-        # first step), recompute the target values by
-        #     a) calculating V(s') by querying the critic with next_ob_no
-        #     b) and computing the target values as r(s, a) + gamma * V(s')
-        # every time, update this critic using the observations and targets
-        #
-        # HINT: don't forget to use terminal_n to cut off the V(s') (ie set it
-        #       to 0) when a terminal state is reached
-        # HINT: make sure to squeeze the output of the critic_network to ensure
-        #       that its dimensions match the reward
+        ob_no = ptu.from_numpy(ob_no)
+        next_ob_no = ptu.from_numpy(next_ob_no)
+        reward_n = ptu.from_numpy(reward_n)
+        terminal_n = ptu.from_numpy(terminal_n)
+        
+        target_updates = 0
+        while target_updates < self.num_target_updates:
+            target_updates += 1
+            
+            # targets for Bellman equation of the V function.
+            v_tp1 = self.critic_network(next_ob_no)
+            assert v_tp1.shape == reward_n.shape, "squeeze() something"
+            target = reward_n + self.gamma * v_tp1 * (not terminal_n)
+            target = target.detach()
+                
+            grad_steps = 0
+            while grad_steps <  self.num_grad_steps_per_target_update:
+                grad_steps += 1
+                
+                v_t = self.self.critic_network(ob_no)
+                
+                loss = self.loss(v_t, target)
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
 
         return loss.item()

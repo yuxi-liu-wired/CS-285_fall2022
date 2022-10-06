@@ -125,6 +125,28 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
 
 
 class MLPPolicyAC(MLPPolicy):
-    def update(self, observations, actions, adv_n=None):
-        # TODO: update the policy and return the loss
+    def update(self, ob_no, ac_na, adv_n: np.ndarray):
+        """
+            Update the policy by policy gradient.
+            Return the loss.
+        """
+        # the conversion also stops the gradient from 
+        # backpropagating into observations, actions, and advantages
+        ob_no = ptu.from_numpy(ob_no)
+        ac_na = ptu.from_numpy(ac_na)
+        assert adv_n is not None # do I really need this???
+        adv_n = ptu.from_numpy(adv_n)
+
+        # update the policy network πθ using policy gradient.
+        # MAXIMIZE expectation over collected trajectories of
+        #   sum_{t=0}^{T-1} [ ∇θ [log πθ(a_t|s_t) * A_t]]
+        
+        n_trajectory = ob_no.shape[0]
+        action_distribution = self.forward(ob_no)
+        loss = -(action_distribution.log_prob(ac_na) * adv_n).sum()/n_trajectory
+
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
         return loss.item()
