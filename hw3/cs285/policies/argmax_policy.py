@@ -6,12 +6,13 @@ class ArgMaxPolicy(object):
     def __init__(self, critic):
         self.critic = critic
 
-    def get_action(self, obs):
-        if len(obs.shape) > 3:
+    def get_action(self, obs): 
+        if len(obs.shape) > 3: # it's an Atari environment
             observation = obs
         else:
             observation = obs[None]
         
-        ## TODO return the action that maxinmizes the Q-value 
-        # at the current observation as the output
-        return action.squeeze()
+        qa_t_values = self.critic.qa_values(obs) # DOING. What if I do this for Lunar Lander???
+        # qa_t_values = self.critic.qa_values(observation)
+        
+        return qa_t_values.argmax(dim=1)

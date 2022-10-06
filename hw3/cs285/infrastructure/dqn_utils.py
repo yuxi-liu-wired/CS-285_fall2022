@@ -103,7 +103,10 @@ class PreprocessAtari(nn.Module):
         return x / 255.
 
 
-def create_atari_q_network(ob_dim, num_actions):
+def create_atari_q_network(ob_dim, num_actions): 
+    """
+        Only works for input with shape (steps, 84, 84, 4).
+    """
     return nn.Sequential(
         PreprocessAtari(),
         nn.Conv2d(in_channels=4, out_channels=32, kernel_size=8, stride=4),
