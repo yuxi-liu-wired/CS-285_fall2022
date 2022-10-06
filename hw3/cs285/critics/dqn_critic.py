@@ -78,7 +78,7 @@ class DQNCritic(BaseCritic):
             best_tp1_ac = qa_tp1_values.argmax(dim=1) # argmax_a Q(o_{t+1}, a)
             
             # use the target network to estimate its value.
-            qa_tp1_values_double = self.q_net_target(ob_no)
+            qa_tp1_values_double = self.q_net_target(next_ob_no)
             q_tp1_values = torch.gather(qa_tp1_values_double, 1, best_tp1_ac.unsqueeze(1)).squeeze(1)
             # q_tp1_values[i] = qa_tp1_values_double[i][best_tp1_ac[i]]
             # Q'(o_{t+1}, argmax_a Q(o_{t+1}, a))

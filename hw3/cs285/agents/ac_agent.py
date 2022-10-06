@@ -7,7 +7,6 @@ from cs285.infrastructure.utils import *
 from cs285.policies.MLP_policy import MLPPolicyAC
 from .base_agent import BaseAgent
 
-
 class ACAgent(BaseAgent):
     def __init__(self, env, agent_params):
         super(ACAgent, self).__init__()
@@ -50,8 +49,8 @@ class ACAgent(BaseAgent):
         return loss
 
     def estimate_advantage(self, ob_no, next_ob_no, reward_n, terminal_n):
-        v_t = self.critic(ob_no)
-        v_tp1 = self.critic(next_ob_no)
+        v_t = self.critic.forward_np(ob_no)
+        v_tp1 = self.critic.forward_np(next_ob_no)
         q_t = reward_n + self.gamma * v_tp1 * (1.0 - terminal_n)
         adv_n = q_t - v_t
         if self.standardize_advantages:
