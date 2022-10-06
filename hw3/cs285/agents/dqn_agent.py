@@ -3,7 +3,7 @@ import numpy as np
 from cs285.infrastructure.dqn_utils import MemoryOptimizedReplayBuffer, PiecewiseSchedule
 from cs285.policies.argmax_policy import ArgMaxPolicy
 from cs285.critics.dqn_critic import DQNCritic
-
+import gym 
 
 class DQNAgent(object):
     def __init__(self, env, agent_params):
@@ -56,7 +56,8 @@ class DQNAgent(object):
         
         ## Perform action
         if perform_random_action:
-            action = np.random.choice(self.env.action_space)
+            assert isinstance(self.env.action_space, gym.spaces.Discrete)
+            action = self.env.action_space.sample()
         else:
         # Actor takes `frame_history_len` previous observations, for partial observability.
             obs = self.replay_buffer.encode_recent_observation()
@@ -67,7 +68,7 @@ class DQNAgent(object):
         self.replay_buffer.store_effect(self.replay_buffer_idx, action, reward, done)
 
         if done:
-            obs, info = self.env.reset()
+            obs = self.env.reset()
         self.last_obs = obs
 
     def sample(self, batch_size):

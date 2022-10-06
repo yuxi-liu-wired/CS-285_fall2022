@@ -7,12 +7,8 @@ class ArgMaxPolicy(object):
         self.critic = critic
 
     def get_action(self, obs): 
-        if len(obs.shape) > 3: # it's an Atari environment
-            observation = obs
-        else:
-            observation = obs[None]
+        if len(obs.shape) <= 3: # There's only one frame! We need to add an axis to it.
+            obs = obs[None]
+        qa_t_values = self.critic.qa_values(obs)
         
-        qa_t_values = self.critic.qa_values(obs) # DOING. What if I do this for Lunar Lander???
-        # qa_t_values = self.critic.qa_values(observation)
-        
-        return qa_t_values.argmax(dim=1)
+        return qa_t_values.argmax(axis=1).squeeze()

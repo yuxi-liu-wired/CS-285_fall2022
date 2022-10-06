@@ -52,7 +52,7 @@ class ACAgent(BaseAgent):
     def estimate_advantage(self, ob_no, next_ob_no, reward_n, terminal_n):
         v_t = self.critic(ob_no)
         v_tp1 = self.critic(next_ob_no)
-        q_t = reward_n + self.gamma * v_tp1 * (not terminal_n)
+        q_t = reward_n + self.gamma * v_tp1 * (1.0 - terminal_n)
         adv_n = q_t - v_t
         if self.standardize_advantages:
             adv_n = normalize(adv_n, np.mean(adv_n), np.std(adv_n))

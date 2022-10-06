@@ -76,7 +76,7 @@ class BootstrappedContinuousCritic(nn.Module, BaseCritic):
             # targets for Bellman equation of the V function.
             v_tp1 = self.critic_network(next_ob_no)
             assert v_tp1.shape == reward_n.shape, "squeeze() something"
-            target = reward_n + self.gamma * v_tp1 * (not terminal_n)
+            target = reward_n + self.gamma * v_tp1 * (1.0 - terminal_n)
             target = target.detach()
                 
             grad_steps = 0

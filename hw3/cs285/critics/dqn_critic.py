@@ -71,14 +71,14 @@ class DQNCritic(BaseCritic):
         # q_t_values[i] = qa_t_values[i][ac_na[i]]
         
         # compute the Q-values from the target network 
-        qa_tp1_values = self.q_target_net(next_ob_no) # Q(o_{t+1}, ·)
+        qa_tp1_values = self.q_net_target(next_ob_no) # Q(o_{t+1}, ·)
 
         if self.double_q:
             # define the greedy policy according to the online network
             best_tp1_ac = qa_tp1_values.argmax(dim=1) # argmax_a Q(o_{t+1}, a)
             
             # use the target network to estimate its value.
-            qa_tp1_values_double = self.q_target_net(ob_no)
+            qa_tp1_values_double = self.q_net_target(ob_no)
             q_tp1_values = torch.gather(qa_tp1_values_double, 1, best_tp1_ac.unsqueeze(1)).squeeze(1)
             # q_tp1_values[i] = qa_tp1_values_double[i][best_tp1_ac[i]]
             # Q'(o_{t+1}, argmax_a Q(o_{t+1}, a))
@@ -86,7 +86,7 @@ class DQNCritic(BaseCritic):
             q_tp1_values, _ = qa_tp1_values.max(dim=1)
 
         # targets for Bellman equation of the Q function.
-        target = reward_n + self.gamma * q_tp1_values * (not terminal_n)
+        target = reward_n + self.gamma * q_tp1_values * (1.0 - terminal_n)
         target = target.detach()
 
         assert q_t_values.shape == target.shape, "squeeze() something"
