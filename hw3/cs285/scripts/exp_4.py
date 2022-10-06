@@ -1,11 +1,20 @@
 import shlex, subprocess
 
 commands = []
-commands.append("python cs285/scripts/run_hw3_actor_critic.py --env_name CartPole-v0 -n 100 -b 1000 --exp_name q4_100_1 -ntu 100 -ngsptu 1")
-commands.append("python cs285/scripts/run_hw3_actor_critic.py --env_name CartPole-v0 -n 100 -b 1000 --exp_name q4_1_100 -ntu 1 -ngsptu 100")
-commands.append("python cs285/scripts/run_hw3_actor_critic.py --env_name CartPole-v0 -n 100 -b 1000 --exp_name q4_10_10 -ntu 10 -ngsptu 10")
-
+command_stem = "python cs285/scripts/run_hw3_actor_critic.py --env_name CartPole-v0 -n 100 -b 1000 --exp_name q4_{ntu}_{ngsptu} -ntu {ntu} -ngsptu {ngsptu}"
+params = [(1, 1), (1, 100), (10, 10), (100, 1)]
+for ntu, ngsptu in params:
+    commands.append(command_stem.format(ntu=ntu, ngsptu=ngsptu))
+    
 if __name__ == "__main__":
+    for command in commands:
+        print(command)
+    user_input = None
+    while user_input not in ['y', 'n']:
+        user_input = input('Run experiment with above commands? (y/n): ')
+        user_input = user_input.lower()[:1]
+    if user_input == 'n':
+        exit(0)
     for command in commands:
         args = shlex.split(command)
         subprocess.Popen(args)
