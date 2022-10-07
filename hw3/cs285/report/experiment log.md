@@ -190,7 +190,7 @@ Plots with the eval returns for both enviornments:
 
 |![](images/5_2.png)|
 |:--:|
-| <b>Fig 5.2. Learning curves for HalfCheetah-v2.</b>|
+| <b>Fig 5.2. Learning curves for HalfCheetah-v4.</b>|
 
 Your results should roughly match those of policy gradient. After 150 iterations, your HalfCheetah return should be around 150. After 100 iterations, your InvertedPendulum return should be around 1000.
 
