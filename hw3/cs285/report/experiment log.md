@@ -12,9 +12,9 @@ Meaning of parameters
 '--num_critic_updates_per_agent_update', type=int, default=1
 '--num_actor_updates_per_agent_update', type=int, default=1
 
-'--batch_size', '-b', type=int, default=1000 #steps collected per train iteration
-'--eval_batch_size', '-eb', type=int, default=400 #steps collected per eval iteration
-'--train_batch_size', '-tb', type=int, default=1000 ##steps used per gradient step
+'--batch_size', '-b', type=int, default=1000 # steps collected per train iteration
+'--eval_batch_size', '-eb', type=int, default=400 # steps collected per eval iteration
+'--train_batch_size', '-tb', type=int, default=1000 # steps used per gradient step
 
 '--discount', type=float, default=1.0
 '--learning_rate', '-lr', type=float, default=5e-3
@@ -33,6 +33,10 @@ Meaning of parameters
 '--save_params', action='store_true'
 ```
 
+Tensorboard commands
+
+* `(Eval|Train).*(Average|Std)Return`
+
 ## Part 1: Q learning
 
 The first phase of the assignment is to implement a working version of Q-learning. The default code will run the Ms. Pac-Man game with reasonable hyperparameter settings.
@@ -48,17 +52,30 @@ To accelerate debugging, you may also test on LunarLander-v3.
 Our reference solution with the default hyperparameters achieves around 150 reward after 350k timesteps, but there is considerable variation between runs and without the double-Q trick the average return often decreases after reaching 150.
 
 
+```bash
+python cs285/scripts/run_hw3_dqn.py --env_name LunarLander-v3 --exp_name q1
+```
+
 |![](images/1_1.png)|
 |:--:|
 | <b>Fig 1.1. Learning curves for `LunarLander-v3`.</b>|
 
+Data put in `q1_LunarLander-v3_06-10-2022_12-16-15`.
+
 #### MsPacman-v0
 
-Run it with the default hyperparameters on the Ms. Pac-Man game for 1 million steps using the command below. Our reference solution gets a return of 1500 in this timeframe. On Colab, this will take roughly 3 GPU hours. If it takes much longer than that, there may be a bug in your implementation.
+Run it with the default hyperparameters on the Ms. Pac-Man game for 1 million steps using the command below. Our reference solution gets a return of 1500 in this timeframe. On Colab, this will take roughly 3 GPU hours. 
+
 
 ```bash
 python cs285/scripts/run_hw3_dqn.py --env_name MsPacman-v0 --exp_name q1
 ```
+
+Data in `q1_MsPacman-v0_06-10-2022_00-43-20`. Left it running overnight, and it accidentally ran for over 3.7 million steps. 1 million steps took about 2 hours on my laptop. The training curve has two phases: 
+
+* Phase 1: fast learning in the first 1 million steps, reaching 1600 (average training reward).
+* Phase 2: slow learning in the next 1.4 million steps, reaching 1850.
+* Phase 3: plateau between 1650 and 1850.
 
 |![](images/1_2.png)|
 |:--:|
@@ -113,37 +130,63 @@ You can replace LunarLander-v3 with PongNoFrameskip-v4 or MsPacman-v0 if you wou
 
 ### Question 4: Sanity check with Cartpole
 
-`python cs285/scripts/run_hw3_actor_critic.py --env_name CartPole-v0 -n 100 -b 1000 -- exp_name q4_ac_1_1 -ntu 1 -ngsptu 1`
-
-In the example above, we alternate between performing one target update and one gradient update step for the critic. As you will see, this probably doesn’t work, and you need to increase both the number of target updates and number of gradient updates. Compare the results for the following settings and report which worked best. Do this by plotting all the runs on a single plot and writing your takeaway in the caption.
+Compare the results for the following settings and report which worked best. Do this by plotting all the runs on a single plot and writing your takeaway in the caption.
 
 ```bash
-python cs285/scripts/run_hw3_actor_critic.py --env_name CartPole-v0 -n 100 -b 1000 -- exp_name q4_100_1 -ntu 100 -ngsptu 1 
-python cs285/scripts/run_hw3_actor_critic.py --env_name CartPole-v0 -n 100 -b 1000 -- exp_name q4_1_100 -ntu 1 -ngsptu 100 
-python cs285/scripts/run_hw3_actor_critic.py --env_name CartPole-v0 -n 100 -b 1000 -- exp_name q4_10_10 -ntu 10 -ngsptu 10
+python cs285/scripts/run_hw3_actor_critic.py --env_name CartPole-v1 -n 100 -b 1000 --exp_name q4_1_1 -ntu 1 -ngsptu 1
+python cs285/scripts/run_hw3_actor_critic.py --env_name CartPole-v1 -n 100 -b 1000 --exp_name q4_100_1 -ntu 100 -ngsptu 1
+python cs285/scripts/run_hw3_actor_critic.py --env_name CartPole-v1 -n 100 -b 1000 --exp_name q4_1_100 -ntu 1 -ngsptu 100
+python cs285/scripts/run_hw3_actor_critic.py --env_name CartPole-v1 -n 100 -b 1000 --exp_name q4_10_10 -ntu 10 -ngsptu 10
 ```
-
-As for why we are using `CartPole-v0` instead of `CartPole-v1`?? idk.
 
 |![](images/4.png)|
 |:--:|
-| <b>Fig 4. Learning curves for `CartPole-v0`.</b>|
+| <b>Fig 4. Learning curves for `CartPole-v1`.</b>|
 
 At the end, the best setting from above should match the policy gradient results from Cartpole in hw2 (200).
+
+Indeed, in all cases, we have matched the 200 reward. The best one uses `-ntu 10 -ngsptu 10`: it reached 200 reward the fastest, and suffered no catastrophic forgetting.
+
+Data put in
+
+```
+q4_1_1_CartPole-v0_06-10-2022_11-14-43
+q4_10_10_CartPole-v0_06-10-2022_10-34-17
+q4_100_1_CartPole-v0_06-10-2022_10-34-17
+q4_1_100_CartPole-v0_06-10-2022_10-34-17
+```
 
 ### Question 5: Run soft actor-critic with more difficult tasks
 
 Use the best setting from the previous question to run InvertedPendulum and HalfCheetah:
 
-`python cs285/scripts/run_hw3_actor_critic.py --env_name InvertedPendulum-v2 --ep_len 1000 --discount 0.95 -n 100 -l 2 -s 64 -b 5000 -lr 0.01 --exp_name q5_<ntu>_<ngsptu> -ntu <ntu> -ngsptu <ngsptu>`
+```python
+import shlex, subprocess
 
-`python cs285/scripts/run_hw3_actor_critic.py --env_name HalfCheetah-v2 --ep_len 150 -- discount 0.90 --scalar_log_freq 1 -n 150 -l 2 -s 32 -b 30000 -eb 1500 -lr 0.02 --exp_name q5_<ntu>_<ngsptu> -ntu <ntu> -ngsptu <ngsptu>`
+ntu = 10 # number of critic network updates
+ngsptu = 10 # number of gradient steps per critic network update
+
+commands = []
+commands.append("python cs285/scripts/run_hw3_actor_critic.py --env_name InvertedPendulum-v4 --ep_len 1000 --discount 0.95 -n 100 -l 2 -s 64 -b 5000 -lr 0.01 --exp_name q5_{ntu}_{ngsptu} -ntu {ntu} -ngsptu {ngsptu}".format(ntu=ntu, ngsptu=ngsptu))
+commands.append("python cs285/scripts/run_hw3_actor_critic.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.90 --scalar_log_freq 1 -n 150 -l 2 -s 32 -b 30000 -eb 1500 -lr 0.02 --exp_name q5_{ntu}_{ngsptu} -ntu {ntu} -ngsptu {ngsptu}".format(ntu=ntu, ngsptu=ngsptu))
+
+if __name__ == "__main__":
+    for command in commands:
+        args = shlex.split(command)
+        subprocess.Popen(args)
+```
+
+Data put in
+
+```
+
+```
 
 Plots with the eval returns for both enviornments:
 
 |![](images/5_1.png)|
 |:--:|
-| <b>Fig 5.1. Learning curves for InvertedPendulum-v2.</b>|
+| <b>Fig 5.1. Learning curves for InvertedPendulum-v4.</b>|
 
 |![](images/5_2.png)|
 |:--:|
