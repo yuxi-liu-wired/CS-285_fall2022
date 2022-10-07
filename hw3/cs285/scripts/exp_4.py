@@ -1,7 +1,7 @@
 import shlex, subprocess
 
 commands = []
-command_stem = "python cs285/scripts/run_hw3_actor_critic.py --env_name CartPole-v0 -n 100 -b 1000 --exp_name q4_{ntu}_{ngsptu} -ntu {ntu} -ngsptu {ngsptu}"
+command_stem = "python cs285/scripts/run_hw3_actor_critic.py --env_name CartPole-v1 -n 100 -b 1000 --exp_name q4_{ntu}_{ngsptu} -ntu {ntu} -ngsptu {ngsptu}"
 params = [(1, 1), (1, 100), (10, 10), (100, 1)]
 for ntu, ngsptu in params:
     commands.append(command_stem.format(ntu=ntu, ngsptu=ngsptu))
