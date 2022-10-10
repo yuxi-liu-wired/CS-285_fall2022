@@ -40,12 +40,13 @@ class TanhTransform(dist.transforms.Transform):
 
 
 class SquashedNormal(dist.transformed_distribution.TransformedDistribution):
-    def __init__(self, loc, scale):
+    def __init__(self, loc, scale, min=-1, max=1):
         self.loc = loc
         self.scale = scale
 
         self.base_dist = dist.Normal(loc, scale)
-        transforms = [TanhTransform()]
+        transforms = [TanhTransform(), 
+                      dist.transforms.AffineTransform(loc=(max+min)/2, scale=(max-min)/2)]
         super().__init__(self.base_dist, transforms)
 
     @property

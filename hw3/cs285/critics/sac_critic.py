@@ -8,17 +8,12 @@ import torch
 
 class SACCritic(nn.Module, BaseCritic):
     """
-        Notes on notation:
-
-        Prefixes and suffixes:
-        ob - observation
-        ac - action
-        _no - this tensor should have shape (batch self.size /n/, observation dim)
-        _na - this tensor should have shape (batch self.size /n/, action dim)
-        _n  - this tensor should have shape (batch self.size /n/)
-
-        Note: batch self.size /n/ is defined at runtime.
-        is None
+        Clipped double Q critic. 
+        It contains two neural networks with the same architecture, each implementing
+        a function of type Q(s_t, a_t).
+        
+        Running `forward(s_t, a_t)` on the critic results in 
+            min(Q_1(s_t, a_t), Q_2(s_t, a_t))
     """
     def __init__(self, hparams):
         super(SACCritic, self).__init__()
@@ -55,9 +50,20 @@ class SACCritic(nn.Module, BaseCritic):
         )
 
     def forward(self, obs: torch.Tensor, action: torch.Tensor):
-        # TODO: return the two q values
+        obs_action = torch.cat([obs, action], dim=1)
+        q1 = self.Q1(obs_action)
+        q2 = self.Q2(obs_action)
+        values = torch.minimum(q1, q2)
         return values
 
-
-
+    def update(self, ob_no: torch.Tensor, ac_na: torch.Tensor, target: torch.Tensor):
+        obs_action = torch.cat([ob_no, ac_na], dim=1)
+        q1 = self.Q1(obs_action)
+        q2 = self.Q2(obs_action)
         
+        loss = self.loss(q1, target) + self.loss(q2, target)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        
+        return loss.item()

@@ -10,6 +10,7 @@ import gym
 from cs285.policies.sac_policy import MLPPolicySAC
 from cs285.critics.sac_critic import SACCritic
 import cs285.infrastructure.pytorch_util as ptu
+from cs285.infrastructure import sac_utils
 
 class SACAgent(BaseAgent):
     def __init__(self, env: gym.Env, agent_params):
@@ -46,32 +47,66 @@ class SACAgent(BaseAgent):
         self.replay_buffer = ReplayBuffer(max_size=100000)
 
     def update_critic(self, ob_no, ac_na, next_ob_no, re_n, terminal_n):
-        # TODO: 
-        # 1. Compute the target Q value. 
-        # HINT: You need to use the entropy term (alpha)
-        # 2. Get current Q estimates and calculate critic loss
-        # 3. Optimize the critic  
+        ob_no = ptu.from_numpy(ob_no)
+        ac_na = ptu.from_numpy(ac_na).to(torch.long)
+        next_ob_no = ptu.from_numpy(next_ob_no)
+        reward_n = ptu.from_numpy(reward_n)
+        terminal_n = ptu.from_numpy(terminal_n)
+        
+        ob_tp1_no = next_ob_no
+
+        # sample next action
+        ac_tp1_dist = self.actor(ob_tp1_no)
+        ac_tp1_n = ac_tp1_dist.sample()
+        
+        # compute target Q(s_{t+1}, a_{t+1})
+        q_tp1_n = self.critic_target(ob_tp1_no, ac_tp1_n)
+        
+        # compute entropy reward
+        ac_tp1_logprob_n = ac_tp1_dist.log_prob(ac_tp1_n)
+        target_q_t_n = re_n + self.gamma * (1.0 - terminal_n) \
+                              * (q_tp1_n - self.actor.alpha * ac_tp1_logprob_n)
+
+        critic_loss = self.critic.update(ob_no, ac_na, target_q_t_n)
+        
         return critic_loss
 
     def train(self, ob_no, ac_na, re_n, next_ob_no, terminal_n):
-        # TODO 
-        # 1. Implement the following pseudocode:
-        # for agent_params['num_critic_updates_per_agent_update'] steps,
-        #     update the critic
+        # update online critic
+        critic_loss = 0.
+        for _ in range(self.agent_params['num_critic_updates_per_agent_update']):
+            critic_loss += self.update_critic(self, ob_no, ac_na, next_ob_no, re_n, terminal_n)
+        critic_loss /= self.agent_params['num_critic_updates_per_agent_update']
+        
+        # softly update (moving exp average) target critic
+        if self.training_step % self.critic_target_update_frequency == 0:
+            net1 = self.critic.Q1
+            target_net1 = self.critic_target.Q1
+            sac_utils.soft_update_params(net1, target_net1, self.critic_tau)
+            
+            net2 = self.critic.Q2
+            target_net2 = self.critic_target.Q2
+            sac_utils.soft_update_params(net2, target_net2, self.critic_tau)
+        
+        # update actor
+        actor_loss, alpha_loss, alpha = 0., 0., self.actor.alpha # ???: find a better version
+        if self.training_step % self.actor_update_frequency == 0:
+            alpha = 0.
+            for _ in range(self.agent_params['num_actor_updates_per_agent_update']):
+                actor_loss_t, alpha_loss_t, alpha_t = self.actor.update(ob_no, self.critic)
+                actor_loss += actor_loss_t
+                alpha_loss += alpha_loss_t
+                alpha += alpha_t
+            actor_loss /= self.agent_params['num_actor_updates_per_agent_update']
+            alpha_loss /= self.agent_params['num_actor_updates_per_agent_update']
+            alpha      /= self.agent_params['num_actor_updates_per_agent_update']
 
-        # 2. Softly update the target every critic_target_update_frequency (HINT: look at sac_utils)
-
-        # 3. Implement following pseudocode:
-        # If you need to update actor
-        # for agent_params['num_actor_updates_per_agent_update'] steps,
-        #     update the actor
-
-        # 4. gather losses for logging
+        # logging
         loss = OrderedDict()
-        loss['Critic_Loss'] = TODO
-        loss['Actor_Loss'] = TODO
-        loss['Alpha_Loss'] = TODO
-        loss['Temperature'] = TODO
+        loss['Critic_Loss'] = critic_loss
+        loss['Actor_Loss'] = actor_loss
+        loss['Alpha_Loss'] = alpha_loss
+        loss['Temperature'] = alpha
 
         return loss
 

@@ -6,6 +6,7 @@ from cs285.infrastructure import pytorch_util as ptu
 from torch import nn
 from torch import optim
 import itertools
+from torch import distributions
 
 class MLPPolicySAC(MLPPolicy):
     def __init__(self,
@@ -35,29 +36,63 @@ class MLPPolicySAC(MLPPolicy):
 
     @property
     def alpha(self):
-        # TODO: Formulate entropy term
-        return entropy
+        return torch.exp(self.log_alpha)
 
     def get_action(self, obs: np.ndarray, sample=True) -> np.ndarray:
-        # TODO: return sample from distribution if sampling
-        # if not sampling return the mean of the distribution 
-        return action
+        """ 
+            Return sample from action distribution if sampling, else return the mean.
+        """
+        observation = ptu.from_numpy(obs)
+        action_distribution = self(observation)
+        if sample:
+            action = action_distribution.sample()
+        else:
+            assert not self.discrete, "why are you taking the mean action of a discrete action space?"
+            action = action_distribution.mean
+        return ptu.to_numpy(action)
 
-    # This function defines the forward pass of the network.
-    # You can return anything you want, but you should be able to differentiate
-    # through it. For example, you can return a torch.FloatTensor. You can also
-    # return more flexible objects, such as a
-    # `torch.distributions.Distribution` object. It's up to you!
+
     def forward(self, observation: torch.FloatTensor):
-        # TODO: Implement pass through network, computing logprobs and apply correction for Tanh squashing
+        if self.discrete:
+            logits = self.logits_na(observation)
+            action_distribution = distributions.Categorical(logits=logits)
+            return action_distribution
+        else:
+            batch_mean = self.mean_net(observation)
+            batch_dim = batch_mean.shape[0]
+            
+            log_scale = self.logstd.clip(min=self.log_std_bounds[0], max=self.log_std_bounds[1])
+            scale = torch.diag(torch.exp(log_scale))
+            batch_scale = scale.repeat(batch_dim, 1, 1)
+            
+            action_distribution = sac_utils.SquashedNormal(loc=batch_mean, scale=batch_scale, 
+                                                           min=self.action_range[0], max=self.action_range[1])
+            return action_distribution
 
-        # HINT: 
-        # You will need to clip log values
-        # You will need SquashedNormal from sac_utils file 
-        return action_distribution
+    def update(self, ob_no: torch.Tensor, critic):
+        # policy gradient on actor network
+        n_trajectory = ob_no.shape[0]
+        ac_t_dist = self.forward(ob_no)
+        ac_t_na = ac_t_dist.sample()
+        q_t_n = self.critic(ob_no, ac_t_na)
+        adv_n = q_t_n
+        
+        log_action_probability_n = ac_t_dist.log_prob(ac_t_na)
+        assert log_action_probability_n.shape == (n_trajectory,)
+        
+        actor_loss = -(log_action_probability_n * adv_n).mean()
 
-    def update(self, obs, critic):
-        # TODO Update actor network and entropy regularizer
-        # return losses and alpha value
+        self.optimizer.zero_grad()
+        actor_loss.backward()
+        self.optimizer.step()
 
-        return actor_loss, alpha_loss, self.alpha
+        # update alpha (entropy regularizer)
+        
+        # alpha_loss = - self.alpha * (log_action_probability_n + self.target_entropy).mean()
+        alpha_loss = - self.alpha * (log_action_probability_n.mean() + self.target_entropy)
+        
+        self.optimizer.zero_grad()
+        alpha_loss.backward()
+        self.optimizer.step()
+        
+        return actor_loss.item(), alpha_loss.item(), self.alpha.item()

@@ -6,7 +6,7 @@ from cs285.infrastructure.utils import normalize
 ```
 
 ## `agents/pg_agent.py`
-```
+```python
 def train(self, obs, acs, rews_list, next_obs, terminals):
 
     """
@@ -110,7 +110,7 @@ def _discounted_cumsum(self, rewards):
 ```
 
 ## `policies/MLP_policy`
-```
+```python
 def update(self, observations, acs_na, adv_n=None, acs_labels_na=None,
                qvals=None):
     observations = ptu.from_numpy(observations)
