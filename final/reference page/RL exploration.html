@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.140">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>rl-exploration</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="RL exploration_files/libs/clipboard/clipboard.min.js"></script>
+<script src="RL exploration_files/libs/quarto-html/quarto.js"></script>
+<script src="RL exploration_files/libs/quarto-html/popper.min.js"></script>
+<script src="RL exploration_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="RL exploration_files/libs/quarto-html/anchor.min.js"></script>
+<link href="RL exploration_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="RL exploration_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="RL exploration_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="RL exploration_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="RL exploration_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+<p>public:: true</p>
+<ul>
+<li></li>
+<li><h2 id="state-diversity" class="anchored">state diversity</h2>
+<ul>
+<li><h3 id="rnd-random-network-distillation-2018" class="anchored">RND: random network distillation (2018)</h3>
+<ul>
+<li>https://openai.com/blog/reinforcement-learning-with-prediction-based-rewards/</li>
+<li>This is a plug-and-play method to add state-exploration reward to any RL algorithm.</li>
+<li>The idea is to initialize two functions: a “random representation” and a “predictor”, both with the same network structure.
+<ul>
+<li>The random representation function <span class="math inline">\(f(s)\)</span> is initialized at the start and never changed. It takes in a state <span class="math inline">\(s\)</span> from the environment, and computes a meaningless representation out of it.</li>
+<li>The predictor <span class="math inline">\(f_\theta(s)\)</span> is supervise-learned to approximate <span class="math inline">\(f\)</span>. The parameter <span class="math inline">\(\theta\)</span> is learned.</li>
+</ul></li>
+<li>Out of the random representation and predictor, we construct an “exploration critic”, which computes an exploration reward as the prediction error, such as L2 error: <span class="math display">\[r^{explore}_t := \|f_\theta(s_t) - f(s)\|^2\]</span></li>
+<li>The paper also recommends that, if the agent is run without external reward (that is, it is purely maximizing exploration reward), then it should be run as one long episode, rather than cut into many episodes. The idea is that during pure exploration, game overs are at most a temporary lull in exploration, and nothing more than that.</li>
+<li>results
+<ul>
+<li>Solves the “noisy TV” problem. Instead of trying to predict the next frame, the predictor tries to predict what the random network would output. This is much easier since <span class="math inline">\(f_\theta\)</span> and <span class="math inline">\(f\)</span> have the same structure. If the agent stays in front of a noisy TV long enough, the predictor <span class="math inline">\(f_\theta\)</span> would actually manage to accurately predict <span class="math inline">\(f\)</span>, and the agent would lose interest in the TV.</li>
+<li>Solving Montezuma’s Revenge level 1 with 500k parameter updates.</li>
+<li><blockquote class="blockquote">
+<p>Mario–The intrinsic reward is particularly well-aligned with the game’s objective of advancing through the levels. The agent is rewarded for finding new areas because the details of a newly found area are impossible to predict. As a result the agent discovers 11 levels, finds secret rooms, and even defeats bosses.</p>
+</blockquote></li>
+<li><blockquote class="blockquote">
+<p>once it obtains all the extrinsic rewards that it knows how to obtain reliably (as judged by the extrinsic value function), the agent settles into a pattern of behavior where it keeps interacting with potentially dangerous objects. For instance in Montezuma’s Revenge the agent jumps back and forth over a moving skull, moves in between laser gates, and gets on and off disappearing bridges. We also observe similar behavior in Pitfall!. It might be related to the very fact that such dangerous states are difficult to achieve, and hence are rarely represented in agent’s past experience compared to safer states.</p>
+</blockquote></li>
+</ul></li>
+</ul></li>
+<li><h3 id="goal-reweighting-skew-fit-2018" class="anchored">goal reweighting (skew-fit) (2018)</h3>
+<ul>
+<li>maximize mutual information between goal <span class="math inline">\(z\)</span> and episode-final state <span class="math inline">\(s_T\)</span></li>
+<li>BIB.
+<ul>
+<li>Nair, Pong, Bahl, Dalal, Lin, L. Visual Reinforcement Learning with Imagined Goals. (2018)</li>
+<li>Dalal, Pong, Lin, Nair, Bahl, Levine. Skew-Fit: State-Covering Self-Supervised Reinforcement Learning. (2019)</li>
+</ul></li>
+<li>The objective is to maximize the [[mutual information]] between goal <span class="math inline">\(z\)</span> and episode-final state <span class="math inline">\(S\)</span> <span class="math display">\[I(z; s_T) = H(p(z)) - H(p(z|s_T))\]</span>
+<ul>
+<li><span class="math inline">\(p(z)\)</span> is the probability of the goal <span class="math inline">\(z\)</span>. It is usually fixed to uniform or standard gaussian.</li>
+<li><span class="math inline">\(p(z|s_T)\)</span> is the probability of the goal conditional on the final state.</li>
+<li><span class="math inline">\(I(z; s_T)\)</span> is improved by simultaneously increasing the variety of goals and decreasing the uncertainty in goal conditional on the final state.</li>
+<li>In particular, it is maximized if we have a uniform distribution over goals (perfect variety of goals), and a bijection between goals and final states (perfect ability to achieve goals).</li>
+</ul></li>
+<li>Generally, the goal states <span class="math inline">\(z\)</span> live in a low-dimensional manifold of a high-dimensional space (as when the goal states are natural-looking photos), which means we should use variational inference.
+<ul>
+<li><span class="math inline">\(s_T\)</span>: end-state</li>
+<li><span class="math inline">\(z\)</span>: latent representation of goal</li>
+<li><span class="math inline">\(\pi_\xi(a|s, s_g)\)</span>: goal-conditioned policy.</li>
+<li><span class="math inline">\(p_{\theta}(s_T|z)\)</span>: forward model. It estimates the distribution of final-state, conditional on goal.</li>
+<li><span class="math inline">\(q_\phi(z|s_T)\)</span>: backward model. It estimates the distribution of goal, conditional on final-state.</li>
+</ul></li>
+<li>The key to goal reweighting is to reweight the goals such that rarely visited states are given extra weight. In effect, this makes our goal-generator to favor novelty.</li>
+<li>ALGO.
+<ul>
+<li>run in parallel
+<ul>
+<li>Note that the algorithm is meant to be used on-policy, so the replay buffer should be small.</li>
+</ul></li>
+<li>data loop
+<ul>
+<li>sample <span class="math inline">\(z\sim p(z)\)</span>, sample <span class="math inline">\(s_g \sim p_\theta(x_g | z)\)</span>.</li>
+<li>collect rollouts in real environment using the <span class="math inline">\(s_g\)</span>-goal-conditioned policy</li>
+<li>add to replay buffer</li>
+</ul></li>
+<li>actor loop
+<ul>
+<li>sample trajectory <span class="math inline">\((s_ta_t)_t\)</span> from replay buffer with goal-state <span class="math inline">\(s_g\)</span>.</li>
+<li>use policy gradient to improve goal-conditioned policy <span class="math inline">\(\pi_\xi(a|s, s_g)\)</span>.</li>
+</ul></li>
+<li>variational inference loop
+<ul>
+<li>sample tuples of goal and end-state <span class="math inline">\((z_i, s_{T, i})\)</span> from replay buffer</li>
+<li>optimize <span class="math display">\[\argmax_{\phi, \theta}\sum_i E_{z_i\sim q_\phi(\cdot | s_{T, i})}[( p(z_i)p_\theta(s_{T, i} | z_i))^\alpha\cdot \ln p(z_i)p_\theta(s_{T, i} | z_i) - \ln q_\phi(z_i|s_{T, i})]\]</span></li>
+<li>where <span class="math inline">\(\alpha \in [-1, 0)\)</span> is a hyperparameter adjusting how eagerly we want the model to seek novelty.</li>
+</ul></li>
+</ul></li>
+<li>It is proved in the references that for any <span class="math inline">\(\alpha \in [-1, 0)\)</span>, the entropy of end-state <span class="math inline">\(H(p_\theta(x))\)</span> increases, and converges to uniform distribution over all reachable goals.</li>
+</ul></li>
+<li><h3 id="smm-state-marginal-matching-2019" class="anchored">SMM: State Marginal Matching (2019)</h3>
+<ul>
+<li>minimize KL-divergence between a distribution <span class="math inline">\(p^*\)</span> over states, and the state-marginal distribution <span class="math inline">\(p_\pi\)</span> from rollouts of policy <span class="math inline">\(\pi\)</span></li>
+<li>BIB.
+<ul>
+<li>Lee, Eysenbach, Parisotto, Xing, Levine, Salakhutdinov. Efficient Exploration via State Marginal Matching (2019)</li>
+<li>Hazan, Kakade, Singh, Van Soest. Provably Efficient Maximum Entropy Exploration</li>
+</ul></li>
+<li><img src="../assets/image_1665605110526_0.png" class="img-fluid" alt="image.png">{:height 275, :width 585}</li>
+<li>idea
+<ul>
+<li>Suppose we are given a distribution <span class="math inline">\(p^*\)</span> over state space, such as the uniform distribution, and we seek a policy <span class="math inline">\(\pi\)</span> such that, by running policy <span class="math inline">\(\pi\)</span>, we obtain an episode-final state distribution <span class="math inline">\(p_\pi(s)\)</span> that minimizes <span class="math display">\[D_{KL}(p^* \| p_\pi)\]</span></li>
+<li>This is equivalent to <span class="math display">\[\max_\pi E_{s\sim p_\pi}[\ln p^*(s) - \ln p_\pi(s)]\]</span>
+<ul>
+<li>which can be interpreted as a kind of reward maximization with added novelty bonus</li>
+<li><span class="math inline">\(\ln p^*(s)\)</span> is the reward</li>
+<li><span class="math inline">\(-\ln p_\pi(s)\)</span> is the novelty bonus (or boredom punishment)</li>
+</ul></li>
+</ul></li>
+<li>ALGO.
+<ul>
+<li>INPUT. the desired state marginal distribution <span class="math inline">\(p^*\)</span></li>
+<li>data loop
+<ul>
+<li>rollout actor in the environment, add to replay buffer
+<ul>
+<li>Note that we don’t sample environment rewards (or require it at all), since the rewards are computed on the fly here.</li>
+<li>We also don’t worry about the replay buffer becoming off-policy, because this algorithm does not distinguish on/off-policy.</li>
+</ul></li>
+</ul></li>
+<li>“critic” loop
+<ul>
+<li>sample states <span class="math inline">\((s_t)_t\)</span> from replay buffer
+<ul>
+<li>Note that we only use the states, not the actions <span class="math inline">\(a_t\)</span>. This is why it’s called a “state <strong>marginal</strong> distribution”.</li>
+</ul></li>
+<li>fit <span class="math inline">\(p_{\theta}\)</span> to samples <span class="math inline">\((s_t)_t\)</span> by supervised learning</li>
+</ul></li>
+<li>actor loop
+<ul>
+<li>sample trajectories <span class="math inline">\((s_ta_ts_{t+1})_t\)</span> from replay buffer</li>
+<li>compute rewards <span class="math inline">\(\tilde r_t := \ln p^*(s_{t+1}) - \ln p_{\theta}(s_{t+1})\)</span>.</li>
+<li>use policy gradient to improve <span class="math inline">\(\pi_\phi\)</span></li>
+</ul></li>
+<li>RETURN. <span class="math inline">\(\pi^* := \sum_k \pi_k\)</span></li>
+</ul></li>
+<li>This algorithm does the right thing by some game theory about self-play and Nash equilibrium. See bibliography.</li>
+</ul></li>
+</ul></li>
+<li><h2 id="noisy-exploration" class="anchored">noisy exploration</h2>
+<ul>
+<li><h3 id="epsilon-greedy" class="anchored">epsilon-greedy</h3>
+<ul>
+<li>The baseline algorithm.</li>
+</ul></li>
+<li><h3 id="multiarmed-bandit-algorithms" class="anchored">multiarmed bandit algorithms</h3>
+<ul>
+<li>like Gittins index or Thompson sampling</li>
+<li>Doesn’t work as well for RL situations, but a good baseline.</li>
+</ul></li>
+<li><h3 id="noisy-parameters" class="anchored">noisy parameters</h3>
+<ul>
+<li>BIB.
+<ul>
+<li>Noisy networks for exploration (2017)</li>
+<li>Parameter Space Noise for Exploration (2017)</li>
+<li>https://openai.com/blog/better-exploration-with-parameter-noise/</li>
+</ul></li>
+<li><img src="../assets/image_1665703829549_0.png" class="img-fluid" alt="image.png">{:height 236, :width 315}</li>
+<li>Use noisy neural networks for exploration, instead of&nbsp;ϵ-greedy exploration.</li>
+<li>This looks like a cheap approximation to Bayesian neural networks.</li>
+<li>Used in rainbow DQN (2018), which is a strong baseline for all future Q-learning methods.</li>
+<li>ALGO.
+<ul>
+<li>The affine layers of the neural network are no longer <span class="math inline">\(Ax + b\)</span>, but <span class="math inline">\((A_\mu + A_\sigma \epsilon)x + (b_\mu + b_\sigma \epsilon)\)</span>, where <span class="math inline">\(\epsilon\)</span> is a standard random vector, distributed as standard normal/uniform distribution.</li>
+<li>The neural network is trained exactly as before by gradient descent, using the reparametrization trick.</li>
+<li>The neural networks are used exactly as before, except that every time you use it, you first sample <span class="math inline">\(\epsilon\)</span>.</li>
+</ul></li>
+</ul></li>
+<li></li>
+</ul></li>
+<li><h2 id="skill-diversity" class="anchored">skill diversity</h2>
+<ul>
+<li><h3 id="diversity-is-all-you-need-diayn" class="anchored">diversity is all you need (DIAYN)</h3>
+<ul>
+<li>https://github.com/haarnoja/sac/blob/master/DIAYN.md</li>
+<li>BIB. ✅Eysenbach, Gupta, Ibarz, Levine. Diversity is All You Need: Learning Skills without a Reward Function (2018)</li>
+<li>problem
+<ul>
+<li>A <strong>skill</strong> is a latent-conditioned policy that alters that state of the environment in a consistent way.</li>
+<li>We want each skill to be individually distinct and that the skills collectively explore large parts of the state space.</li>
+</ul></li>
+<li>solution
+<ul>
+<li>maximize an information theoretic objective using a [[maxent]] policy, to force our skills to be diverse.</li>
+<li><strong>fix the prior distribution over skills</strong> to prevent our method from collapsing to sampling only a handful of skills.</li>
+<li>define “distinction” between skills as the <strong>distinction between their state trajectories, not end-states, or action-trajectories</strong>.</li>
+<li>Note that maxent action + state trajectory distinction =&gt; state space exploration, lest the randomness in its actions lead it to states where it cannot be distinguished</li>
+</ul></li>
+<li>previous work
+<ul>
+<li>VIME
+<ul>
+<li>whereas DIAYN explicitly skills that effectively partition the state space, VIME attempts to learn a single policy that visits many states.</li>
+<li>For all tasks, DIAYN learns some skills that perform well. In contrast, a single policy that maximizes an exploration bonus (VIME) performs poorly on all tasks.</li>
+<li><img src="../assets/image_1665443723177_0.png" title="fig:" class="img-fluid" alt="image.png"></li>
+</ul></li>
+<li>empowerment
+<ul>
+<li>Mohamed &amp; Rezende (2015) and Jung et al.&nbsp;(2011) use the mutual information between states and actions as a notion of empowerment for an intrinsically motivated agent.</li>
+<li>Our method maximizes the mutual information between states and skills, which can be interpreted as <strong>maximizing the empowerment of a hierarchical agent whose action space is the set of skills</strong>.</li>
+</ul></li>
+</ul></li>
+<li>SETUP.
+<ul>
+<li><span class="math inline">\(Z\sim p\)</span>: skill, where <span class="math inline">\(p\)</span> is a fixed distribution.</li>
+<li><span class="math inline">\(A\)</span>: action</li>
+<li><span class="math inline">\(S\)</span>: state</li>
+</ul></li>
+<li>DIYAN objective
+<ul>
+<li><span class="math display">\[\begin{aligned}
+\mathcal{F}(\theta) &amp; \triangleq I(S ; Z)+\mathcal{H}[A \mid S]-I(A ; Z \mid S) \\
+&amp;= I(S ; Z)+ \mathcal{H}[A \mid S, Z]\\
+&amp;=(\mathcal{H}[Z]-\mathcal{H}[Z \mid S])+\mathcal{H}[A \mid S, Z]
+\end{aligned}\]</span></li>
+<li>interpretation:
+<ul>
+<li><span class="math inline">\(I(S;Z)\)</span>: the skill should control the state (“discriminability”)</li>
+<li><span class="math inline">\(\mathcal{H}[A \mid S, Z]\)</span>: the action should be diverse even knowing both state and skill (“exploration”/“entropy regularization”)</li>
+<li><span class="math inline">\(\mathcal{H}[A \mid S]\)</span>: the action should be diverse even when the state is known.</li>
+<li><span class="math inline">\(-I(A ; Z \mid S)\)</span>: knowing the state should be all that is needed to know the . This is to compel that states, not actions, are used to distinguish skills.</li>
+</ul></li>
+</ul></li>
+<li>DIYAN objective, modified for implementation
+<ul>
+<li>First, use the [[variational inference]] trick
+<ul>
+<li>For any <span class="math inline">\(q_\phi\)</span>, we have to maximize:</li>
+<li><span class="math display">\[\begin{aligned}
+\mathcal{F}(\theta) &amp;=\mathcal{H}[A \mid S, Z]-\mathcal{H}[Z \mid S]+\mathcal{H}[Z] \\
+&amp;=\mathcal{H}[A \mid S, Z]+\mathbb{E}_{z \sim p(z), s \sim \pi(z)}[\log p(z \mid s)]-\mathbb{E}_{z \sim p(z)}[\log p(z)] \\
+&amp; \geq \mathcal{H}[A \mid S, Z]+\mathbb{E}_{z \sim p(z), s \sim \pi(z)}\left[\log q_\phi(z \mid s)-\log p(z)\right] \triangleq \mathcal{G}(\theta, \phi)
+\end{aligned}\]</span></li>
+</ul></li>
+<li>Next, when in doubt, parametrize
+<ul>
+<li>Since <span class="math inline">\(I(S;Z)\)</span> is for skill “diversity”, and <span class="math inline">\(\mathcal{H}[A \mid S, Z]\)</span> is for “exploration” (entropy regularization to make action as random as possible), we can adjust their weighting by using a parameter <span class="math inline">\(\alpha&gt;0\)</span></li>
+<li><span class="math display">\[\begin{aligned}
+\mathcal{F}(\theta, \alpha) &amp; \triangleq I(S ; Z)+\alpha \mathcal{H}[A \mid S, Z]\\
+&amp; \geq \alpha\mathcal{H}[A \mid S, Z]+\mathbb{E}_{z \sim p(z), s \sim \pi_\theta(z)}\left[\log q_\phi(z \mid s)-\log p(z)\right] \\
+&amp; = \mathbb{E}_{z \sim p(z), s \sim \pi_\theta(z)}\left[\log q_\phi(z \mid s)-\log p(z)- \alpha \ln \pi_\theta(a|s, z)\right] \\
+&amp; \triangleq \mathcal{G}(\theta, \phi, \alpha)
+\end{aligned}\]</span></li>
+<li>This is exactly soft actor-critic with “Q function” <span class="math inline">\(r = \log q_\phi(z \mid s)-\log p(z)\)</span> and temperature <span class="math inline">\(\alpha\)</span>.
+<ul>
+<li>Assuming our discriminator <span class="math inline">\(q_\phi\)</span> is better than chance, subtracting the <span class="math inline">\(\ln p(z)\)</span> baseline ensures our reward function is always non-negative, encouraging the agent to stay alive. Without this baseline, an optimal agent would end the episode as soon as possible.</li>
+</ul></li>
+<li><blockquote class="blockquote">
+<p>We found empirically that α = 0.1 provided a good trade-off between exploration and discriminability.</p>
+</blockquote></li>
+</ul></li>
+<li>Finally, priors can be hard-coded by featurizing the state space.
+<ul>
+<li>The discriminator maximizes <span class="math inline">\(E[\log q_\phi(z | f(s))]\)</span>.</li>
+<li>For example, in the ant navigation task, <span class="math inline">\(f(s)\)</span> could compute the agent’s center of mass, and DIAYN would learn skills that correspond to changing the center of mass.</li>
+</ul></li>
+</ul></li>
+<li>theory
+<ul>
+<li>On gridworlds, we can compute analytically that the unique optimum to the DIAYN optimization problem is to evenly partition the states between skills, with each skill assuming a uniform stationary distribution over its partition.</li>
+<li>In the continuous and approximate setting, even standard RL methods with function approximation (e.g., DQN) lack convergence guarantees, yet such techniques are still useful.</li>
+</ul></li>
+<li>results
+<ul>
+<li>robust to random seed; varying the random seed does not noticeably affect the skills learned, and has little effect on downstream tasks</li>
+<li>unsupervised pre-training for more sample-efficient finetuning of task-specific policies.</li>
+<li>forced by diversity, some skills are good at getting rewards despite never trained on them.
+<ul>
+<li><img src="../assets/image_1665443171311_0.png" title="fig:" class="img-fluid" alt="image.png"></li>
+</ul></li>
+<li>imitation learning
+<ul>
+<li>Given a state trajectory <span class="math inline">\(s_{1:T}\)</span>, we can infer the max-aposteriori skill used to accomplish it. If we use [[naive Bayes]] approximation, we get <span class="math display">\[\hat z = \argmax_z p(z)\prod_t q_\phi(z|s_t)\]</span></li>
+</ul></li>
+</ul></li>
+<li>ALGO.
+<ul>
+<li><img src="../assets/image_1665440706964_0.png" title="fig:" class="img-fluid" alt="image.png"></li>
+</ul></li>
+<li>INTP. This is similar to maximizing <span class="math inline">\(\sum_t I(z, s_t)\)</span>, the mutual information between the skill and the trajectory.</li>
+</ul></li>
+<li><h3 id="dynamics-aware-discovery-of-skills-dads" class="anchored">Dynamics-Aware Discovery of Skills (DADS)</h3>
+<ul>
+<li>https://github.com/google-research/dads</li>
+<li>BIB. ✅Dynamics-aware unsupervised discovery of skills (2019)</li>
+<li>IDEA. [[model-based RL]] using DIAYN
+<ul>
+<li>training time
+<ul>
+<li>use DIAYN to learn a bunch of skills as <span class="math inline">\(\pi_\theta(a|s, z)\)</span>, while at the same time learn a skill-dynamics model as <span class="math inline">\(\text{state-transition}(s'|s, z)\)</span></li>
+</ul></li>
+<li>inference time
+<ul>
+<li>Given reward function <span class="math inline">\(r\)</span>,</li>
+<li>use [[model predictive control]] with the state-transition model to plan for the best skill <span class="math inline">\(z\)</span> to use at every step.</li>
+</ul></li>
+</ul></li>
+<li>theory
+<ul>
+<li>We want to maximize <span class="math inline">\(I(s'; z | s)\)</span>. That is, given current state, we want the skill to create maximally different next states.</li>
+</ul></li>
+<li>practice
+<ul>
+<li>can scale to high-dimensional problems</li>
+<li>discovered skills useful for hierarchical composition</li>
+<li>works even for very sparse reward (as in Ant going to distant shiny balls)
+<ul>
+<li>For dense reward navigation, we observe that while model-based planning on DADS-learned skills degrades smoothly as the initial distance to goal to increases, goal-conditioned RL experiences a sudden deterioration outside the goal distribution it was trained on. Even within the goal distribution observed during training of goal-conditioned RL model, skill-space planning performs competitively to it. With sparse reward navigation, goal-conditioned RL is unable to navigate, while MPPI demonstrates comparable performance to the dense reward up to about 20 metres.</li>
+</ul></li>
+<li>continuous skill space is more diverse, more amenable to hierarchical composition, and generally perform better on downstream tasks.
+<ul>
+<li><img src="../assets/image_1665455814060_0.png" title="fig:" class="img-fluid" alt="image.png"></li>
+</ul></li>
+<li>discovered stable skills
+<ul>
+<li><img src="../assets/image_1665455795769_0.png" class="img-fluid" alt="image.png">{:height 347, :width 438}</li>
+<li>While the Half-Cheetah will learn to run in both backward and forward directions, DADS will disincentivize skills which make Half-Cheetah flip owing to the reduced predictability on landing. Similarly, skills discovered for Ant rarely flip over, and tend to provide stable navigation primitives in the environment. This also incentivizes the Humanoid, which is characteristically prone to collapsing and extremely unstable by design, to discover gaits which are stable for sustainable locomotion.</li>
+</ul></li>
+<li>hierarchical planning competitive to strong baselines.</li>
+</ul></li>
+<li>How to get DADS from DIAYN
+<ul>
+<li>Replace the skill-guesser <span class="math inline">\(q_\phi(z|s')\)</span> by the state-transition probability model <span class="math inline">\(q_\phi(s' | s, z)\)</span>. It is unnormalized, so remember to use: <span class="math display">\[ \frac{q_\phi\left(s^{\prime} \mid s, z\right)}{\sum_{i=1}^L q_\phi\left(s^{\prime} \mid s, z_i\right)}\]</span></li>
+<li>That’s pretty much it.</li>
+</ul></li>
+<li>ALGO.
+<ul>
+<li><p><span class="math display">\[ \max_{\theta, \phi}\;\mathbb E_{z \sim p(z), s \sim \pi_\theta(z)}\left[\log \frac{q_\phi\left(s^{\prime} \mid s, z\right)}{\sum_{i=1}^L q_\phi\left(s^{\prime} \mid s, z_i\right)}+\log L- \alpha \ln \pi_\theta(a|s, z)\right]\]</span></p></li>
+<li><p><span class="math display">\[r_z\left(s, a, s^{\prime}\right)=\log \frac{q_\phi\left(s^{\prime} \mid s, z\right)}{\sum_{i=1}^L q_\phi\left(s^{\prime} \mid s, z_i\right)}+\log L,
+\quad z_i \sim p(z)\]</span></p></li>
+<li><p>Note that while it says “update <span class="math inline">\(\pi\)</span> using any RL algorithm”, the paper itself uses soft actor-critic.</p>
+<ul>
+<li><blockquote class="blockquote">
+<p>We also introduce entropy regularization for π(a | s, z), which encourages the policy to discover action-sequences with similar state-transitions and to be clustered under the same skill z, making the policy robust besides encouraging exploration (Haarnoja et al., 2018a). The use of entropy regularization can be justified from an information bottleneck perspective as discussed for Information Maximization algorithm in (Mohamed &amp; Rezende, 2015).</p>
+</blockquote></li>
+</ul></li>
+<li><div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/image_1665450195240_0.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">image.png</figcaption><p></p>
+</figure>
+</div></li>
+<li><p>When the space of <span class="math inline">\(z\)</span> is continuous, the update for the parameters follows that in Model Predictive Path Integral (MPPI) controller.</p>
+<ul>
+<li>The planner keeps track of a sequence of <span class="math inline">\(H_P\)</span> normal distributions: <span class="math inline">\(N(\mu_i, \Sigma)\)</span>, where <span class="math inline">\(\Sigma\)</span> is some fixed/learned parameter.
+<ul>
+<li><blockquote class="blockquote">
+<p>While we keep the covariance matrix of the distributions fixed, it is possible to update that as well as shown in Williams et al.&nbsp;(2016).</p>
+</blockquote></li>
+</ul></li>
+<li>Every planning step, the planner samples <span class="math inline">\(K\)</span> skill-plans <span class="math inline">\((z_{k, 1:H_P})_{k\in 1:K}\)</span>, and run them through the state-transition function <span class="math inline">\(q_\pi\)</span>. Then use the reward function to compute the reward <span class="math inline">\(r_k\)</span> of each skill-plan <span class="math inline">\(z_{k, 1:H_P}\)</span>.</li>
+<li>After that, update the sequence <span class="math inline">\(\mu_{1:H_P}\)</span> by the following Boltzmann average:</li>
+<li><span class="math display">\[\mu_i=\sum_{k=1}^K \frac{\exp \left(\gamma r_k\right)}{\sum_{p=1}^K \exp \left(\gamma r_p\right)} z_{k, i} \quad \forall i=1, \ldots H_P\]</span></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><h3 id="off-policy-dads" class="anchored">off-policy DADS</h3>
+<ul>
+<li>https://github.com/google-research/dads</li>
+<li>BIB. ✅Emergent real-world robotic skills via unsupervised off-policy reinforcement learning (2020)</li>
+<li>Just use importance sampling on the skill-transition model <span class="math inline">\(q_\phi(s'|s, z)\)</span>. Nothing is changed otherwise, not even the policy gradient method for <span class="math inline">\(\pi_\theta\)</span>.
+<ul>
+<li>NOTE. the algorithm uses <span class="math inline">\(\pi_c\)</span> (the policy at the time when the datapoint was sampled) even for the <span class="math inline">\(\pi\)</span> update loop, but it’s actually useless.</li>
+<li><img src="../assets/image_1665467052490_0.png" class="img-fluid" alt="image.png">{:height 461, :width 314}</li>
+</ul></li>
+<li>result: DADS work on a real robot, taking just 20 hours to learn walking in multiple gaits and directions (0.3 million data points). the skills are relatively robust and fall in only 5% of the runs.
+<ul>
+<li>off-policy variant of DADS that exhibits stable and sample-efficient learning</li>
+<li>locomotion skills with diverse gaits and different orientations emerge without any rewards or demonstrations.</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><h2 id="latent-space-model" class="anchored">latent space model</h2>
+<ul>
+<li>CURL: Contrastive unsupervised representations for reinforcement learning (2020)
+<ul>
+<li>Rather complex and does not appear to be better than RAD: Reinforcement learning with augmented data. See Table 1 of RAD paper.</li>
+<li></li>
+</ul></li>
+<li>PlaNet (2019): planning in latent space, not picture space. Learn a [[variational autoencoder]]. MuZero for one-player RL. Inspired MuZero (2020). collapsed:: true
+<ul>
+<li>https://ai.googleblog.com/2019/02/introducing-planet-deep-planning.html</li>
+<li>BIB. Learning Latent Dynamics for Planning from Pixels (2019)</li>
+<li><img src="../assets/image_1665520749129_0.png" class="img-fluid" alt="image.png">{:height 292, :width 438}</li>
+</ul></li>
+<li>The Dreamer series (2019–2022) collapsed:: true
+<ul>
+<li>BIB.
+<ul>
+<li>Dream to control: Learning behaviors by latent imagination (2019)</li>
+<li>Mastering atari with discrete world models (2021): Dreamer V2, demo on Atari games.</li>
+<li>Daydreamer: World models for physical robot learning (2022): DayDreamer, demo on robots.</li>
+<li>​​Deep Hierarchical Planning from Pixels (2022): Director, demo on 3D games</li>
+</ul></li>
+<li>General idea
+<ul>
+<li>Sample rollouts from the replay buffer to learn a world model by supervised learning.</li>
+<li>Use “dreamed” rollouts on the world model to learn an actor-critic agent.
+<ul>
+<li>Since the actor-critic agent is learned dreamed rollouts, it does not use the replay buffer, and so it is always on-policy.</li>
+<li>Other agents should be fine, though the authors have only tried actor-critic agents.</li>
+</ul></li>
+<li>Exploration-reward can be computed from the world model by the uncertainty in the world model. This can be accomplished in many ways.
+<ul>
+<li>We can keep a few world models, and ask them all to predict the action outcome, and use the variance of their predictions. This is the approach in plan2explore.</li>
+<li>We can compute the reconstruction error if the world model is an autoencoder. This is the approach in Director.</li>
+<li>We can use Bayesian inference if the world model is a Bayesian model. This is the approach of… something, I’m sure. Perhaps “Bayesian PlaNet”, though I can’t find any paper.</li>
+</ul></li>
+</ul></li>
+<li>Dreamer v1 (2019)
+<ul>
+<li>https://danijar.com/project/dreamer/</li>
+<li>result
+<ul>
+<li>We use a single Nvidia V100 GPU and 10 CPU cores for each training run. The training time for our Dreamer implementation is about 3 hours per <span class="math inline">\(10^6\)</span> environment steps on the control suite, compared to 11 hours for online planning using PlaNet, and the 24 hours used by D4PG to reach similar performance.</li>
+</ul></li>
+<li>notation
+<ul>
+<li><span class="math inline">\(o_t, a_t, r_t\)</span>: real observation, action, reward</li>
+<li><span class="math inline">\(s_t\)</span>: latent representation of state</li>
+<li>model: 3 networks parametrized by <span class="math inline">\(\theta\)</span>, respectively of type:
+<ul>
+<li>representation/observation <span class="math inline">\(p(s_t|s_{t-1}, a_{t-1}, o_t)\)</span>. This one has a CNN part (when observations are images)</li>
+<li>transition <span class="math inline">\(q(s_{t+1} | s_{t}, a_t)\)</span>, a GRU (the variant of [[LSTM]])</li>
+<li>reward <span class="math inline">\(q'(r_t | s_t)\)</span></li>
+</ul></li>
+<li>actor: <span class="math inline">\(\pi_\phi(a_t|s_t)\)</span></li>
+<li>critic: <span class="math inline">\(V_\psi(s_{t+H})\)</span>, to account for rewards beyond the planning horizon</li>
+</ul></li>
+<li>ALGO.
+<ul>
+<li>run the following in parallel</li>
+<li>data loop
+<ul>
+<li>Run epsilon-random version of model-actor <span class="math inline">\(pqq'_\theta, \pi_\phi\)</span> on environment.
+<ul>
+<li>To use the model-actor, first run the model on the trajectory-so-far to obtain the current latent state <span class="math inline">\(s_t\)</span>, then sample from policy <span class="math inline">\(\pi_\phi(a_t | s_t)\)</span></li>
+</ul></li>
+<li>add trajectories to replay buffer.</li>
+</ul></li>
+<li>model loop
+<ul>
+<li>sample a batch of size <span class="math inline">\(B\)</span>, of length-<span class="math inline">\(L\)</span> trajectory-segments <span class="math inline">\((o_ta_tr_t)_{t=t_0:t_0+L}\)</span> from replay buffer</li>
+<li>train model on the batch of samples by supervised learning
+<ul>
+<li>To “kickstart” the representation model <span class="math inline">\(p(s_{t_0+1}|s_{t_0}, a_{t_0}, o_{t_0+1})\)</span>, I guess we can pretend that <span class="math inline">\(s_{t_0}\)</span> is sampled from a standard gaussian distribution. (I didn’t find any mention of how they did it.)</li>
+</ul></li>
+</ul></li>
+<li>actor-critic loop
+<ul>
+<li>rollout in the model (no need for the replay buffer!)</li>
+<li>train critic on the batch of samples by supervised learning (minimize MSE): <span class="math display">\[\min_\psi \frac{1}{BL}\sum_t\left|V_\psi(s_t) - V_\lambda(s_t)\right|^2 \]</span> where <span class="math inline">\(V_\lambda(s_t)\)</span> is the the TD() estimator of <span class="math inline">\(V^{\pi_\phi}(s_t)\)</span>.</li>
+<li>maximize reward <span class="math inline">\(r_{t}+\cdots +\gamma^{H-1} r_{t+H-1} +\gamma^H V_\psi(s_{t+H})\)</span>
+<ul>
+<li>You can of course use policy gradient on <span class="math inline">\(\theta\)</span>, but since the latent space is pretty small, it is actually possible to use gradient descent directly on the total reward. <span class="math display">\[\max_\phi(r_{t}+\cdots +\gamma^{H-1} r_{t+H-1} +\gamma^H V_\psi(s_{t+H}))\]</span></li>
+<li>As in SAC, the action model outputs a tanh-transformed gaussian, defined by its mean and std (before the tanh-transform). Use the [[reparametrization trick]] to backprop the gradient to the mean and std of the gaussian.</li>
+<li>Make sure the gradient doesn’t propagate into the parameters of the model</li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>Dreamer v2 (2021): Dreamer V1 but discrete. Human-level Atari in 10 GPU days (Nvidia V100)
+<ul>
+<li>https://danijar.com/project/dreamerv2/</li>
+<li>changes compared to Dreamer V1
+<ul>
+<li>latent space is discrete rather than continuous</li>
+<li>The distributions over latent space are categorical rather than gaussian.</li>
+</ul></li>
+<li>model now has 5 components, trained jointly to minimize one big loss.
+<ul>
+<li>The loss contains some KL-divergences, thus “min KL” in the diagram.</li>
+<li>The “discount predictor” is an odd addition. It is not used in any of the other papers.</li>
+<li><img src="../assets/image_1665534118257_0.png" class="img-fluid" alt="image.png">{:height 112, :width 470}</li>
+</ul></li>
+<li>critic is still a <span class="math inline">\(V_\psi\)</span> network, trained by minimizing MSE with the TD() target.</li>
+<li>actor, to use discrete variables, now uses “straight-through estimator gradient”.
+<ul>
+<li>DreamerV1 relied entirely on reparameterization gradients to train the actor directly by backpropagating value gradients through the sequence of sampled model states and actions.</li>
+<li>DreamerV2 uses both discrete latents and discrete actions. To backpropagate through the sampled actions and state sequences, we leverage straight-through gradients. This results in a biased gradient estimate with low variance.</li>
+</ul></li>
+<li></li>
+<li><img src="../assets/image_1665535304539_0.png" title="fig:" class="img-fluid" alt="image.png"></li>
+</ul></li>
+<li>DayDreamer (2022): application of DreamerV2 to 4 real-world robots. No new algorithm.
+<ul>
+<li>https://danijar.com/project/daydreamer/</li>
+<li>actor training
+<ul>
+<li>reparameterization gradients for continuous control tasks and Reinforce gradients for tasks with discrete actions</li>
+</ul></li>
+<li>robot details
+<ul>
+<li>robot dog walking
+<ul>
+<li>we train in the end-to-end reinforcement learning setting directly on the robot, without simulators or resets.</li>
+<li>We use the Unitree A1 robot that consists of 12 direct drive motors. The motors are controlled at 20 Hz via continuous actions that represent motor angles that are realized by a PD controller on the hardware. The input consists of motor angles, orientations, and angular velocities. To protect the motors, we filter out high-frequency motor commands through a Butterworth filter.</li>
+<li>we manually intervene when the robot has reached the end of the available training area, without modifying the joint configuration or orientation that the robot is in.</li>
+</ul></li>
+<li>robot arm picking
+<ul>
+<li>We estimate human performance by recording 3 demonstrators for 20 minutes, controlling the UR5 with a joystick.</li>
+<li>Dreamer reaches an average pick rate of 2.5 objects per minute within 8 hours. The robot initially struggles to learn as the reward signal is very sparse, but begins to gradually improve after 2 hours of training</li>
+<li>Both Rainbow DQN and PPO only learn the short-sighted behavior of grasping and immediately dropping objects in the same bin. In contrast, Dreamer approaches human-level performance after 8 hours</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>Discovering and Achieving Goals via World Models (2021): using DreamerV2 with plan2explore. It performs slightly better (?) than plan2explore.
+<ul>
+<li>It has 4 components: world model (as in Dreamer), an ensemble of one-step world model (), explorer (as in plan2explore), achiever (goal-conditioned policy).
+<ul>
+<li>The explorer is a RL agent whose reward is the variation between the one-step world models predictions.</li>
+<li>The ensemble of world models are trained on real rollouts (not dreamed rollouts).</li>
+</ul></li>
+</ul></li>
+<li>Director (2022): DreamerV2, but hierarchical, and with exploration reward.
+<ul>
+<li>https://ai.googleblog.com/2022/07/deep-hierarchical-planning-from-pixels.html</li>
+<li>notation
+<ul>
+<li><span class="math inline">\(x_t, a_t, r_t\)</span>: real environment state, action, reward</li>
+<li><span class="math inline">\(s_t\)</span>: world model state</li>
+<li><span class="math inline">\(z\)</span>: goal</li>
+<li><span class="math inline">\(g\)</span>: decoded goal, that is, <span class="math inline">\(g = dec_\phi(z)\)</span></li>
+<li><span class="math inline">\(\theta\)</span>: parameter of the world model.</li>
+<li><span class="math inline">\(\phi\)</span>: parameter of the goal autoencoder.</li>
+<li><span class="math inline">\(\psi\)</span>: parameter of the manager policy.</li>
+<li><span class="math inline">\(\xi\)</span>: parameter of the worker policy.</li>
+</ul></li>
+<li>ALGO.
+<ul>
+<li>run 4 threads in parallel.
+<ul>
+<li>The replay buffer is used by the world model and goal autoencoder.</li>
+<li>For the manager and worker, no off-policy correction is needed, because they don’t use the replay buffer at all, but only train on imagined rollouts.</li>
+</ul></li>
+<li>rollout loop: add trajectory to replay buffer.</li>
+<li>world model loop
+<ul>
+<li>This is trained exactly as in PlaNet, where the world model <span class="math inline">\(s_t\)</span> is a 1024-dim vector.</li>
+<li>sample batch from replay buffer, supervised learning</li>
+</ul></li>
+<li>goal autoencoder loop
+<ul>
+<li>This is trained exactly as a VQVAE, where the middle layer <span class="math inline">\(z\)</span> is a 8x8 binary matrix.</li>
+<li>sample batch from replay buffer, supervised learning</li>
+<li><blockquote class="blockquote">
+<p>The goal encoder takes a model state as input and predicts a matrix of 8×8 logits, samples a one-hot vector from each row, and flattens the results into a sparse vector with 8 out of 64 dimensions set to 1 and the others to 0</p>
+</blockquote></li>
+</ul></li>
+<li>manager-worker loop
+<ul>
+<li>Both manager and worker are actor-critic agents, trained jointly on rollouts in the world model (“dreaming”).
+<ul>
+<li>The critics are trained by TD() learning. The actors are trained by policy gradient.</li>
+<li>The manager’s actor is <span class="math inline">\(\pi_\psi(z|s_t)\)</span>. The manager has two critics, one for exploration reward <span class="math inline">\(V^{explore}_\psi(s_t)\)</span>, another for discounted environment reward <span class="math inline">\(V^{env}_\psi(s_t)\)</span>.</li>
+<li>The worker’s actor is goal-conditioned <span class="math inline">\(\pi_\xi(a_t|s_t, g)\)</span>. The worker’s critic is a goal-conditioned <span class="math inline">\(V_\xi(s_t | g)\)</span>.</li>
+</ul></li>
+<li>The manager’s reward = (discounted environment reward + exploration reward).
+<ul>
+<li>“exploration reward” is defined as goal autoencoder reconstruction error: <span class="math display">\[r_t^{explore} := \|dec_\phi(z) - s_{t+1}\|^2\quad z\sim enc_\phi(s_{t+1})\]</span></li>
+</ul></li>
+<li>The worker’s reward = (max-cosine-similarity between the goal state and the world state).
+<ul>
+<li>Why “max-cosine-similarity”? The authors explained it as a useful hack that simply worked better than cosine-similarity or negative L2 distance.</li>
+<li><span class="math display">\[r_t^{goal}:= \frac{\langle g, s_{t+1}\rangle}{\max(\|g\|, \|s_{t+1}\|)^2}\]</span></li>
+<li>The worker can be given the discounted environment reward too. This would require it to also have two critics (like the manager). This increases the performance of the algorithm.</li>
+</ul></li>
+<li></li>
+</ul></li>
+<li><img src="../assets/image_1665548520123_0.png" title="fig:" class="img-fluid" alt="image.png"></li>
+</ul></li>
+<li>comparison
+<ul>
+<li><div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/image_1665548646576_0.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">image.png</figcaption><p></p>
+</figure>
+</div></li>
+<li><p>Plan2Explore</p>
+<ul>
+<li>maximizes both task reward and an exploration bonus based on ensemble disagreement</li>
+<li>Plan2Explore fails because the robot flips over too much, a common limitation of low-level exploration methods.</li>
+</ul></li>
+<li><p>Dreamer</p>
+<ul>
+<li>maximizes the task reward.</li>
+<li>reaches the goal in the smallest maze but fails to explore the larger mazes</li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>Plan2Explore (2020): train a few latent env models; exploration reward as info-max; infogain approximated as variation of the model predictions.
+<ul>
+<li>BIB. Planning to explore via self-supervised world models (2020)</li>
+<li>idea
+<ul>
+<li>Plan2Explore works by training a world model, exploring to maximize the information gain for the world model, and using the world model at test time to solve new tasks.</li>
+<li>To estimate infogain, keep <span class="math inline">\(K\)</span> world models in parallel, and estimate infogain of doing action <span class="math inline">\(a_t\)</span> at step <span class="math inline">\(s_t\)</span> as <span class="math inline">\(Var[w_1(s_t, a_t), ..., w_K(s_t, a_t)]\)</span> the variation in the predictions of the world models.</li>
+<li>Given a reward function, we use the model to optimize a policy for that task. Similar to our exploration procedure, we optimize a new value function and a new policy head for the downstream task. This optimization uses only predictions imagined by the model.</li>
+</ul></li>
+<li>ALGO.
+<ul>
+<li><img src="../assets/image_1665520829676_0.png" title="fig:" class="img-fluid" alt="image.png"></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><h2 id="intrinsic-reward" class="anchored">intrinsic reward</h2></li>
+<li><h2 id="uncategorizedinspirationalprocrastinational" class="anchored">uncategorized/inspirational/procrastinational</h2>
+<ul>
+<li>Hindsight experience replay (2017) collapsed:: true
+<ul>
+<li>https://github.com/TianhongDai/hindsight-experience-replay</li>
+<li>Not actually about exploration, but it uses hindsight pseudo-reward, which is similar to exploration pseudo-reward.</li>
+<li>ALGO.
+<ul>
+<li>data loop
+<ul>
+<li>sample goal <span class="math inline">\(g\)</span></li>
+<li>rollout a trajectory using the goal-conditioned policy <span class="math inline">\(\pi(a|s, g)\)</span></li>
+<li>compute a goal <span class="math inline">\(g'\)</span> that the trajectory has actually achieved</li>
+<li>relabel every step of the trajectory with goal <span class="math inline">\(g'\)</span></li>
+<li>recompute the rewards <span class="math inline">\(r'_t\)</span> with respect to that trajectory</li>
+<li>add trajectory to the replay buffer</li>
+</ul></li>
+<li>goal-conditioned policy loop
+<ul>
+<li>sample from replay buffer; use policy gradient</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>[[soft actor-critic]] (2018)
+<ul>
+<li>Not an exploration algorithm itself. By itself, it is an off-policy model-free RL algorithm, but can be easily extended by other methods, such as adding other exploration rewards.</li>
+</ul></li>
+<li>distributional RL critic (2018)
+<ul>
+<li>BIB.
+<ul>
+<li>Distributional Reinforcement Learning with Quantile Regression (2018)</li>
+<li>https://www.distributional-rl.org/</li>
+</ul></li>
+<li>instead of <span class="math inline">\(V(s_t)\)</span> or <span class="math inline">\(Q(s_t, a_t)\)</span>, learn a probability distribution <span class="math inline">\(\hat Q(s_t, a_t)\)</span>, which approximates the probability distribution of <span class="math inline">\(r_t + \gamma r_{t+1} + \cdots\)</span>. The idea is that since everything else in AI is distributional (policy network, AlexNet, etc), why not Q and V?</li>
+<li>A success story is quantile regression SAC, which is used in training Gran Turismo Sophy, a superhuman agent at the driving game Gran Turismo (2022).</li>
+</ul></li>
+<li><a href="https://www.youtube.com/watch?v=Amow6WIacKY">Unsupervised Intelligent Agents - YouTube</a>
+<ul>
+<li>a tantalizing but mysterious talk about a way to classify a lot of RL exploration algorithms. Not directly relevant.</li>
+<li><img src="../assets/image_1665629042478_0.png" title="fig:" class="img-fluid" alt="image.png"></li>
+</ul></li>
+<li>H-JEPA: A path towards autonomous machine intelligence (Yann LeCun, 2022)
+<ul>
+<li>BIB.
+<ul>
+<li><a href="https://openreview.net/pdf?id=BZ5a1r-kVsf">A Path Towards Autonomous Machine Intelligence</a></li>
+<li><a href="https://www.youtube.com/watch?v=VRzvpV9DZ8Y">Yann LeCun: From Machine Learning to Autonomous Intelligence</a></li>
+<li><a href="https://github.com/lucidrains/JEPA-pytorch">implementation in PyTorch by lucidrains</a></li>
+</ul></li>
+<li>Idea
+<ul>
+<li>Humans and Animals learn hierarchies of models
+<ul>
+<li>not model-free RL, not pure reflex loop, not pure sensorimotor loops</li>
+<li>the models are arranged in a hierarchy, rather than in one big network, or a big “flat” network.</li>
+</ul></li>
+<li>a non-contrastive self-supervised learning paradigm that produces representations that are simultaneously informative and predictable</li>
+<li>JEPA is not a generative model</li>
+<li>JEPA learns a hierarchy of representations, but not contrastively learned.</li>
+</ul></li>
+<li>FIG. the JEPA architecture
+<ul>
+<li><img src="../assets/image_1665633408600_0.png" title="fig:" class="img-fluid" alt="image.png"></li>
+</ul></li>
+<li>2 cost modules (both differentiable)
+<ul>
+<li>intrinsic cost: untrainable, hardwired; inborn aversion and liking; corresponds to <span class="math inline">\(r(s, a)\)</span>.</li>
+<li>critic cost: trainable; acquired aversion and liking; corresponds to <span class="math inline">\(V(s)\)</span> and <span class="math inline">\(Q(s, a)\)</span>.</li>
+</ul></li>
+<li>perception modules</li>
+<li>world model
+<ul>
+<li>The world model is one big model, composed of many small models. Each small model is a “JEPA”, an energy-based model</li>
+<li>FIG. a JEPA model
+<ul>
+<li><img src="../assets/image_1665707362663_0.png" class="img-fluid" alt="image.png">{:height 245, :width 415}</li>
+</ul></li>
+<li>FIG. two levels of JEPA put together
+<ul>
+<li><img src="../assets/image_1665707437593_0.png" class="img-fluid" alt="image.png">{:height 301, :width 439}</li>
+</ul></li>
+</ul></li>
+<li>2 actor modes
+<ul>
+<li>mode 1: reward-less reflex loop
+<ul>
+<li><img src="../assets/image_1665694937553_0.png" class="img-fluid" alt="image.png">{:height 196, :width 442}</li>
+</ul></li>
+<li>mode 2: model-predictive control for reward maximization
+<ul>
+<li><img src="../assets/image_1665695002982_0.png" title="fig:" class="img-fluid" alt="image.png"></li>
+</ul></li>
+</ul></li>
+<li></li>
+<li>training JEPA
+<ul>
+<li>self-supervised learning by “filling in the blanks” (cloze test, BERT style pretraining)</li>
+</ul></li>
+<li></li>
+</ul></li>
+<li>go-explore (2019): applying graph search algorithm for RL exploration. collapsed:: true
+<ul>
+<li>BIB.
+<ul>
+<li>Go-explore: a new approach for hard-exploration problems (2019)</li>
+<li>First return, then explore (2021)</li>
+</ul></li>
+<li>problems of typical intrinsic motivation algorithms
+<ul>
+<li>detachment
+<ul>
+<li><div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/image_1665634730692_0.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">image.png</figcaption><p></p>
+</figure>
+</div></li>
+<li><p>agent explores frontier 1 half-way.</p></li>
+<li><p>agent by random chance discovers frontier 2.</p></li>
+<li><p>agent explores frontier 2 thoroughly, but in the mean time forgets frontier 1.</p></li>
+</ul></li>
+<li>derailment
+<ul>
+<li>agent cannot explore deeply, because the epsilon-random exploration policy would tend to drive the agent off the path towards the frontier, with probability <span class="math inline">\(O(\epsilon T^2)\)</span>.</li>
+<li><blockquote class="blockquote">
+<p>the needed precise actions are naively perturbed by the basic exploration mechanism, causing the agent to only rarely succeed in reaching the known state to which it is drawn, and from which further exploration might be most effective.</p>
+</blockquote></li>
+</ul></li>
+</ul></li>
+<li>To solve these two problems, the go-explore algorithm uses ideas from graph search algorithms. It maintains a set of search frontiers, and try extending them one by one. If there is extrinsic reward, then there would be a phase 2 where the most rewarding path is constructed and a policy is trained to follow that path by [[imitation learning]].
+<ul>
+<li>It is very much like an RL version of Dijkstra’s algorithm.</li>
+</ul></li>
+<li>ALGO. the go-explore algorithm
+<ul>
+<li><div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/image_1665634839678_0.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">image.png</figcaption><p></p>
+</figure>
+</div></li>
+<li><div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/image_1665639277724_0.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">image.png</figcaption><p></p>
+</figure>
+</div></li>
+<li></li>
+</ul></li>
+</ul></li>
+<li>RAD: Reinforcement learning with augmented data (2020) collapsed:: true
+<ul>
+<li><p>Just use data augmentation on data. Can be applied to any RL (like how data augmentation can be applied to any supervised learning algorithm).</p></li>
+<li><p>https://mishalaskin.github.io/rad/</p></li>
+<li><p>Works very well for pixel-based RL, when combined with SAC or PPO.</p>
+<ul>
+<li>The data augmentation are the same as those used in training typical image-recognition neural networks: crop, jitter, RGB perturbation, etc.</li>
+<li>The key is to apply the exact same augmentation across all frames per trajectory-segment.</li>
+</ul></li>
+<li><p>Works alright for state-based RL, when combined with SAC. Outperforms plain SAC.</p>
+<ul>
+<li>The authors tried 3 methods: random amplitude scaling with a single variable (RAS-S), random amplitude scaling with a multivariate variable (RAS-M), and Gaussian noise (GN). The authors stated that RAS-S should be better, because RAS-S preserves relative difference.</li>
+<li>For example, if your observation is <code>(x, y, z)</code> , then it is probably better to get <code>((1+ε)x, (1+ε)y, (1+ε)z)</code> than <code>((1+ε)x, (1+ε')y, (1+ε'')z)</code> , since the previous one preserves <code>(1+ε)x - (1+ε)y = (1+ε)(x-y)</code> but the latter one would get <code>(1+ε)x - (1+ε')y = ???</code></li>
+<li>That’s the theory. In practice, as Table 7 shows that RAS-S and RAS-M are 50-50 in performance, but both are better than GN or the other methods.</li>
+</ul></li>
+<li><div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../assets/image_1665561382717_0.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">image.png</figcaption><p></p>
+</figure>
+</div></li>
+<li></li>
+</ul></li>
+<li>scratchpad
+<ul>
+<li>Actionable plan for the mid-term milestone report
+<ul>
+<li>get an agent or two up and running
+<ul>
+<li>Get SAC (soft actor-critic) up and running. It is probably the best off-policy model-free baseline. A PyTorch implementation can be found in Stable Baselines 3.</li>
+<li>Get plan2explore up and running. It’s a simple and powerful exploration-only baseline. There’s a PyTorch implementation <a href="https://github.com/yusukeurakami/plan2explore-pytorch">here</a> though I haven’t checked how well it is.</li>
+</ul></li>
+<li>get 4 test environments up and running
+<ul>
+<li>We need two kinds of environments: continuous and discrete. For each, we need two kinds: simple and complex.</li>
+<li>I suggest the following test environments. All are OpenAI gym environments. All except crafter comes with Gym.</li>
+<li><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| simple | complex |<br>
+discrete | Toy Text | crafter |<br>
+continuous | inverted pendulum, Mountain Car | HalfCheetah, Humanoid |</p></li>
+</ul></li>
+<li>get a few simple variations up and running
+<ul>
+<li>A few simple variations that I think would work and be easy to implement.</li>
+<li>Implement RND on an SAC agent.
+<ul>
+<li>random network distillation is a very simple baseline for pure-exploration RL. Kind of like the random agent is a baseline for reward-based RL.</li>
+<li>https://github.com/sungyubkim/Deep_RL_with_pytorch</li>
+</ul></li>
+<li>Implement SAC for plan2explore.
+<ul>
+<li>The original plan2explore paper use a standard actor-critic algorithm, not soft actor-critic algorithm. It does incorporate some tricks like tanh-transformed Gaussian, just like in the SAC paper.</li>
+</ul></li>
+<li>Implement RAD for plan2explore
+<ul>
+<li>RAD: reinforcement learning with augmented data. This one applies only for continuous observation space. To use it, apply a random scaling to all observations, that is, changing <span class="math inline">\(o_t\)</span> to <span class="math inline">\((1+\epsilon)o_t\)</span>.</li>
+</ul></li>
+</ul></li>
+<li>contemplate more speculative variations
+<ul>
+<li>I haven’t thought up anything really new yet. New ideas are hard. Either they are boring and old or they are vague and impractical…</li>
+</ul></li>
+</ul></li>
+<li>self-reflective/meta plan2explore
+<ul>
+<li>A key problem of plan2explore is that the exploration policy <span class="math inline">\(\pi_\phi\)</span> optimizes the exploration reward, but the exploration reward depends on the state of the world models, not the world. So the exploration policy is basically “chasing shadows”. Just as the exploration policy learns to visit state <span class="math inline">\(s\)</span> often, the world models would have acquired enough information to make state <span class="math inline">\(s\)</span> uninteresting to visit.</li>
+<li>My intuitive solution is to go self-reflective/meta: the exploration policy not only has access to current observation, but <em>also</em> current parameters of all the world models.
+<ul>
+<li>Ideally, it would introspectively see the world models, and recognize directly which states are uninformative, and which are informative, and plan accordingly. It would thus avoid “chasing shadows”.</li>
+</ul></li>
+<li>However, since the world models have a few thousand parameters each, this will cost a <em>lot</em> of compute, unless there’s a clever trick somewhere, such as using hypernetworks (but that’s extremely complicated to use).</li>
+<li>Maybe we can also use model-predictive control for exploration. I am not sure whether this would lead to “math exam problem”.</li>
+</ul></li>
+<li>intrinsic value of hierarchical planning (absolute power corrupts absolutely)
+<ul>
+<li>If an RL system is hierarchical, would there be intrinsic rewards for the hierarchical planning system? Say, would it be useful for the high level policies to be rewarded merely for making up difficult but barely accomplishable tasks for the low-level policies? (Or would it be useful to <em>punish</em> the high level policies instead?)</li>
+</ul></li>
+<li>intrinsic value of state-action pairs (action deontology, or performing good deeds)
+<ul>
+<li>Are some actions “intrinsically more valuable” than other actions? Is there a way to define <span class="math inline">\(Q(s_t, a_t)\)</span> intrinsically?</li>
+</ul></li>
+<li>intrinsic value of states (state deontology, or arriving at good states)
+<ul>
+<li>Are some states “intrinsically more valuable” than other states? Is there a way to define <span class="math inline">\(V(s_t)\)</span> intrinsically?</li>
+<li>A good state may be like the center of the room: somewhere that allows you to reach anywhere else quickly. An empowering state.</li>
+</ul></li>
+<li>go-explore
+<ul>
+<li>What is the graph search algorithm used in the paper? What if we use A* algorithm?</li>
+</ul></li>
+<li>improve “Planning to explore via self-supervised world models (2020)” by swapping in “Reinforcement Learning with Augmented Data (2020)” in place of “PlaNet (2019)”
+<ul>
+<li>As shown in “Reinforcement Learning with Augmented Data (2020)”, RAD achieved roughly 3 times performance compared to PlaNet.</li>
+<li>Problem: we are not going to actually use pixels in the RL learning… Answer: no problem. As shown in the paper, RAD also works for state-based (not pixel-based) inputs.</li>
+<li>As for whether we need to add SAC…? Yes, certainly. The RAD paper used SAC. The “planning to explore” paper did not – so let’s try it.</li>
+<li>Previous work: I did not find previous work combining RAD with planning to explore, so this would be something new. <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=2005&amp;sciodt=0%2C5&amp;cites=6008226201213548118&amp;scipsc=1&amp;q=%22plan2explore%22+OR+%22planning+to+explore%22">https://scholar.google.com/scholar?hl=en&amp;as_sdt=2005&amp;sciodt=0%2C5&amp;cites=6008226201213548118&amp;scipsc=1&amp;q=%22plan2explore%22+OR+%22planning+to+explore%22</a></li>
+<li>Dreamer V2 might also be worth a shot. “DayDreamer: World Models for Physical Robot Learning (2022)” demonstrated it on a robodog. It learned to walk robustly in an hour. It was used with a hard-coded reward, but can obviously be applied to exploration-reward. (edited)</li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
