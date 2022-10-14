@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.140">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>rl-tools</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="RL tools_files/libs/clipboard/clipboard.min.js"></script>
+<script src="RL tools_files/libs/quarto-html/quarto.js"></script>
+<script src="RL tools_files/libs/quarto-html/popper.min.js"></script>
+<script src="RL tools_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="RL tools_files/libs/quarto-html/anchor.min.js"></script>
+<link href="RL tools_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="RL tools_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="RL tools_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="RL tools_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="RL tools_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+<ul>
+<li></li>
+<li>generic ML frameworks and tools
+<ul>
+<li>TensorFlow</li>
+<li>PyTorch</li>
+<li>XLA (Accelerated Linear Algebra): compiler for TensorFlow code; developed by Google.
+<ul>
+<li>domain-specific compiler for linear algebra that can accelerate TensorFlow models with potentially no source code changes.</li>
+</ul></li>
+<li>JAX: kind of a replacement for numpy, developed by Google.
+<ul>
+<li>The cheapest way to use JAX is to add <code>import jax.numpy as np</code> on the top of the file.</li>
+</ul></li>
+</ul></li>
+<li>RL-specific frameworks
+<ul>
+<li>Stable Baselines 3: built on PyTorch
+<ul>
+<li><a href="https://github.com/DLR-RM/stable-baselines3">DLR-RM/stable-baselines3: PyTorch version of Stable Baselines, reliable implementations of reinforcement learning algorithms.</a></li>
+</ul></li>
+<li>Facebook ReAgent: built on PyTorch.
+<ul>
+<li><a href="https://github.com/facebookresearch/ReAgent">facebookresearch/ReAgent: A platform for Reasoning systems (Reinforcement Learning, Contextual Bandits, etc.)</a></li>
+</ul></li>
+<li>Google Dopamine: built on JAX; compatible with tensorflow (legacy).
+<ul>
+<li><a href="https://github.com/google/dopamine">google/dopamine: Dopamine is a research framework for fast prototyping of reinforcement learning algorithms.</a></li>
+</ul></li>
+</ul></li>
+<li>RL algorithm codebase
+<ul>
+<li><a href="https://nn.labml.ai/rl/index.html">labml.ai Annotated PyTorch Paper Implementations - Reinforcement Learning Algorithms</a></li>
+</ul></li>
+<li>RL environments
+<ul>
+<li>OpenAI gym</li>
+<li>gridworld
+<ul>
+<li><a href="https://github.com/Farama-Foundation/MiniGrid">Farama-Foundation/MiniGrid: Simple and easily configurable grid world environments for reinforcement learning</a></li>
+</ul></li>
+<li>crafter: a cheap version of minecraft. It is an OpenAI gym environment.
+<ul>
+<li><a href="https://github.com/danijar/crafter">danijar/crafter: Benchmarking the Spectrum of Agent Capabilities</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
