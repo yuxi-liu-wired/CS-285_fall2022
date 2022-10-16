@@ -1,9 +1,10 @@
 import shlex, subprocess
 
 commands = []
-commands.append("python cs285/scripts/run_hw3_dqn.py --env_name LunarLander-v3 --exp_name q3_hparam1 ")
-commands.append("python cs285/scripts/run_hw3_dqn.py --env_name LunarLander-v3 --exp_name q3_hparam2 ")
-commands.append("python cs285/scripts/run_hw3_dqn.py --env_name LunarLander-v3 --exp_name q3_hparam3 ")
+command_stem = "python cs285/scripts/run_hw3_dqn.py --env_name LunarLander-v3 --exp_name q3_{lr} -lr {lr}"
+params = []
+for lr in params:
+    commands.append(command_stem.format(lr=lr))
 
 if __name__ == "__main__":
     for command in commands:

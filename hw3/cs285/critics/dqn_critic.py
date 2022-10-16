@@ -70,21 +70,19 @@ class DQNCritic(BaseCritic):
         q_t_values = torch.gather(qa_t_values, 1, ac_na.unsqueeze(1)).squeeze(1) # Q(o_t, a_t)
         # q_t_values[i] = qa_t_values[i][ac_na[i]]
         
-        # compute the Q-values for the next step 
-        qa_tp1_values = self.q_net(next_ob_no) # Q(o_{t+1}, ·)
-
         if self.double_q:
-            # define the greedy policy according to the online network
+            # find greedy action according to the **online** network
+            qa_tp1_values = self.q_net(next_ob_no) # Q(o_{t+1}, ·)
             best_tp1_ac = qa_tp1_values.argmax(dim=1) # argmax_a Q(o_{t+1}, a)
             
-            # use the **target** network to estimate its value.
+            # use the **target** network to estimate its Q-value.
             qa_tp1_values_double = self.q_net_target(next_ob_no) # Q'(o_{t+1}, ·)
             q_tp1_values = torch.gather(qa_tp1_values_double, 1, best_tp1_ac.unsqueeze(1)).squeeze(1)
             # q_tp1_values[i] = qa_tp1_values_double[i][best_tp1_ac[i]]
             # Q'(o_{t+1}, argmax_a Q(o_{t+1}, a))
         else:
-            # define the greedy policy according to the online network
-            # but use the **online** network to estimate its value
+            # compute the Q-values for the next step using **target** network
+            qa_tp1_values = self.q_net_target(next_ob_no) # Q'(o_{t+1}, ·)
             q_tp1_values, _ = qa_tp1_values.max(dim=1)
 
         # targets for Bellman equation of the Q function.

@@ -104,27 +104,46 @@ python cs285/scripts/run_hw3_dqn.py --env_name LunarLander-v3 --exp_name q2_doub
 |:--:|
 | <b>Fig 2. Learning curves for `LunarLander-v3`, comparison between the average over 3 runs of DDQN and the average over 3 runs of DQN.</b>|
 
+Data put in
+
+```
+q2_dqn_1_LunarLander-v3_15-10-2022_16-43-20
+q2_dqn_2_LunarLander-v3_15-10-2022_16-43-20
+q2_dqn_3_LunarLander-v3_15-10-2022_16-43-20
+q2_doubledqn_1_LunarLander-v3_15-10-2022_16-43-20
+q2_doubledqn_2_LunarLander-v3_15-10-2022_16-43-20
+q2_doubledqn_3_LunarLander-v3_15-10-2022_16-43-20
+```
+
 make a single graph that averages the performance across three runs for both DQN and double DQN. See `scripts/read results.py` for an example of how to read the evaluation returns from Tensorboard logs.
 
 ### Question 3: experimenting with hyperparameters
 
 Choose one hyperparameter of your choice and run at least three other settings of this hyperparameter, in addition to the one used in Question 1, and plot all four values on the same graph. Your choice what you experiment with, but you should explain why you chose this hyperparameter in the caption.
 
-Examples include: learning rates; neural network architecture for the Q network, e.g., number of layers, hidden layer size, etc; exploration schedule or exploration rule (e.g. you may implement an alternative to ϵ-greedy and set different values of hyperparameters), etc. Discuss the effect of this hyperparameter on performance in the caption. You should find a hyperparameter that makes a nontrivial difference on performance.
+We experiment with `--target_update_freq`. The default value is `3000`. We tried `100, 300, 1000, 3000, 10000`. We choose this to modify, because we believe that the target update frequency cannot be too high or too low. Too high (100), and it would approach deep Q-learning without target networks, which is known to be quite unstable, and so we expect the learning curve to become unstable. Too low (10000), and the target would become stale, and we expect the learning curve to stagnate.
 
-Note: you might consider performing a hyperparameter sweep for getting good results in Question 1, in which case it’s fine to just include the results of this sweep for Question 3 as well, while plotting only the best hyperparameter setting in Question 1. The final results should use the following experiment name:
+Unfortunately, we have no idea how to automate the process except very manually, so we did it by directly modifying the code in `get_env_kwargs`, then modify accordingly.
+
+There are two observations: One, for target update frequency $\leq 1000$, the training collapses. Two, target update frequnecy 10000 results in much slower learning than 3000 but reaching merely the same plateau value.
 
 ```bash
-python cs285/scripts/run_hw3_dqn.py --env_name LunarLander-v3 --exp_name q3_hparam1 
-python cs285/scripts/run_hw3_dqn.py --env_name LunarLander-v3 --exp_name q3_hparam2 
-python cs285/scripts/run_hw3_dqn.py --env_name LunarLander-v3 --exp_name q3_hparam3 
+python cs285/scripts/run_hw3_dqn.py --env_name LunarLander-v3 --exp_name q3_
 ```
 
-|![](images/.png)|
-|:--:|
-| <b>Fig  Learning curves for .</b>|
+Data put in
 
-You can replace LunarLander-v3 with PongNoFrameskip-v4 or MsPacman-v0 if you would like to test on a different environment.
+```
+q3_100_LunarLander-v3_15-10-2022_19-56-32
+q3_300_LunarLander-v3_15-10-2022_19-41-17
+q3_1000_LunarLander-v3_15-10-2022_19-43-31
+q3_3000_LunarLander-v3_15-10-2022_16-43-20
+q3_10000_LunarLander-v3_15-10-2022_19-43-49
+```
+
+|![](images/3.png)|
+|:--:|
+| <b>Fig 3. Learning curves for `LunarLander-v3` for varying target Q-network update frequency in `100, 300, 1000, 3000, 10000`.</b>|
 
 ## Part 2: Actor-Critic
 
@@ -156,7 +175,7 @@ q4_100_1_CartPole-v0_06-10-2022_10-34-17
 q4_1_100_CartPole-v0_06-10-2022_10-34-17
 ```
 
-### Question 5: Run soft actor-critic with more difficult tasks
+### Question 5: Run actor-critic with more difficult tasks
 
 Use the best setting from the previous question to run InvertedPendulum and HalfCheetah:
 
@@ -179,7 +198,8 @@ if __name__ == "__main__":
 Data put in
 
 ```
-
+q5_10_10_InvertedPendulum-v4_06-10-2022_11-59-08
+q5_10_10_HalfCheetah-v4_15-10-2022_16-53-26
 ```
 
 Plots with the eval returns for both enviornments:
@@ -202,9 +222,7 @@ The returns should start going up immediately. For example, after 20 iterations,
 
 Use the best setting from the previous question to run InvertedPendulum and HalfCheetah. You may use InvertedPendulum as a debugging environment, as it is much faster to train.
 
-`python cs285/scripts/run_hw3_sac.py --env_name InvertedPendulum-v4 --ep_len 1000 --discount 0.99 --scalar_log_freq 1000 -n 100000 -l 2 -s 256 -b 1000 -eb 2000 -lr 0.0003 --init_temperature 0.1 ----exp_name q6a_sac_InvertedPendulum_<parameters> --seed 1`
-
-where <parameters> is replaced with the parameters you chose.
+`python cs285/scripts/run_hw3_sac.py --env_name InvertedPendulum-v4 --ep_len 1000 --discount 0.99 --scalar_log_freq 1000 -n 100000 -l 2 -s 256 -b 1000 -eb 2000 -lr 0.0003 --init_temperature 0.1 --exp_name q6a_sac_InvertedPendulum --seed 1`
 
 |![](images/6_1.png)|
 |:--:|
