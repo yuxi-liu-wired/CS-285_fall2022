@@ -23,7 +23,8 @@ class MLPPolicySAC(MLPPolicy):
                  **kwargs
                  ):
         super(MLPPolicySAC, self).__init__(ac_dim, ob_dim, n_layers, size, discrete, learning_rate, training, **kwargs)
-        self.log_std_bounds = log_std_bounds
+        self.log_std_bounds = log_std_bounds        
+        assert self.log_std_bounds[0] < self.log_std_bounds[1]
         self.action_range = action_range
         self.init_temperature = init_temperature
         self.learning_rate = learning_rate
@@ -42,7 +43,12 @@ class MLPPolicySAC(MLPPolicy):
         """ 
             Return sample from action distribution if sampling, else return the mean.
         """
-        observation = ptu.from_numpy(obs)
+        if len(obs.shape) > 1:
+            observation = obs
+        else:
+            observation = obs[None]
+            
+        observation = ptu.from_numpy(observation)
         action_distribution = self(observation)
         if sample:
             action = action_distribution.sample()
@@ -62,37 +68,35 @@ class MLPPolicySAC(MLPPolicy):
             batch_dim = batch_mean.shape[0]
             
             log_scale = self.logstd.clip(min=self.log_std_bounds[0], max=self.log_std_bounds[1])
-            scale = torch.diag(torch.exp(log_scale))
-            batch_scale = scale.repeat(batch_dim, 1, 1)
-            
+            batch_scale = log_scale.exp().repeat(batch_dim, 1)
+            assert batch_scale.shape == (observation.shape[0], self.ac_dim)
             action_distribution = sac_utils.SquashedNormal(loc=batch_mean, scale=batch_scale, 
                                                            min=self.action_range[0], max=self.action_range[1])
             return action_distribution
 
     def update(self, ob_no: torch.Tensor, critic):
         # policy gradient on actor network
-        n_trajectory = ob_no.shape[0]
+        n_batch = ob_no.shape[0]
         ac_t_dist = self.forward(ob_no)
         ac_t_na = ac_t_dist.sample()
-        q_t_n = self.critic(ob_no, ac_t_na)
+        q_t_n = critic(ob_no, ac_t_na)
         adv_n = q_t_n
+        assert adv_n.shape == (n_batch,)
         
-        log_action_probability_n = ac_t_dist.log_prob(ac_t_na)
-        assert log_action_probability_n.shape == (n_trajectory,)
+        log_action_probability_n = ac_t_dist.log_prob(ac_t_na).sum(dim=1)
+        assert log_action_probability_n.shape == (n_batch,)
         
         actor_loss = -(log_action_probability_n * adv_n).mean()
-
         self.optimizer.zero_grad()
         actor_loss.backward()
         self.optimizer.step()
-
-        # update alpha (entropy regularizer)
         
+        # update alpha (entropy regularizer)        
         # alpha_loss = - self.alpha * (log_action_probability_n + self.target_entropy).mean()
-        alpha_loss = - self.alpha * (log_action_probability_n.mean() + self.target_entropy)
+        alpha_loss = - (self.alpha * (log_action_probability_n.detach() + self.target_entropy)).mean()
         
-        self.optimizer.zero_grad()
+        self.log_alpha_optimizer.zero_grad()
         alpha_loss.backward()
-        self.optimizer.step()
+        self.log_alpha_optimizer.step()
         
         return actor_loss.item(), alpha_loss.item(), self.alpha.item()

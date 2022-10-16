@@ -46,13 +46,7 @@ class SACAgent(BaseAgent):
         self.training_step = 0
         self.replay_buffer = ReplayBuffer(max_size=100000)
 
-    def update_critic(self, ob_no, ac_na, next_ob_no, re_n, terminal_n):
-        ob_no = ptu.from_numpy(ob_no)
-        ac_na = ptu.from_numpy(ac_na).to(torch.long)
-        next_ob_no = ptu.from_numpy(next_ob_no)
-        reward_n = ptu.from_numpy(reward_n)
-        terminal_n = ptu.from_numpy(terminal_n)
-        
+    def update_critic(self, ob_no, ac_na, next_ob_no, re_n, terminal_n):        
         ob_tp1_no = next_ob_no
 
         # sample next action
@@ -61,25 +55,37 @@ class SACAgent(BaseAgent):
         
         # compute target Q(s_{t+1}, a_{t+1})
         q_tp1_n = self.critic_target(ob_tp1_no, ac_tp1_n)
+        assert q_tp1_n.shape == (ob_no.shape[0],)
         
         # compute entropy reward
-        ac_tp1_logprob_n = ac_tp1_dist.log_prob(ac_tp1_n)
+        ac_tp1_logprob_n = ac_tp1_dist.log_prob(ac_tp1_n).sum(dim=1)
+        assert ac_tp1_logprob_n.shape == (ob_no.shape[0],)
         target_q_t_n = re_n + self.gamma * (1.0 - terminal_n) \
                               * (q_tp1_n - self.actor.alpha * ac_tp1_logprob_n)
-
+        target_q_t_n = target_q_t_n.detach()
+        assert target_q_t_n.shape == (ob_no.shape[0],)
+        
+        # breakpoint()
         critic_loss = self.critic.update(ob_no, ac_na, target_q_t_n)
         
         return critic_loss
 
     def train(self, ob_no, ac_na, re_n, next_ob_no, terminal_n):
+        ob_no = ptu.from_numpy(ob_no)
+        ac_na = ptu.from_numpy(ac_na)
+        next_ob_no = ptu.from_numpy(next_ob_no)
+        re_n = ptu.from_numpy(re_n)
+        terminal_n = ptu.from_numpy(terminal_n)
+        
         # update online critic
         critic_loss = 0.
         for _ in range(self.agent_params['num_critic_updates_per_agent_update']):
-            critic_loss += self.update_critic(self, ob_no, ac_na, next_ob_no, re_n, terminal_n)
+            critic_loss += self.update_critic(ob_no, ac_na, next_ob_no, re_n, terminal_n)
         critic_loss /= self.agent_params['num_critic_updates_per_agent_update']
         
         # softly update (moving exp average) target critic
         if self.training_step % self.critic_target_update_frequency == 0:
+        # if False:
             net1 = self.critic.Q1
             target_net1 = self.critic_target.Q1
             sac_utils.soft_update_params(net1, target_net1, self.critic_tau)
@@ -89,9 +95,10 @@ class SACAgent(BaseAgent):
             sac_utils.soft_update_params(net2, target_net2, self.critic_tau)
         
         # update actor
-        actor_loss, alpha_loss, alpha = 0., 0., self.actor.alpha # ???: find a better version
+        actor_loss, alpha_loss, alpha = 0.0, 0.0, self.actor.alpha # ???: find a better version
         if self.training_step % self.actor_update_frequency == 0:
-            alpha = 0.
+        # if False:
+            alpha = 0.0
             for _ in range(self.agent_params['num_actor_updates_per_agent_update']):
                 actor_loss_t, alpha_loss_t, alpha_t = self.actor.update(ob_no, self.critic)
                 actor_loss += actor_loss_t
