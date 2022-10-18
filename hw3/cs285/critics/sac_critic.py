@@ -49,23 +49,35 @@ class SACCritic(nn.Module, BaseCritic):
             self.learning_rate,
         )
 
-    def forward(self, obs: torch.Tensor, action: torch.Tensor):
-        obs_action = torch.cat([obs, action], dim=1)
-        q1 = self.Q1(obs_action).squeeze(1)
-        q2 = self.Q2(obs_action).squeeze(1)
-        values = torch.minimum(q1, q2) # clipped double Q-learning
-        assert values.shape == (obs.shape[0],)
-        return values
-
-    def update(self, ob_no: torch.Tensor, ac_na: torch.Tensor, target: torch.Tensor):
+    def forward(self, ob_no: torch.Tensor, ac_na: torch.Tensor):
         obs_action = torch.cat([ob_no, ac_na], dim=1)
+        assert obs_action.shape == (ob_no.shape[0], self.ob_dim + self.ac_dim)
+        
         q1 = self.Q1(obs_action).squeeze(1)
         q2 = self.Q2(obs_action).squeeze(1)
-        assert q1.shape == target.shape
-        assert q2.shape == target.shape
+        assert q1.shape == (ob_no.shape[0],)
+        assert q2.shape == (ob_no.shape[0],)
         
-        loss = (self.loss(q1, target) + self.loss(q2, target))
+        q = torch.minimum(q1, q2) # clipped double Q-learning
+        assert q.shape == (ob_no.shape[0],)
+        
+        return q
+
+    def update(self, ob_no: torch.Tensor, ac_na: torch.Tensor, target_n: torch.Tensor):
+        assert target_n.shape ==(target_n.shape[0],)
+        
+        obs_action = torch.cat([ob_no, ac_na], dim=1)
+        assert obs_action.shape == (target_n.shape[0], self.ob_dim + self.ac_dim)
+        
+        q1 = self.Q1(obs_action).squeeze(1)
+        q2 = self.Q2(obs_action).squeeze(1)
+        assert q1.shape == target_n.shape
+        assert q2.shape == target_n.shape
+        
+        loss = self.loss(q1, target_n) + self.loss(q2, target_n)
+        
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
+        
         return loss.item()

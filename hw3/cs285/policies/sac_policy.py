@@ -70,31 +70,34 @@ class MLPPolicySAC(MLPPolicy):
             log_scale = self.logstd.clip(min=self.log_std_bounds[0], max=self.log_std_bounds[1])
             batch_scale = log_scale.exp().repeat(batch_dim, 1)
             assert batch_scale.shape == (observation.shape[0], self.ac_dim)
-            action_distribution = sac_utils.SquashedNormal(loc=batch_mean, scale=batch_scale, 
-                                                           min=self.action_range[0], max=self.action_range[1])
+            action_distribution = sac_utils.SquashedNormal(loc=batch_mean, scale=batch_scale)
+            # action_distribution = sac_utils.SquashedNormal(loc=batch_mean, scale=batch_scale, min=self.action_range[0], max=self.action_range[1])
             return action_distribution
 
     def update(self, ob_no: torch.Tensor, critic):
         # policy gradient on actor network
         n_batch = ob_no.shape[0]
         ac_t_dist = self.forward(ob_no)
-        ac_t_na = ac_t_dist.sample()
-        q_t_n = critic(ob_no, ac_t_na)
-        adv_n = q_t_n
-        assert adv_n.shape == (n_batch,)
+        ac_t_na = ac_t_dist.rsample() # need the reparametrization trick
         
+        # Q(s_t, a_t)
+        q_t_n = critic.forward(ob_no, ac_t_na)
+        assert q_t_n.shape == (n_batch,)
+        
+        # ln pi(a_t | s_t), which needs to be summed over all action dimensions.
         log_action_probability_n = ac_t_dist.log_prob(ac_t_na).sum(dim=1)
         assert log_action_probability_n.shape == (n_batch,)
         
-        actor_loss = -(log_action_probability_n * adv_n).mean()
+        # actor_loss = -(log_action_probability_n * adv_n).mean()
+        # Because of the reparametrization trick, we should NOT use the log-score method like in policy gradient!
+        actor_loss = (self.alpha * log_action_probability_n - q_t_n).mean()
         self.optimizer.zero_grad()
         actor_loss.backward()
         self.optimizer.step()
         
-        # update alpha (entropy regularizer)        
-        # alpha_loss = - self.alpha * (log_action_probability_n + self.target_entropy).mean()
-        alpha_loss = - (self.alpha * (log_action_probability_n.detach() + self.target_entropy)).mean()
-        
+        # update alpha (entropy regularizer)
+        # must detach ln pi(a_t | s_t) to avoid backpropagating into where it should not be.
+        alpha_loss = - self.alpha * (log_action_probability_n.detach().mean() + self.target_entropy)
         self.log_alpha_optimizer.zero_grad()
         alpha_loss.backward()
         self.log_alpha_optimizer.step()

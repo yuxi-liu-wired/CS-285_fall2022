@@ -220,20 +220,51 @@ The returns should start going up immediately. For example, after 20 iterations,
 
 ### Question 6: Run soft actor-critic more difficult tasks
 
+Your deliverables for this section are plots with the eval returns for both enviornments.
+
 Use the best setting from the previous question to run InvertedPendulum and HalfCheetah. You may use InvertedPendulum as a debugging environment, as it is much faster to train.
 
-`python cs285/scripts/run_hw3_sac.py --env_name InvertedPendulum-v4 --ep_len 1000 --discount 0.99 --scalar_log_freq 1000 -n 100000 -l 2 -s 256 -b 1000 -eb 2000 -lr 0.0003 --init_temperature 0.1 --exp_name q6a_sac_InvertedPendulum --seed 1`
+Here the number of iterations stands for the number of environment steps taken.
+
+```
+python cs285/scripts/run_hw3_sac.py --env_name InvertedPendulum-v4 --ep_len 1000 --discount 0.99 --scalar_log_freq 1000 -n 100000 -l 2 -s 256 -b 1000 -eb 2000 -lr 0.0003 --init_temperature 0.1 --exp_name q6a_sac_InvertedPendulum --seed 1
+```
 
 |![](images/6_1.png)|
 |:--:|
 | <b>Fig 6.1. Learning curves for InvertedPendulum-v4.</b>|
 
-`python cs285/scripts/run_hw3_sac.py --env_name HalfCheetah-v4 --ep_len 150 --discount 0.99 --scalar_log_freq 1500 -n 2000000 -l 2 -s 256 -b 1500 -eb 1500 -lr 0.0003 --init_temperature 0.1 --exp_name q6b_sac_HalfCheetah_<parameters> --seed 1`
+```
+python cs285/scripts/run_hw3_sac.py --env_name HalfCheetah-v4 --ep_len 150 --discount 0.99 --scalar_log_freq 1500 -n 2000000 -l 2 -s 256 -b 1500 -eb 1500 -lr 0.0003 --init_temperature 0.1 --exp_name q6b_sac_HalfCheetah --seed 1
+```
 
-Here the number of iterations stands for the number of environment steps taken. Your results should roughly match and exceed those of policy gradient. After 50000 steps, your HalfCheetah return should be around 200. After 20000 steps, your InvertedPendulum return should reach 1000. Your deliverables for this section are plots with the eval returns for both enviornments.
+What you should see
 
-As a debugging tip, the returns should start going up immediately. For example, after 10000 steps, your HalfCheetah return should be above -40 (trending toward positive) and your InvertedPendulum return should be near or above 100. However, there is some variance between seeds, so the 1000 eval average return under 100000 steps (for InvertedPendulum) and 300 average return under 200000 steps (for HalfCheetah) results are the numbers we use to grade.
+* Your results should roughly match and exceed those of policy gradient.
+* The returns should start going up immediately.
+* InvertedPendulum
+* After 10k, InvertedPendulum return should be near or above 100.
+* After 20k steps, your InvertedPendulum return should reach 1000.
+* HalfCheetah
+* After 10k steps, your HalfCheetah return should be above -40 (trending toward positive)
+* After 50k steps, your HalfCheetah return should be around 200.
 
+Grading criteria
+
+* 1000 eval average return under 100k steps (for InvertedPendulum) 
+* 300 average return under 200k steps (for HalfCheetah)
+
+Experiment: using `--actor_update_frequency 10`. This made the actor unable to learn and the actor_loss steadily increased while both `train_return` and `eval_return` failed to improve.
+
+```
+python cs285/scripts/run_hw3_sac.py --env_name HalfCheetah-v4 --ep_len 150 --discount 0.99 --scalar_log_freq 1500 -n 2000000 -l 2 -s 256 -b 1500 -eb 1500 -lr 0.0003 --init_temperature 0.1 --exp_name q6b_sac_HalfCheetah_auf10 --actor_update_frequency 10 --seed 1
+```
+
+Experiment: in computing $J_Q(\theta)$, use the mean action $\bar a_t$ from the actor, rather than sampling an action $a_t$. This made both actor and critic loss to shoot up.
+
+```
+python cs285/scripts/run_hw3_sac.py --env_name HalfCheetah-v4 --ep_len 150 --discount 0.99 --scalar_log_freq 1500 -n 2000000 -l 2 -s 256 -b 1500 -eb 1500 -lr 0.0003 --init_temperature 0.1 --exp_name q6b_sac_HalfCheetah_mean --seed 1
+```
 
 |![](images/6_2.png)|
 |:--:|

@@ -46,26 +46,28 @@ class SACAgent(BaseAgent):
         self.training_step = 0
         self.replay_buffer = ReplayBuffer(max_size=100000)
 
-    def update_critic(self, ob_no, ac_na, next_ob_no, re_n, terminal_n):        
-        ob_tp1_no = next_ob_no
+    def update_critic(self, ob_no, ac_na, next_ob_no, re_n, terminal_n):
+        n_samples = ob_no.shape[0]
 
         # sample next action
-        ac_tp1_dist = self.actor(ob_tp1_no)
-        ac_tp1_n = ac_tp1_dist.sample()
-        
-        # compute target Q(s_{t+1}, a_{t+1})
-        q_tp1_n = self.critic_target(ob_tp1_no, ac_tp1_n)
-        assert q_tp1_n.shape == (ob_no.shape[0],)
+        ac_tp1_dist = self.actor(next_ob_no)
+        # ac_tp1_na = ac_tp1_dist.mean
+        ac_tp1_na = ac_tp1_dist.sample() # the critic doesn't need to do reparametrization trick.
         
         # compute entropy reward
-        ac_tp1_logprob_n = ac_tp1_dist.log_prob(ac_tp1_n).sum(dim=1)
-        assert ac_tp1_logprob_n.shape == (ob_no.shape[0],)
-        target_q_t_n = re_n + self.gamma * (1.0 - terminal_n) \
-                              * (q_tp1_n - self.actor.alpha * ac_tp1_logprob_n)
-        target_q_t_n = target_q_t_n.detach()
-        assert target_q_t_n.shape == (ob_no.shape[0],)
+        ac_tp1_logprob_n = ac_tp1_dist.log_prob(ac_tp1_na).sum(dim=1)
+        assert ac_tp1_logprob_n.shape == (n_samples,)
         
-        # breakpoint()
+        # compute target Q(s_{t+1}, a_{t+1})
+        q_tp1_n = self.critic_target(next_ob_no, ac_tp1_na)
+        assert q_tp1_n.shape == (n_samples,)
+        
+        # compute target for the two Q networks of the critic
+        target_q_t_n = re_n + self.gamma * (1.0 - terminal_n) * (q_tp1_n - self.actor.alpha * ac_tp1_logprob_n)
+        target_q_t_n = target_q_t_n.detach()
+        assert target_q_t_n.shape == (n_samples,)
+        
+        # update critic
         critic_loss = self.critic.update(ob_no, ac_na, target_q_t_n)
         
         return critic_loss
@@ -78,14 +80,13 @@ class SACAgent(BaseAgent):
         terminal_n = ptu.from_numpy(terminal_n)
         
         # update online critic
-        critic_loss = 0.
+        critic_loss = 0.0
         for _ in range(self.agent_params['num_critic_updates_per_agent_update']):
             critic_loss += self.update_critic(ob_no, ac_na, next_ob_no, re_n, terminal_n)
         critic_loss /= self.agent_params['num_critic_updates_per_agent_update']
         
-        # softly update (moving exp average) target critic
-        if self.training_step % self.critic_target_update_frequency == 0:
-        # if False:
+        # softly update (moving exponential average) target critic
+        if self.training_step % self.critic_target_update_frequency == 0 and True:
             net1 = self.critic.Q1
             target_net1 = self.critic_target.Q1
             sac_utils.soft_update_params(net1, target_net1, self.critic_tau)
@@ -95,9 +96,8 @@ class SACAgent(BaseAgent):
             sac_utils.soft_update_params(net2, target_net2, self.critic_tau)
         
         # update actor
-        actor_loss, alpha_loss, alpha = 0.0, 0.0, self.actor.alpha # ???: find a better version
-        if self.training_step % self.actor_update_frequency == 0:
-        # if False:
+        actor_loss, alpha_loss, alpha = 0.0, 0.0, self.actor.alpha
+        if self.training_step % self.actor_update_frequency == 0 and True:
             alpha = 0.0
             for _ in range(self.agent_params['num_actor_updates_per_agent_update']):
                 actor_loss_t, alpha_loss_t, alpha_t = self.actor.update(ob_no, self.critic)
