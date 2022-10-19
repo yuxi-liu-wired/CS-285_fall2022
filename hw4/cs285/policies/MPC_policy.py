@@ -91,11 +91,6 @@ class MPCPolicy(BasePolicy):
 
             assert candidate_acs.shape == (num_sequences, horizon, self.ac_dim)
             return candidate_acs
-        elif self.sample_strategy == 'frwr':
-            # Implement action selection using FRWR, as described in 
-            # Section 3.3, "Filtering and Reward-Weighted Refinement"
-            # https://arxiv.org/pdf/1909.11652.pdf
-            raise Exception(f"Invalid sample_strategy: {self.sample_strategy}")
         else:
             raise Exception(f"Invalid sample_strategy: {self.sample_strategy}")
 
