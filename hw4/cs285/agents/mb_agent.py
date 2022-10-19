@@ -3,7 +3,8 @@ from cs285.models.ff_model import FFModel
 from cs285.policies.MPC_policy import MPCPolicy
 from cs285.infrastructure.replay_buffer import ReplayBuffer
 from cs285.infrastructure.utils import *
-
+from math import floor
+from typing import Dict, Tuple, NoneType
 
 class MBAgent(BaseAgent):
     def __init__(self, env, agent_params):
@@ -14,7 +15,7 @@ class MBAgent(BaseAgent):
         self.ensemble_size = self.agent_params['ensemble_size']
 
         self.dyn_models = []
-        for i in range(self.ensemble_size):
+        for _ in range(self.ensemble_size):
             model = FFModel(
                 self.agent_params['ac_dim'],
                 self.agent_params['ob_dim'],
@@ -37,37 +38,39 @@ class MBAgent(BaseAgent):
         )
 
         self.replay_buffer = ReplayBuffer()
+        
+        self.data_statistics = None
 
-    def train(self, ob_no, ac_na, re_n, next_ob_no, terminal_n):
+    def train(self, ob_no: np.array, ac_na: np.array, re_n: np.array, next_ob_no: np.array, terminal_n: np.array) -> Dict:
+        """ Train the ensemble of predictive models using observed state transitions.
+            NOTE: each model in the ensemble is trained on a different random batch
+            
+            Returns average training loss for the predictive models.
+        """
+        n_batch = ob_no.shape[0]
+        num_data_per_env = floor(n_batch / self.ensemble_size)
+        rand_indices = np.random.permutation(n_batch)
 
-        # training a MB agent refers to updating the predictive model using observed state transitions
-        # NOTE: each model in the ensemble is trained on a different random batch of size batch_size
-        losses = []
-        num_data = ob_no.shape[0]
-        num_data_per_ens = int(num_data / self.ensemble_size)
-
+        loss = 0
         for i in range(self.ensemble_size):
+            model = self.dyn_models[i]
+            indices = rand_indices[i*num_data_per_env:(i+1)*num_data_per_env]
+            observations = ob_no[indices,:]
+            actions = ac_na[indices,:]
+            next_observations = next_ob_no[indices,:]
 
-            # select which datapoints to use for this model of the ensemble
-            # you might find the num_data_per_env variable defined above useful
-
-            observations = # TODO(Q1)
-            actions = # TODO(Q1)
-            next_observations = # TODO(Q1)
-
-            # use datapoints to update one of the dyn_models
-            model =  # TODO(Q1)
+            # update model
+            assert self.data_statistics is not None
             log = model.update(observations, actions, next_observations,
                                 self.data_statistics)
-            loss = log['Training Loss']
-            losses.append(loss)
-
-        avg_loss = np.mean(losses)
+            loss += log['Training Loss']
+        loss /= self.ensemble_size
+        
         return {
-            'Training Loss': avg_loss,
+            'Training Loss': loss,
         }
 
-    def add_to_replay_buffer(self, paths, add_sl_noise=False):
+    def add_to_replay_buffer(self, paths, add_sl_noise=False) -> NoneType:
 
         # add data to replay buffer
         self.replay_buffer.add_rollouts(paths, noised=add_sl_noise)

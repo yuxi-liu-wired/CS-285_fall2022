@@ -47,13 +47,11 @@ class MPCPolicy(BasePolicy):
             print(f"CEM params: alpha={self.cem_alpha}, "
                 + f"num_elites={self.cem_num_elites}, iterations={self.cem_iterations}")
 
-    def sample_action_sequences(self, num_sequences, horizon, obs=None):
-        if self.sample_strategy == 'random' \
-            or (self.sample_strategy == 'cem' and obs is None):
-            # TODO(Q1) uniformly sample trajectories and return an array of
-            # dimensions (num_sequences, horizon, self.ac_dim) in the range
-            # [self.low, self.high]
-            return random_action_sequences
+    def sample_action_sequences(self, num_sequences, horizon, obs=None) -> np.array:
+        if self.sample_strategy == 'random' or (self.sample_strategy == 'cem' and obs is None):
+            return np.random.uniform(low=self.low, high=self.high, 
+                                     size=(num_sequences, horizon, self.ac_dim))
+            
         elif self.sample_strategy == 'cem':
             # TODO(Q5): Implement action selection using CEM.
             # Begin with randomly selected actions, then refine the sampling distribution
@@ -74,6 +72,8 @@ class MPCPolicy(BasePolicy):
             cem_action = None
 
             return cem_action[None]
+        elif self.sample_strategy == 'frwr':
+            raise Exception(f"Invalid sample_strategy: {self.sample_strategy}")
         else:
             raise Exception(f"Invalid sample_strategy: {self.sample_strategy}")
 
