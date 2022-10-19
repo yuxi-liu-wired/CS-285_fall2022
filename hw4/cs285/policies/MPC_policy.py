@@ -159,9 +159,19 @@ class MPCPolicy(BasePolicy):
         sum_of_rewards = np.zeros((self.N,))
         for i in range(horizon):
             acs = candidate_action_sequences[:,i,:]
-            rew = self.env.get_reward(obs, acs)
+            rew, _ = self.env.get_reward(obs, acs) # Is it okay to ignore terminal??
             assert rew.shape == (self.N,)
             sum_of_rewards += rew
             obs = model.get_prediction(obs, acs, self.data_statistics) 
         
         return sum_of_rewards
+
+    def predict(self, ob_no, ac_na):
+        """ Compute the average next state according to the ensemble of models.
+        """
+        assert self.data_statistics is not None
+        next_ob_no = np.zeros(shape=ob_no.shape)
+        for model in self.dyn_models:
+            next_ob_no += model.get_prediction(ob_no, ac_na, self.data_statistics)
+        next_ob_no /= len(self.dyn_models)
+        return next_ob_no

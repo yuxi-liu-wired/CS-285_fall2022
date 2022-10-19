@@ -104,7 +104,7 @@ def sample_n_trajectories(env, policy, ntraj, max_path_length, render=False):
     """
         Collect ntraj rollouts using policy.
     """
-    # get this from Ed???
+    # get this from Ed??
     paths = []
 
     for i in range(ntraj):

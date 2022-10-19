@@ -95,3 +95,8 @@ class MBAgent(BaseAgent):
         # so each model in our ensemble can get trained on batch_size data
         return self.replay_buffer.sample_random_data(
             batch_size * self.ensemble_size)
+
+    def predict(self, ob_no, ac_na):
+        """ Compute the average next state according to the ensemble of models.
+        """
+        return self.actor.predict(ob_no, ac_na)

@@ -161,12 +161,11 @@ class RL_Trainer(object):
             if isinstance(self.agent, MBPOAgent):
                 for _ in range(self.sac_params['n_iter']):
                     if self.params['mbpo_rollout_length'] > 0:
-                        # TODO(Q6): Collect trajectory of length self.params['mbpo_rollout_length'] from the 
-                        # learned dynamics model. Add this trajectory to the correct replay buffer.
-                        # HINT: Look at collect_model_trajectory and add_to_replay_buffer from MBPOAgent.
-                        # HINT: Use the from_model argument to ensure the paths are added to the correct buffer.
-                        pass
-                    # train the SAC agent
+                        # Rollout from the dynamics model. Add to the model-free sub-agent's replay buffer. 
+                        # Do NOT add to the dynamics model replay buffer, else the it would lose touch with reality.
+                        paths = self.agent.collect_model_trajectory(rollout_length=self.params['mbpo_rollout_length'])
+                        self.agent.add_to_replay_buffer(paths, from_model=True)
+                    # train the sub-agent
                     self.train_sac_agent()
 
             # if there is a model, log model predictions
@@ -229,12 +228,17 @@ class RL_Trainer(object):
         return all_logs
 
     def train_sac_agent(self):
-        # TODO: Train the SAC component of the MBPO agent.
-        # For self.sac_params['num_agent_train_steps_per_iter']:
-        # 1) sample a batch of data of size self.sac_params['train_batch_size'] with self.agent.sample_sac
-        # 2) train the SAC agent self.agent.train_sac
-        # HINT: This will look similar to train_agent above.
-        pass
+        # Train the model-free sub-agent of the MBPO agent.
+        # print('\nTraining sub-agent using sampled data from sub-agent replay buffer...')
+        all_logs = []
+        for train_step in range(self.params['num_agent_train_steps_per_iter']):
+            # sample a batch of data to train the SAC sub-agent of the MBPO agent
+            ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = self.agent.sample_sac(self.params['train_batch_size'])
+            train_log = self.agent.train_sac(ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch)
+            
+            # keep the agent's training log for debugging
+            all_logs.append(train_log)
+        return all_logs
 
     ####################################
     ####################################
