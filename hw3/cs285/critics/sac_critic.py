@@ -74,7 +74,8 @@ class SACCritic(nn.Module, BaseCritic):
         assert q1.shape == target_n.shape
         assert q2.shape == target_n.shape
         
-        loss = self.loss(q1, target_n) + self.loss(q2, target_n)
+        # loss = self.loss(q1, target_n) + self.loss(q2, target_n)
+        loss = ((q1 - target_n) ** 2 + (q2 - target_n) ** 2).sum() / target_n.shape[0]
         
         self.optimizer.zero_grad()
         loss.backward()

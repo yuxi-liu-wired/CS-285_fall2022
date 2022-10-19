@@ -169,10 +169,10 @@ Indeed, in all cases, we have matched the 200 reward. The best one uses `-ntu 10
 Data put in
 
 ```
-q4_1_1_CartPole-v0_06-10-2022_11-14-43
-q4_10_10_CartPole-v0_06-10-2022_10-34-17
-q4_100_1_CartPole-v0_06-10-2022_10-34-17
-q4_1_100_CartPole-v0_06-10-2022_10-34-17
+q4_1_1_CartPole-v1_06-10-2022_12-04-06
+q4_100_1_CartPole-v1_06-10-2022_12-04-06
+q4_10_10_CartPole-v1_06-10-2022_12-04-06
+q4_1_100_CartPole-v1_06-10-2022_12-04-06
 ```
 
 ### Question 5: Run actor-critic with more difficult tasks
@@ -230,12 +230,20 @@ Here the number of iterations stands for the number of environment steps taken.
 python cs285/scripts/run_hw3_sac.py --env_name InvertedPendulum-v4 --ep_len 1000 --discount 0.99 --scalar_log_freq 1000 -n 100000 -l 2 -s 256 -b 1000 -eb 2000 -lr 0.0003 --init_temperature 0.1 --exp_name q6a_sac_InvertedPendulum --seed 1
 ```
 
+After extensive hacking, we found one that passed the autograder.
+
+```
+python cs285/scripts/run_hw3_sac.py --env_name InvertedPendulum-v4 --ep_len 1000 --discount 0.99 --scalar_log_freq 1000 -n 100000 -l 2 -s 256 -b 1000 -eb 2000 -lr 3e-5 --init_temperature 0.1 --exp_name q6a_sac_InvertedPendulum_lr3e5 --seed 1
+```
+
+Data put in `q6a_sac_InvertedPendulum_lr3e5_InvertedPendulum-v4_17-10-2022_22-47-25`
+
 |![](images/6_1.png)|
 |:--:|
 | <b>Fig 6.1. Learning curves for InvertedPendulum-v4.</b>|
 
 ```
-python cs285/scripts/run_hw3_sac.py --env_name HalfCheetah-v4 --ep_len 150 --discount 0.99 --scalar_log_freq 1500 -n 2000000 -l 2 -s 256 -b 1500 -eb 1500 -lr 0.0003 --init_temperature 0.1 --exp_name q6b_sac_HalfCheetah --seed 1
+python cs285/scripts/run_hw3_sac.py --env_name HalfCheetah-v4 --ep_len 150 --discount 0.99 --scalar_log_freq 1500 -n 200000 -l 2 -s 256 -b 1500 -eb 1500 -lr 0.0003 --init_temperature 0.1 --exp_name q6b_sac_HalfCheetah --seed 1
 ```
 
 What you should see
@@ -257,15 +265,39 @@ Grading criteria
 Experiment: using `--actor_update_frequency 10`. This made the actor unable to learn and the actor_loss steadily increased while both `train_return` and `eval_return` failed to improve.
 
 ```
-python cs285/scripts/run_hw3_sac.py --env_name HalfCheetah-v4 --ep_len 150 --discount 0.99 --scalar_log_freq 1500 -n 2000000 -l 2 -s 256 -b 1500 -eb 1500 -lr 0.0003 --init_temperature 0.1 --exp_name q6b_sac_HalfCheetah_auf10 --actor_update_frequency 10 --seed 1
+python cs285/scripts/run_hw3_sac.py --env_name HalfCheetah-v4 --ep_len 150 --discount 0.99 --scalar_log_freq 1500 -n 200000 -l 2 -s 256 -b 1500 -eb 1500 -lr 0.0003 --init_temperature 0.1 --exp_name q6b_sac_HalfCheetah_auf10 --actor_update_frequency 10 --seed 1
 ```
 
 Experiment: in computing $J_Q(\theta)$, use the mean action $\bar a_t$ from the actor, rather than sampling an action $a_t$. This made both actor and critic loss to shoot up.
 
 ```
-python cs285/scripts/run_hw3_sac.py --env_name HalfCheetah-v4 --ep_len 150 --discount 0.99 --scalar_log_freq 1500 -n 2000000 -l 2 -s 256 -b 1500 -eb 1500 -lr 0.0003 --init_temperature 0.1 --exp_name q6b_sac_HalfCheetah_mean --seed 1
+python cs285/scripts/run_hw3_sac.py --env_name HalfCheetah-v4 --ep_len 150 --discount 0.99 --scalar_log_freq 1500 -n 200000 -l 2 -s 256 -b 1500 -eb 1500 -lr 0.0003 --init_temperature 0.1 --exp_name q6b_sac_HalfCheetah_mean --seed 1
+```
+
+Experiment: whatever this does. `-tb 1500 -lr 3e-5`
+```
+python cs285/scripts/run_hw3_sac.py --env_name HalfCheetah-v4 --ep_len 150 --discount 0.99 --scalar_log_freq 1500 -n 200000 -l 2 -s 256 -b 1500 -tb 1500 -eb 1500 -lr 3e-5 --init_temperature 0.1 --exp_name q6b_sac_HalfCheetah_lr3e-5_tb1500 --seed 1
+```
+
+This one had better performance, but still no 300. Time for more experiments.
+
+Many tears later, I found some hyperparameters that worked alright... and it's 
+
+```
+python cs285/scripts/run_hw3_sac.py --env_name HalfCheetah-v4 --ep_len 150 --discount 0.99 --scalar_log_freq 1500 -n 200000 -l 2 -s 256 -b 1500 -eb 1500 -tb 256 -lr 3e-4 --init_temperature 0.1 --seed 1 --exp_name q6b_HalfCheetah_lr3e-4_tb256
+```
+
+```
+python cs285/scripts/run_hw3_sac.py --env_name HalfCheetah-v4 --ep_len 150 --discount 0.99 --scalar_log_freq 1500 -n 200000 -l 2 -s 256 -b 1500 -eb 1500 -tb 512 -lr 1e-4 --init_temperature 0.1 --seed 1 --exp_name q6b_HalfCheetah_lr1e-4_tb512_l2
 ```
 
 |![](images/6_2.png)|
 |:--:|
 | <b>Fig 6.2. Learning curves for HalfCheetah-v4.</b>|
+
+Fuck everything and try again, without any decoration. Using just the default hyperparameters and nothing more.
+```
+python cs285/scripts/run_hw3_sac.py --env_name HalfCheetah-v4 --ep_len 150 --discount 0.99 --scalar_log_freq 1500 -n 2000000 -l 2 -s 256 -b 1500 -eb 1500 -lr 0.0003 --init_temperature 0.1 --exp_name q6b_sac_HalfCheetah --seed 1
+```
+
+Fuck everything. It's impossible to even replicate what I did before with the exact same command. Fuck it all.!!

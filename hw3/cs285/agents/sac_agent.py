@@ -48,14 +48,18 @@ class SACAgent(BaseAgent):
 
     def update_critic(self, ob_no, ac_na, next_ob_no, re_n, terminal_n):
         n_samples = ob_no.shape[0]
+        assert ob_no.shape == (n_samples, self.actor.ob_dim)
 
         # sample next action
         ac_tp1_dist = self.actor(next_ob_no)
-        # ac_tp1_na = ac_tp1_dist.mean
         ac_tp1_na = ac_tp1_dist.sample() # the critic doesn't need to do reparametrization trick.
+        assert ac_tp1_na.shape == (n_samples, self.actor.ac_dim)
         
         # compute entropy reward
-        ac_tp1_logprob_n = ac_tp1_dist.log_prob(ac_tp1_na).sum(dim=1)
+        ac_tp1_logprob_n = ac_tp1_dist.log_prob(ac_tp1_na)
+        assert ac_tp1_logprob_n.shape == (n_samples, self.actor.ac_dim)
+        
+        ac_tp1_logprob_n = ac_tp1_logprob_n.sum(dim=1)
         assert ac_tp1_logprob_n.shape == (n_samples,)
         
         # compute target Q(s_{t+1}, a_{t+1})
@@ -63,6 +67,7 @@ class SACAgent(BaseAgent):
         assert q_tp1_n.shape == (n_samples,)
         
         # compute target for the two Q networks of the critic
+        assert terminal_n.shape == (n_samples,)
         target_q_t_n = re_n + self.gamma * (1.0 - terminal_n) * (q_tp1_n - self.actor.alpha * ac_tp1_logprob_n)
         target_q_t_n = target_q_t_n.detach()
         assert target_q_t_n.shape == (n_samples,)

@@ -77,27 +77,33 @@ class MLPPolicySAC(MLPPolicy):
     def update(self, ob_no: torch.Tensor, critic):
         # policy gradient on actor network
         n_batch = ob_no.shape[0]
+        assert ob_no.shape == (n_batch, self.ob_dim)
+        
         ac_t_dist = self.forward(ob_no)
         ac_t_na = ac_t_dist.rsample() # need the reparametrization trick
+        assert ac_t_na.shape == (n_batch, self.ac_dim)
         
         # Q(s_t, a_t)
         q_t_n = critic.forward(ob_no, ac_t_na)
         assert q_t_n.shape == (n_batch,)
         
         # ln pi(a_t | s_t), which needs to be summed over all action dimensions.
-        log_action_probability_n = ac_t_dist.log_prob(ac_t_na).sum(dim=1)
+        log_action_probability_n = ac_t_dist.log_prob(ac_t_na)
+        assert log_action_probability_n.shape == (n_batch, self.ac_dim) 
+        
+        log_action_probability_n = log_action_probability_n.sum(dim=1)
         assert log_action_probability_n.shape == (n_batch,)
         
         # actor_loss = -(log_action_probability_n * adv_n).mean()
         # Because of the reparametrization trick, we should NOT use the log-score method like in policy gradient!
-        actor_loss = (self.alpha * log_action_probability_n - q_t_n).mean()
+        actor_loss = (self.alpha * log_action_probability_n - q_t_n).sum()/n_batch
         self.optimizer.zero_grad()
         actor_loss.backward()
         self.optimizer.step()
         
         # update alpha (entropy regularizer)
         # must detach ln pi(a_t | s_t) to avoid backpropagating into where it should not be.
-        alpha_loss = - self.alpha * (log_action_probability_n.detach().mean() + self.target_entropy)
+        alpha_loss = - self.alpha * (log_action_probability_n.detach().sum()/n_batch + self.target_entropy)
         self.log_alpha_optimizer.zero_grad()
         alpha_loss.backward()
         self.log_alpha_optimizer.step()
