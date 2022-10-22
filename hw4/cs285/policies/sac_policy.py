@@ -42,11 +42,6 @@ class MLPPolicySAC(MLPPolicy):
         # TODO: get this from previous HW
         return action
 
-    # This function defines the forward pass of the network.
-    # You can return anything you want, but you should be able to differentiate
-    # through it. For example, you can return a torch.FloatTensor. You can also
-    # return more flexible objects, such as a
-    # `torch.distributions.Distribution` object. It's up to you!
     def forward(self, observation: torch.FloatTensor):
         # TODO: get this from previous HW
         return action_distribution

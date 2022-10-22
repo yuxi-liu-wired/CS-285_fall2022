@@ -4,7 +4,8 @@ from torch import optim
 from cs285.models.base_model import BaseModel
 from cs285.infrastructure.utils import normalize, unnormalize
 from cs285.infrastructure import pytorch_util as ptu
-
+import numpy as np
+from typing import Dict, Tuple, NoneType
 
 class FFModel(nn.Module, BaseModel):
 
@@ -37,13 +38,13 @@ class FFModel(nn.Module, BaseModel):
 
     def update_statistics(
             self,
-            obs_mean,
-            obs_std,
-            acs_mean,
-            acs_std,
-            delta_mean,
+            obs_mean: np.array,
+            obs_std: np.array,
+            acs_mean: np.array,
+            acs_std: np.array,
+            delta_mean: np.array,
             delta_std,
-    ):
+    ) -> NoneType:
         self.obs_mean = ptu.from_numpy(obs_mean)
         self.obs_std = ptu.from_numpy(obs_std)
         self.acs_mean = ptu.from_numpy(acs_mean)
@@ -53,15 +54,15 @@ class FFModel(nn.Module, BaseModel):
 
     def forward(
             self,
-            obs_unnormalized,
-            acs_unnormalized,
-            obs_mean,
-            obs_std,
-            acs_mean,
-            acs_std,
-            delta_mean,
-            delta_std,
-    ):
+            obs_unnormalized: torch.Tensor,
+            acs_unnormalized: torch.Tensor,
+            obs_mean: torch.Tensor,
+            obs_std: torch.Tensor,
+            acs_mean: torch.Tensor,
+            acs_std: torch.Tensor,
+            delta_mean: torch.Tensor,
+            delta_std: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         :param obs_unnormalized: Unnormalized observations
         :param acs_unnormalized: Unnormalized actions
@@ -77,21 +78,39 @@ class FFModel(nn.Module, BaseModel):
             2. `delta_pred_normalized` which is the normalized (i.e. not
                 unnormalized) output of the delta network. This is needed
         """
+        n_batch = obs_unnormalized.shape[0]
+        assert obs_unnormalized.shape == (n_batch, self.ob_dim)
+        assert obs_mean.shape == (n_batch, self.ob_dim)
+        assert obs_std.shape == (n_batch, self.ob_dim)
+        assert delta_mean.shape == (n_batch, self.ob_dim)
+        assert delta_std.shape == (n_batch, self.ob_dim)
+        assert acs_unnormalized.shape == (n_batch, self.ac_dim)
+        assert acs_mean.shape == (n_batch, self.ac_dim)
+        assert acs_std.shape == (n_batch, self.ac_dim)
+        
         # normalize input data to mean 0, std 1
-        obs_normalized = # TODO(Q1)
-        acs_normalized = # TODO(Q1)
+        obs_normalized = normalize(obs_unnormalized, obs_mean, obs_std)
+        acs_normalized = normalize(acs_unnormalized, acs_mean, acs_std)
+        assert obs_normalized.shape == (n_batch, self.ob_dim)
+        assert acs_normalized.shape == (n_batch, self.ac_dim)
 
         # predicted change in obs
         concatenated_input = torch.cat([obs_normalized, acs_normalized], dim=1)
+        assert concatenated_input.shape == (n_batch, self.ob_dim + self.ac_dim)
 
-        # TODO(Q1) compute delta_pred_normalized and next_obs_pred
-        # Hint: as described in the PDF, the output of the network is the
-        # *normalized change* in state, i.e. normalized(s_t+1 - s_t).
-        delta_pred_normalized = # TODO(Q1)
-        next_obs_pred = # TODO(Q1)
+        # compute delta_pred_normalized and next_obs_pred
+        # the output of the network is normalized(s_t+1 - s_t).
+        delta_pred_normalized = self.delta_network(concatenated_input)
+        assert delta_pred_normalized.shape == (n_batch, self.ob_dim)
+        
+        delta_pred_unnormalized = unnormalize(delta_pred_normalized, delta_mean, delta_std)
+        assert delta_pred_unnormalized.shape == (n_batch, self.ob_dim)
+        next_obs_pred = obs_unnormalized + delta_pred_unnormalized
+        assert next_obs_pred.shape == (n_batch, self.ob_dim)
+        
         return next_obs_pred, delta_pred_normalized
 
-    def get_prediction(self, obs, acs, data_statistics):
+    def get_prediction(self, obs: np.array, acs: np.array, data_statistics: Dict) -> np.array:
         """
         :param obs: numpy array of observations (s_t)
         :param acs: numpy array of actions (a_t)
@@ -105,16 +124,37 @@ class FFModel(nn.Module, BaseModel):
              - 'delta_std'
         :return: a numpy array of the predicted next-states (s_t+1)
         """
-        prediction = # TODO(Q1) get the predicted next-states (s_t+1) as a numpy array
-        # Hint: `self(...)` returns a tuple, but you only need to use one of the
-        # outputs.
+        
+        assert obs.shape[0] > 0
+        assert obs.shape[1] == self.ob_dim
+        
+        obs_unnormalized=ptu.from_numpy(obs)
+        acs_unnormalized=ptu.from_numpy(acs)
+        obs_mean=ptu.from_numpy(data_statistics["obs_mean"])
+        obs_std=ptu.from_numpy(data_statistics["obs_std"])
+        acs_mean=ptu.from_numpy(data_statistics["acs_mean"])
+        acs_std=ptu.from_numpy(data_statistics["acs_std"])
+        delta_mean=ptu.from_numpy(data_statistics["delta_mean"])
+        delta_std=ptu.from_numpy(data_statistics["delta_std"])
+        
+        prediction, _ = self(
+            obs_unnormalized,
+            acs_unnormalized,
+            obs_mean,
+            obs_std,
+            acs_mean,
+            acs_std,
+            delta_mean,
+            delta_std,
+            )
+
         return prediction
 
-    def update(self, observations, actions, next_observations, data_statistics):
+    def update(self, obs: np.array, acs: np.array, next_obs: np.array, data_statistics: Dict) -> Dict:
         """
-        :param observations: numpy array of observations
-        :param actions: numpy array of actions
-        :param next_observations: numpy array of next observations
+        :param obs: numpy array of observations
+        :param acs: numpy array of actions
+        :param next_obs: numpy array of next observations
         :param data_statistics: A dictionary with the following keys (each with
         a numpy array as the value):
              - 'obs_mean'
@@ -123,17 +163,43 @@ class FFModel(nn.Module, BaseModel):
              - 'acs_std'
              - 'delta_mean'
              - 'delta_std'
-        :return:
+        :return: training loss
         """
-        target = # TODO(Q1) compute the normalized target for the model.
-        # Hint: you should use `data_statistics['delta_mean']` and
-        # `data_statistics['delta_std']`, which keep track of the mean
-        # and standard deviation of the model.
+        delta_target_normalized = normalize(next_obs - obs, 
+                                            data_statistics["delta_mean"], 
+                                            data_statistics["delta_std"])
+        delta_target_normalized = ptu.from_numpy(delta_target_normalized)
 
-        loss = # TODO(Q1) compute the loss
-        # Hint: `self(...)` returns a tuple, but you only need to use one of the
-        # outputs.
-
+        obs_unnormalized=ptu.from_numpy(obs)
+        acs_unnormalized=ptu.from_numpy(acs)
+        obs_mean=ptu.from_numpy(data_statistics["obs_mean"])
+        obs_std=ptu.from_numpy(data_statistics["obs_std"])
+        acs_mean=ptu.from_numpy(data_statistics["acs_mean"])
+        acs_std=ptu.from_numpy(data_statistics["acs_std"])
+        delta_mean=ptu.from_numpy(data_statistics["delta_mean"])
+        delta_std=ptu.from_numpy(data_statistics["delta_std"])
+        
+        self.update_statistics(
+            obs_mean,
+            obs_std,
+            acs_mean,
+            acs_std,
+            delta_mean,
+            delta_std,
+        )
+        
+        _, delta_pred_normalized = self(
+            obs_unnormalized,
+            acs_unnormalized,
+            obs_mean,
+            obs_std,
+            acs_mean,
+            acs_std,
+            delta_mean,
+            delta_std,
+        )
+        
+        loss = self.loss(delta_pred_normalized, delta_target_normalized)
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
