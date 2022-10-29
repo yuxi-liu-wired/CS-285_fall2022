@@ -42,13 +42,13 @@ python cs285/scripts/run_hw4_mb.py --exp_name q2_obstacles_singleiteration --env
 
 Submit this run as part of your run logs, and include a plot of Train AverageReturn and Eval AverageReturn in your pdf. Note that these will just be single dots on the plot, since we ran this for just 1 iteration.
 
-Data put in `hw4_q2_obstacles_singleiteration_obstacles-cs285-v0_29-10-2022_10-08-57`
+Data put in `hw4_q2_obstacles_singleiteration_obstacles-cs285-v0_29-10-2022_11-32-38`
 
 |![](images/2.png)|
 |:--:|
 | <b>Fig 2. plot of Train AverageReturn and Eval AverageReturn.</b>|
 
-Expect Train AverageReturn to be around -160 and Eval AverageReturn to be around -70 to -50. Confirmed: `Eval_AverageReturn : -29.976, Train_AverageReturn : -164.490`.
+Expect Train AverageReturn to be around -160 and Eval AverageReturn to be around -70 to -50. Confirmed (actually, my eval return is a bit too good!): `Eval_AverageReturn : -29.98, Train_AverageReturn : -164.5`.
 
 ## Problem 3: MBRL algorithm with on-policy data collection and iterative model training
 
