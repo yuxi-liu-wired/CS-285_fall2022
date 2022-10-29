@@ -4,7 +4,7 @@ from cs285.policies.MPC_policy import MPCPolicy
 from cs285.infrastructure.replay_buffer import ReplayBuffer
 from cs285.infrastructure.utils import *
 from math import floor
-from typing import Dict, Tuple, NoneType
+from typing import Dict, Tuple
 
 class MBAgent(BaseAgent):
     def __init__(self, env, agent_params):
@@ -70,7 +70,7 @@ class MBAgent(BaseAgent):
             'Training Loss': loss,
         }
 
-    def add_to_replay_buffer(self, paths, add_sl_noise=False) -> NoneType:
+    def add_to_replay_buffer(self, paths, add_sl_noise=False) -> None:
 
         # add data to replay buffer
         self.replay_buffer.add_rollouts(paths, noised=add_sl_noise)

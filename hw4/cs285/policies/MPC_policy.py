@@ -66,6 +66,7 @@ class MPCPolicy(BasePolicy):
             # Implement action selection using CEM, as described in 
             # Section 3.3, "Iterative Random-Shooting with Refinement"
             # https://arxiv.org/pdf/1909.11652.pdf
+            assert obs.shape == (self.ob_dim,)
             
             elite_means = candidate_acs.mean(axis=0)
             elite_vars = candidate_acs.var(axis=0)
@@ -73,7 +74,8 @@ class MPCPolicy(BasePolicy):
             assert elite_vars.shape == (horizon, self.ac_dim)
             
             # refine the sampling distribution iteratively
-            for _ in range(self.cem_iterations):
+            for i in range(self.cem_iterations):
+                assert candidate_acs.shape == (num_sequences, horizon, self.ac_dim)
                 # Find elites
                 reward_acs = self.evaluate_candidate_sequences(candidate_acs, obs)
                 assert reward_acs.shape == (self.N,)
@@ -86,7 +88,7 @@ class MPCPolicy(BasePolicy):
                 elite_vars = (1.0 - self.cem_alpha) * elite_vars + self.cem_alpha * elite_acs.var(axis=0)
                 
                 # Sample candidate sequences from a Gaussian with the current elite mean and variance
-                candidate_acs = np.random.normal(loc=elite_means, scale=np.sqrt(elite_vars))
+                candidate_acs = np.random.normal(loc=elite_means, scale=np.sqrt(elite_vars), size=(num_sequences, horizon, self.ac_dim))
                 candidate_acs = candidate_acs.clip(self.low, self.high) # Is this a good idea??
 
             assert candidate_acs.shape == (num_sequences, horizon, self.ac_dim)
@@ -98,8 +100,12 @@ class MPCPolicy(BasePolicy):
         """ For each model in ensemble, compute the predicted sum of rewards.
             Returns a numpy array of shape (N,), the mean predictions across all ensembles.
         """
+        
         horizon = candidate_action_sequences.shape[1]
         assert candidate_action_sequences.shape == (self.N, horizon, self.ac_dim)
+        
+        assert obs.shape == (self.ob_dim,)
+        obs = np.repeat(obs[None], self.N, axis=0)
         assert obs.shape == (self.N, self.ob_dim)
         
         reward_candidates = np.zeros((self.N,))
@@ -115,6 +121,7 @@ class MPCPolicy(BasePolicy):
         """ 
         :return: a numpy array of shape (1, ac_dim), representing the MPC action to take.
         """
+        assert obs.shape == (self.ob_dim,)
         if self.data_statistics is None: # take random action
             action_to_take = self.sample_action_sequences(num_sequences=1, horizon=1)[0]
             assert action_to_take.shape == (1, self.ac_dim)

@@ -5,7 +5,7 @@ from cs285.models.base_model import BaseModel
 from cs285.infrastructure.utils import normalize, unnormalize
 from cs285.infrastructure import pytorch_util as ptu
 import numpy as np
-from typing import Dict, Tuple, NoneType
+from typing import Dict, Tuple
 
 class FFModel(nn.Module, BaseModel):
 
@@ -38,19 +38,19 @@ class FFModel(nn.Module, BaseModel):
 
     def update_statistics(
             self,
-            obs_mean: np.array,
-            obs_std: np.array,
-            acs_mean: np.array,
-            acs_std: np.array,
-            delta_mean: np.array,
-            delta_std,
-    ) -> NoneType:
-        self.obs_mean = ptu.from_numpy(obs_mean)
-        self.obs_std = ptu.from_numpy(obs_std)
-        self.acs_mean = ptu.from_numpy(acs_mean)
-        self.acs_std = ptu.from_numpy(acs_std)
-        self.delta_mean = ptu.from_numpy(delta_mean)
-        self.delta_std = ptu.from_numpy(delta_std)
+            obs_mean: torch.Tensor,
+            obs_std: torch.Tensor,
+            acs_mean: torch.Tensor,
+            acs_std: torch.Tensor,
+            delta_mean: torch.Tensor,
+            delta_std: torch.Tensor,
+    ) -> None:
+        self.obs_mean = obs_mean
+        self.obs_std = obs_std
+        self.acs_mean = acs_mean
+        self.acs_std = acs_std
+        self.delta_mean = delta_mean
+        self.delta_std = delta_std
 
     def forward(
             self,
@@ -80,13 +80,13 @@ class FFModel(nn.Module, BaseModel):
         """
         n_batch = obs_unnormalized.shape[0]
         assert obs_unnormalized.shape == (n_batch, self.ob_dim)
-        assert obs_mean.shape == (n_batch, self.ob_dim)
-        assert obs_std.shape == (n_batch, self.ob_dim)
-        assert delta_mean.shape == (n_batch, self.ob_dim)
-        assert delta_std.shape == (n_batch, self.ob_dim)
+        assert obs_mean.shape == (self.ob_dim,)
+        assert obs_std.shape == (self.ob_dim,)
+        assert delta_mean.shape == (self.ob_dim,)
+        assert delta_std.shape == (self.ob_dim,)
         assert acs_unnormalized.shape == (n_batch, self.ac_dim)
-        assert acs_mean.shape == (n_batch, self.ac_dim)
-        assert acs_std.shape == (n_batch, self.ac_dim)
+        assert acs_mean.shape == (self.ac_dim,)
+        assert acs_std.shape == (self.ac_dim,)
         
         # normalize input data to mean 0, std 1
         obs_normalized = normalize(obs_unnormalized, obs_mean, obs_std)
@@ -148,7 +148,7 @@ class FFModel(nn.Module, BaseModel):
             delta_std,
             )
 
-        return prediction
+        return ptu.to_numpy(prediction)
 
     def update(self, obs: np.array, acs: np.array, next_obs: np.array, data_statistics: Dict) -> Dict:
         """
