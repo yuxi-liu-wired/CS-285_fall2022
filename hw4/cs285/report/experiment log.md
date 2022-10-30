@@ -20,11 +20,12 @@ python cs285/scripts/run_hw4_mb.py --exp_name q1_cheetah_n500_arch2x250 --env_na
 
 Submit the generated plots.
 
-|![](images/1_1.png)|![](images/1_2.png)|![](images/1_3.png)|
-|:--:|
-| <b>Fig 1. Qualitative model predictions for each of the three runs above.</b>|
+|  | **n = 500, n_layers = 1, size = 32** | **n = 5, n_layers = 2, size = 250** | **n = 500, n_layers = 2, size = 250** |
+|---|---|---|---|
+| loss curve | ![](images/n500_arch1x32_itr_0_losses.png) | ![](images/n5_arch2x250_itr_0_losses.png) | ![](images/n500_arch2x250_itr_0_losses.png) |
+| example predictions and mean prediction errors | ![](images/n500_arch1x32_itr_0_predictions.png) | ![](images/n5_arch2x250_itr_0_predictions.png) | ![](images/n500_arch2x250_itr_0_predictions.png) |
 
-Which model performs the best and why?
+`(n = 500, n_layers = 2, size = 250)` gives the best loss curves, and the qualitatively closest fit between real rollouts and example rollouts. It is better than `(n = 5, n_layers = 2, size = 250)` because it is the same architecture trained for more steps (thus closer to convergence), andit is better than `(n = 500, n_layers = 1, size = 32)` because the neural network is bigger and thus has a higher capacity.
 
 ## Problem 2: Action selection by learned dynamics model and given reward function
 
@@ -60,6 +61,16 @@ python cs285/scripts/run_hw4_mb.py --exp_name q3_reacher --env_name reacher-cs28
 python cs285/scripts/run_hw4_mb.py --exp_name q3_cheetah --env_name cheetah-cs285-v0 --add_sl_noise --mpc_horizon 15 --num_agent_train_steps_per_iter 1500 --batch_size_initial 5000 --batch_size 5000 --n_iter 20 --video_log_freq -1 --mpc_action_sampling_strategy 'random'
 ```
 
+```python
+command_stem = "python cs285/scripts/run_hw4_mb.py \
+--exp_name q3_{envname} --env_name {envname}-cs285-v0 --add_sl_noise \
+--mpc_horizon {mpc_horizon} \
+--num_agent_train_steps_per_iter {natspi} --batch_size_initial 5000 --batch_size {batch_size} --n_iter {n_iter} \
+--video_log_freq -1 --mpc_action_sampling_strategy 'random'"
+
+params = [('obstacles', 10, 20, 1000, 12), ('reacher', 10, 1000, 5000, 15), ('cheetah', 15, 1500, 5000, 20)]
+```
+
 Expect rewards and time (assuming no GPU):
 
 | environment  | reward        | time (assuming no GPU)  |
@@ -68,9 +79,23 @@ Expect rewards and time (assuming no GPU):
 | reacher      | -250 to -300  | 2-3 hr                  |
 | cheetah      | 250 to 350    | 3-4 hr                  |
 
-Submit these runs as part of your run logs, and include the performance plots in your pdf.
+Actual performance matches very closely:
 
-Data put in `-`
+| environment  | reward        | time  |
+|------------- |-------------- |------------------------ |
+| obstacles    | -21    | 66 min                  |
+| reacher      | -273  | 2 hr 40 min                  |
+| cheetah      | 297    | 3 hr 20 min                  |
+
+I have a GPU, but I was running 11 experiments in parallel, so that may have slowed down the time for any particular run.
+
+Data put in
+
+```
+hw4_q3_obstacles_obstacles-cs285-v0_29-10-2022_11-45-05
+hw4_q3_reacher_reacher-cs285-v0_29-10-2022_11-45-05
+hw4_q3_cheetah_cheetah-cs285-v0_29-10-2022_11-45-05
+```
 
 |![](images/3.png)|
 |:--:|
@@ -104,29 +129,41 @@ python cs285/scripts/run_hw4_mb.py --exp_name q4_reacher_ensemble3 --env_name re
 python cs285/scripts/run_hw4_mb.py --exp_name q4_reacher_ensemble5 --env_name reacher-cs285-v0 --ensemble_size 5 --add_sl_noise --mpc_horizon 10 --num_agent_train_steps_per_iter 1000 --batch_size 800 --n_iter 15 --video_log_freq -1 --mpc_action_sampling_strategy 'random'
 ```
 
-1) Submit these runs as part of your run logs.
-
-2) Include the following plots (as well as captions that describe your observed trends) of the following:
-
-* effect of ensemble size
-* Effect of the number of candidate action sequences
-* efffect of planning horizon
-
 Generate your plots by extracting the corresponding performance numbers from your saved tensorboard eventfiles. Use titles and legends.
 
-Data put in `-`
+Data put in
 
-|![](images/4_ensemble_size.png)|
-|:--:|
-| <b>Fig 4.1. Effect of ensemble size.</b>|
+```
+hw4_q4_reacher_ensemble1_reacher-cs285-v0_29-10-2022_11-46-43
+hw4_q4_reacher_ensemble5_reacher-cs285-v0_29-10-2022_11-46-44
+hw4_q4_reacher_ensemble3_reacher-cs285-v0_29-10-2022_11-46-44
 
-|![](images/4_candidate_action.png)|
-|:--:|
-| <b>Fig 4.2. Effect of the number of candidate action sequences.</b>|
+hw4_q4_reacher_numseq100_reacher-cs285-v0_29-10-2022_11-46-44
+hw4_q4_reacher_numseq1000_reacher-cs285-v0_29-10-2022_11-46-44
 
-|![](images/4_planning_horizon.png)|
+hw4_q4_reacher_horizon5_reacher-cs285-v0_29-10-2022_11-46-43
+hw4_q4_reacher_horizon15_reacher-cs285-v0_29-10-2022_11-46-43
+hw4_q4_reacher_horizon30_reacher-cs285-v0_29-10-2022_11-46-43
+```
+
+|![](images/4_ensemble.png)|
 |:--:|
-| <b>Fig 4.3. Efffect of planning horizon.</b>|
+| <b>Fig 4.1. Effect of ensemble size. The ranking between best ensemble size is consistently 5 > 3 > 1 over all iterations of training. The training time scales roughly linearly with ensemble size.</b>|
+
+|![](images/4_numseq.png)|
+|:--:|
+| <b>Fig 4.2. Effect of the number of candidate action sequences. The reward is higher at first for 1000 samples, but their gap disappears. The training time is insensitive to this number.</b>|
+
+|![](images/4_horizon.png)|
+|:--:|
+| <b>Fig 4.3. Efffect of planning horizon. The ranking between best horizon length is consistently 15 > 30 > 5 over all iterations of training. The training time scales roughly linearly with planning horizon.</b>|
+
+Summary of findings:
+
+* The model performs better with larger ensemble than with a smaller one. 5 heads is better than 3, which is better than 1.
+* The model performs better with intermediate planning horizon. Too long, and the noise in the model dominates. Too short, and the actions are short-sighted.
+* The model performs about as badly with 100 random candidate action sequences as 1000. We are unclear about the reason.
+* Most of the time is spent on model rollouts (which calls a neural network), rather than on evaluating trajectories (which calls much simpler arithmetic functions). This explains why the training time scales roughly linearly with ensemble size and horizon length, but is insensitive to number of candidate action sequences.
 
 ## Problem 5: Compare MBRL using random-shooting and CEM on the cheetah env
 
