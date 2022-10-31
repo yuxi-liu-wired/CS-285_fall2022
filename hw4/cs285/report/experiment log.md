@@ -191,6 +191,14 @@ Be sure to include a title and legend on your plot, and be sure to generate your
 |:--:|
 | <b>Fig 5. Comparison between random-shooting with CEM. Describe how CEM affects results for different numbers of sampling iterations (2 vs. 4).</b>|
 
+Data put in
+
+```
+hw4_q5_cheetah_random_cheetah-cs285-v0_30-10-2022_12-33-49
+hw4_q5_cheetah_cem_2_cheetah-cs285-v0_30-10-2022_12-33-49
+hw4_q5_cheetah_cem_4_cheetah-cs285-v0_30-10-2022_12-33-49
+```
+
 ## Problem 6: Dyna with 10-step rollouts and SAC agent
 
 Method: use the learned model to generate additional samples to train a SAC agent.

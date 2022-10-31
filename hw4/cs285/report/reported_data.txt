@@ -1,1 +1,15 @@
 hw4_q2_obstacles_singleiteration_obstacles-cs285-v0_29-10-2022_11-32-38
+hw4_q3_obstacles_obstacles-cs285-v0_29-10-2022_11-45-05
+hw4_q3_reacher_reacher-cs285-v0_29-10-2022_11-45-05
+hw4_q3_cheetah_cheetah-cs285-v0_29-10-2022_11-45-05
+hw4_q4_reacher_ensemble1_reacher-cs285-v0_29-10-2022_11-46-43
+hw4_q4_reacher_ensemble5_reacher-cs285-v0_29-10-2022_11-46-44
+hw4_q4_reacher_ensemble3_reacher-cs285-v0_29-10-2022_11-46-44
+hw4_q4_reacher_numseq100_reacher-cs285-v0_29-10-2022_11-46-44
+hw4_q4_reacher_numseq1000_reacher-cs285-v0_29-10-2022_11-46-44
+hw4_q4_reacher_horizon5_reacher-cs285-v0_29-10-2022_11-46-43
+hw4_q4_reacher_horizon15_reacher-cs285-v0_29-10-2022_11-46-43
+hw4_q4_reacher_horizon30_reacher-cs285-v0_29-10-2022_11-46-43
+hw4_q5_cheetah_random_cheetah-cs285-v0_30-10-2022_12-33-49
+hw4_q5_cheetah_cem_2_cheetah-cs285-v0_30-10-2022_12-33-49
+hw4_q5_cheetah_cem_4_cheetah-cs285-v0_30-10-2022_12-33-49
