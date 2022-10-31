@@ -1,14 +1,13 @@
 from collections import OrderedDict
-
+from cs285.critics.sac_critic import SACCritic
 from cs285.infrastructure.replay_buffer import ReplayBuffer
 from cs285.infrastructure.utils import *
-from .base_agent import BaseAgent
-import gym
 from cs285.policies.sac_policy import MLPPolicySAC
-from cs285.critics.sac_critic import SACCritic
-import cs285.infrastructure.pytorch_util as ptu
+from .base_agent import BaseAgent
+from cs285.infrastructure import pytorch_util as ptu
 from cs285.infrastructure import sac_utils
 import torch
+import gym
 
 class SACAgent(BaseAgent):
     def __init__(self, env: gym.Env, agent_params):

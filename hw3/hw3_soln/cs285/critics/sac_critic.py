@@ -48,14 +48,22 @@ class SACCritic(nn.Module, BaseCritic):
         self.Q1.to(ptu.device)
         self.Q2.to(ptu.device)
         self.loss = nn.MSELoss()
-
         self.optimizer = optim.Adam(
             self.parameters(),
             self.learning_rate,
         )
+        # self.apply(sac_utils.weight_init)
 
     def forward(self, obs: torch.Tensor, action: torch.Tensor):
         obs_action = torch.cat([obs, action], dim=-1)
         q1 = self.Q1(obs_action)
         q2 = self.Q2(obs_action)
         return [q1, q2]
+
+    def forward_np(self, obs: np.ndarray, action: np.ndarray):
+        obs = ptu.from_numpy(obs)
+        predictions = self(obs)
+        return ptu.to_numpy(predictions)
+
+
+        
