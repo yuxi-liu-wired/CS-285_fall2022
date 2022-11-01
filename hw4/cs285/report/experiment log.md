@@ -216,3 +216,16 @@ python cs285/scripts/run_hw4_mbpo.py --exp_name q6_cheetah_rlen1 --env_name 'che
 
 python cs285/scripts/run_hw4_mbpo.py --exp_name q6_cheetah_rlen10 --env_name 'cheetah-cs285-v0' --add_sl_noise --num_agent_train_steps_per_iter 1500 --batch_size_initial 5000 --batch_size 5000 --n_iter 10 --video_log_freq -1 --sac_discount 0.99 --sac_n_layers 2 --sac_size 256 --sac_batch_size 1500 --sac_learning_rate 0.0003 --sac_init_temperature 0.1 --sac_n_iter 5000 --mbpo_rollout_length 10
 ```
+
+Data put in 
+
+```
+hw4_q6_cheetah_rlen0_cheetah-cs285-v0_01-11-2022_02-22-21
+hw4_q6_cheetah_rlen1_cheetah-cs285-v0_01-11-2022_02-27-56
+hw4_q6_cheetah_rlen10_cheetah-cs285-v0_01-11-2022_02-31-33
+```
+
+
+|![](images/6.png)|
+|:--:|
+| <b>Fig 6. Comparison between random-shooting with CEM and SAC. The evaluation return is consistently increasing with longer rollout lengths, from 0, 1, to 10.</b>|

@@ -231,7 +231,7 @@ class RL_Trainer(object):
         # Train the model-free sub-agent of the MBPO agent.
         # print('\nTraining sub-agent using sampled data from sub-agent replay buffer...')
         all_logs = []
-        for train_step in range(self.params['num_agent_train_steps_per_iter']):
+        for train_step in range(self.sac_params['num_agent_train_steps_per_iter']):
             # sample a batch of data to train the SAC sub-agent of the MBPO agent
             ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = self.agent.sample_sac(self.params['train_batch_size'])
             train_log = self.agent.train_sac(ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch)

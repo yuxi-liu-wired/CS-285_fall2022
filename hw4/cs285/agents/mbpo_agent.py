@@ -27,12 +27,11 @@ class MBPOAgent(BaseAgent):
         # sample 1 transition from the real replay buffer
         ob, _, _, _, terminal = self.mb_agent.replay_buffer.sample_random_data(batch_size=1)
         assert ob.shape == (1, ob.shape[1])
-        assert terminal.shape[0] == (1,)
-
+        assert terminal.shape == (1,)
         obs, acs, rewards, next_obs, terminals, image_obs = [], [], [], [], [], []
         for _ in range(rollout_length):
             # get the action from the SAC policy
-            ac = self.sac_agent.get_action(ob, sample=True)
+            ac = self.sac_agent.actor.get_action(ob, sample=True)
             
             # query the reward function to determine the reward of this transition
             rew, _ = self.env.get_reward(ob, ac) # Is it okay to ignore terminal??
