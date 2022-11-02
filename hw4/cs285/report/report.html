@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.140">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Yuxi Liu">
+
+<title>HW 4 report</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="report_files/libs/clipboard/clipboard.min.js"></script>
+<script src="report_files/libs/quarto-html/quarto.js"></script>
+<script src="report_files/libs/quarto-html/popper.min.js"></script>
+<script src="report_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="report_files/libs/quarto-html/anchor.min.js"></script>
+<link href="report_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="report_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="report_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="report_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="report_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">HW 4 report</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Yuxi Liu </p>
+          </div>
+  </div>
+    
+    
+  </div>
+  
+
+</header>
+
+<div class="cell" data-jupyter="{&quot;source_hidden&quot;:true}" data-tags="[]" data-execution_count="22">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> tbparse <span class="im">import</span> SummaryReader</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>base <span class="op">=</span> <span class="vs">r"..\..\data"</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_tb(base, filename):</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    reader <span class="op">=</span> SummaryReader(os.path.join(base, filename))</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> reader.scalars</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_data_array(df, tag):</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df[df.tag.<span class="bu">str</span>.contains(tag)][<span class="st">'value'</span>].to_numpy().squeeze()</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> filter_df(df):</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> get_data_array(df, <span class="st">'Eval_AverageReturn'</span>), get_data_array(df, <span class="st">'Eval_StdReturn'</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tags_df(df):</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df[<span class="st">'tag'</span>].unique()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="problem-1-supervised-training-of-dynamics-model" class="level2">
+<h2 class="anchored" data-anchor-id="problem-1-supervised-training-of-dynamics-model">Problem 1: supervised training of dynamics model</h2>
+<p>Goal: train <span class="math inline">\(f_\theta(s_t, a_t) = Normalize(\Delta s_t)\)</span>.</p>
+<p>Method:</p>
+<ul>
+<li>Real rollouts by random policy.</li>
+<li><span class="math inline">\(\arg\min_\theta MSE(f_\theta(s_t, a_t), Normalize(\Delta s_t))\)</span>.</li>
+<li>visualize the resulting predictions.</li>
+</ul>
+<pre><code>python cs285/scripts/run_hw4_mb.py --exp_name q1_cheetah_n500_arch1x32 --env_name cheetah-cs285-v0 --add_sl_noise --n_iter 1 --batch_size_initial 20000 --num_agent_train_steps_per_iter 500 --n_layers 1 --size 32 --scalar_log_freq -1 --video_log_freq -1 --mpc_action_sampling_strategy 'random'
+
+python cs285/scripts/run_hw4_mb.py --exp_name q1_cheetah_n5_arch2x250 --env_name cheetah-cs285-v0 --add_sl_noise --n_iter 1 --batch_size_initial 20000 --num_agent_train_steps_per_iter 5 --n_layers 2 --size 250 --scalar_log_freq -1 --video_log_freq -1 --mpc_action_sampling_strategy 'random'
+
+python cs285/scripts/run_hw4_mb.py --exp_name q1_cheetah_n500_arch2x250 --env_name cheetah-cs285-v0 --add_sl_noise --n_iter 1 --batch_size_initial 20000 --num_agent_train_steps_per_iter 500 --n_layers 2 --size 250 --scalar_log_freq -1 --video_log_freq -1 --mpc_action_sampling_strategy 'random'</code></pre>
+<p>Submit the generated plots.</p>
+<table class="table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>n = 500, n_layers = 1, size = 32</strong></th>
+<th><strong>n = 5, n_layers = 2, size = 250</strong></th>
+<th><strong>n = 500, n_layers = 2, size = 250</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>loss curve</td>
+<td><img src="images/n500_arch1x32_itr_0_losses.png" class="img-fluid"></td>
+<td><img src="images/n5_arch2x250_itr_0_losses.png" class="img-fluid"></td>
+<td><img src="images/n500_arch2x250_itr_0_losses.png" class="img-fluid"></td>
+</tr>
+<tr class="even">
+<td>example predictions and mean prediction errors</td>
+<td><img src="images/n500_arch1x32_itr_0_predictions.png" class="img-fluid"></td>
+<td><img src="images/n5_arch2x250_itr_0_predictions.png" class="img-fluid"></td>
+<td><img src="images/n500_arch2x250_itr_0_predictions.png" class="img-fluid"></td>
+</tr>
+</tbody>
+</table>
+<p><code>(n = 500, n_layers = 2, size = 250)</code> gives the best loss curves, and the qualitatively closest fit between real rollouts and example rollouts. It is better than <code>(n = 5, n_layers = 2, size = 250)</code> because it is the same architecture trained for more steps (thus closer to convergence), andit is better than <code>(n = 500, n_layers = 1, size = 32)</code> because the neural network is bigger and thus has a higher capacity.</p>
+</section>
+<section id="problem-2-action-selection-by-learned-dynamics-model-and-given-reward-function" class="level2">
+<h2 class="anchored" data-anchor-id="problem-2-action-selection-by-learned-dynamics-model-and-given-reward-function">Problem 2: Action selection by learned dynamics model and given reward function</h2>
+<p>Method:</p>
+<ul>
+<li>collect data with random policy</li>
+<li>train dynamics model <span class="math inline">\(f_\theta\)</span></li>
+<li>evaluate the MPC policy using <span class="math inline">\(f_\theta\)</span></li>
+<li>compare <code>Train AverageReturn</code> (from random policy) to <code>Eval AverageReturn</code> (from MPC policy).</li>
+</ul>
+<pre><code>python cs285/scripts/run_hw4_mb.py --exp_name q2_obstacles_singleiteration --env_name obstacles-cs285-v0 --add_sl_noise --num_agent_train_steps_per_iter 20 --n_iter 1 --batch_size_initial 5000 --batch_size 1000 --mpc_horizon 10 --video_log_freq -1 --mpc_action_sampling_strategy 'random'</code></pre>
+<p>Data put in <code>hw4_q2_obstacles_singleiteration_obstacles-cs285-v0_29-10-2022_11-32-38</code></p>
+<p>Expect Train AverageReturn to be around -160 and Eval AverageReturn to be around -70 to -50. Confirmed (actually, my eval return is a bit too good!): <code>Eval_AverageReturn : -29.98, Train_AverageReturn : -164.5</code>.</p>
+<div class="cell" data-execution_count="14">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> read_tb(base, <span class="st">'hw4_q2_obstacles_singleiteration_obstacles-cs285-v0_29-10-2022_11-32-38'</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>plt.scatter(<span class="dv">1</span>, get_data_array(df, <span class="st">'Eval_AverageReturn'</span>), label<span class="op">=</span><span class="st">"Eval"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>plt.scatter(<span class="dv">1</span>, get_data_array(df, <span class="st">'Train_AverageReturn'</span>), label<span class="op">=</span><span class="st">"Train"</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"plot of Train AverageReturn and Eval AverageReturn"</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>    step                                   tag        value
+0      0                     Eval_AverageEpLen    31.153847
+1      0                    Eval_AverageReturn   -29.976009
+2      0                        Eval_MaxReturn    -9.469909
+3      0                        Eval_MinReturn   -60.344978
+4      0                        Eval_StdReturn    17.100405
+5      0  Initial_DataCollection_AverageReturn  -164.489990
+6      0                        TimeSinceStart     9.415771
+7      0                    Train_AverageEpLen   101.000000
+8      0                   Train_AverageReturn  -164.489990
+9      0                   Train_EnvstepsSoFar  1010.000000
+10     0                       Train_MaxReturn   -91.216759
+11     0                       Train_MinReturn  -227.891647
+12     0                       Train_StdReturn    42.409618
+13     0                         Training_Loss     0.318721</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="report_files/figure-html/cell-3-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="problem-3-mbrl-algorithm-with-on-policy-data-collection-and-iterative-model-training" class="level2">
+<h2 class="anchored" data-anchor-id="problem-3-mbrl-algorithm-with-on-policy-data-collection-and-iterative-model-training">Problem 3: MBRL algorithm with on-policy data collection and iterative model training</h2>
+<pre><code>python cs285/scripts/run_hw4_mb.py --exp_name q3_obstacles --env_name obstacles-cs285-v0 --add_sl_noise --mpc_horizon 10 --num_agent_train_steps_per_iter 20 --batch_size_initial 5000 --batch_size 1000 --n_iter 12 --video_log_freq -1 --mpc_action_sampling_strategy 'random'
+
+python cs285/scripts/run_hw4_mb.py --exp_name q3_reacher --env_name reacher-cs285-v0 --add_sl_noise --mpc_horizon 10 --num_agent_train_steps_per_iter 1000 --batch_size_initial 5000 --batch_size 5000 --n_iter 15 --video_log_freq -1 --mpc_action_sampling_strategy 'random'
+
+python cs285/scripts/run_hw4_mb.py --exp_name q3_cheetah --env_name cheetah-cs285-v0 --add_sl_noise --mpc_horizon 15 --num_agent_train_steps_per_iter 1500 --batch_size_initial 5000 --batch_size 5000 --n_iter 20 --video_log_freq -1 --mpc_action_sampling_strategy 'random'</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>command_stem <span class="op">=</span> <span class="st">"python cs285/scripts/run_hw4_mb.py </span><span class="ch">\</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="st">--exp_name q3_</span><span class="sc">{envname}</span><span class="st"> --env_name </span><span class="sc">{envname}</span><span class="st">-cs285-v0 --add_sl_noise </span><span class="ch">\</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="st">--mpc_horizon </span><span class="sc">{mpc_horizon}</span><span class="st"> </span><span class="ch">\</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="st">--num_agent_train_steps_per_iter </span><span class="sc">{natspi}</span><span class="st"> --batch_size_initial 5000 --batch_size </span><span class="sc">{batch_size}</span><span class="st"> --n_iter </span><span class="sc">{n_iter}</span><span class="st"> </span><span class="ch">\</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="st">--video_log_freq -1 --mpc_action_sampling_strategy 'random'"</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> [(<span class="st">'obstacles'</span>, <span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">1000</span>, <span class="dv">12</span>), (<span class="st">'reacher'</span>, <span class="dv">10</span>, <span class="dv">1000</span>, <span class="dv">5000</span>, <span class="dv">15</span>), (<span class="st">'cheetah'</span>, <span class="dv">15</span>, <span class="dv">1500</span>, <span class="dv">5000</span>, <span class="dv">20</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Expect rewards and time (assuming no GPU):</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>environment</th>
+<th>reward</th>
+<th>time (assuming no GPU)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>obstacles</td>
+<td>-25 to -20</td>
+<td>40 min</td>
+</tr>
+<tr class="even">
+<td>reacher</td>
+<td>-250 to -300</td>
+<td>2-3 hr</td>
+</tr>
+<tr class="odd">
+<td>cheetah</td>
+<td>250 to 350</td>
+<td>3-4 hr</td>
+</tr>
+</tbody>
+</table>
+<p>Actual performance matches very closely:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>environment</th>
+<th>reward</th>
+<th>time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>obstacles</td>
+<td>-21</td>
+<td>66 min</td>
+</tr>
+<tr class="even">
+<td>reacher</td>
+<td>-273</td>
+<td>2 hr 40 min</td>
+</tr>
+<tr class="odd">
+<td>cheetah</td>
+<td>297</td>
+<td>3 hr 20 min</td>
+</tr>
+</tbody>
+</table>
+<p>I have a GPU, but I was running 11 experiments in parallel, so that may have slowed down the time for any particular run.</p>
+<p>Data put in</p>
+<pre><code>hw4_q3_obstacles_obstacles-cs285-v0_29-10-2022_11-45-05
+hw4_q3_reacher_reacher-cs285-v0_29-10-2022_11-45-05
+hw4_q3_cheetah_cheetah-cs285-v0_29-10-2022_11-45-05</code></pre>
+<div class="cell" data-execution_count="28">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>q3_obstacles <span class="op">=</span> read_tb(base, <span class="st">'hw4_q3_obstacles_obstacles-cs285-v0_29-10-2022_11-45-05'</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>q3_reacher <span class="op">=</span> read_tb(base, <span class="st">'hw4_q3_reacher_reacher-cs285-v0_29-10-2022_11-45-05'</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>q3_cheetah <span class="op">=</span> read_tb(base, <span class="st">'hw4_q3_cheetah_cheetah-cs285-v0_29-10-2022_11-45-05'</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>dfs <span class="op">=</span> [(q3_obstacles, <span class="st">"obstacles"</span>), (q3_reacher, <span class="st">"reacher"</span>), (q3_cheetah, <span class="st">"cheetah"</span>)]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> df, label <span class="kw">in</span> dfs:</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    xs<span class="op">=</span><span class="bu">range</span>(<span class="bu">len</span>(get_data_array(df, <span class="st">"Eval_AverageReturn"</span>)))</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    ys<span class="op">=</span>get_data_array(df, <span class="st">'Eval_AverageReturn'</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    yerrs<span class="op">=</span>get_data_array(df, <span class="st">'Eval_StdReturn'</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    plt.errorbar(xs, ys, yerr<span class="op">=</span>yerrs, label<span class="op">=</span>label)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"MBRL algorithm with on-policy data collection and iterative model training"</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<p><img src="report_files/figure-html/cell-4-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="problem-4-test-mbrl-on-3-hyperparameters" class="level2">
+<h2 class="anchored" data-anchor-id="problem-4-test-mbrl-on-3-hyperparameters">Problem 4: test MBRL on 3 hyperparameters</h2>
+<p>compare the performance of your MBRL algorithm as a function of three hyperparameters:</p>
+<ul>
+<li>the number of models in your ensemble,</li>
+<li>the number of random action sequences considered during each action selection,</li>
+<li>the MPC planning horizon.</li>
+</ul>
+<pre><code>python cs285/scripts/run_hw4_mb.py --exp_name q4_reacher_horizon5 --env_name reacher-cs285-v0 --add_sl_noise --mpc_horizon 5 --num_agent_train_steps_per_iter 1000 --batch_size 800 --n_iter 15 --video_log_freq -1 --mpc_action_sampling_strategy 'random'
+
+python cs285/scripts/run_hw4_mb.py --exp_name q4_reacher_horizon15 --env_name reacher-cs285-v0 --add_sl_noise --mpc_horizon 15 --num_agent_train_steps_per_iter 1000 --batch_size 800 --n_iter 15 --video_log_freq -1 --mpc_action_sampling_strategy 'random'
+
+python cs285/scripts/run_hw4_mb.py --exp_name q4_reacher_horizon30 --env_name reacher-cs285-v0 --add_sl_noise --mpc_horizon 30 --num_agent_train_steps_per_iter 1000 --batch_size 800 --n_iter 15 --video_log_freq -1 --mpc_action_sampling_strategy 'random'
+
+
+python cs285/scripts/run_hw4_mb.py --exp_name q4_reacher_numseq100 --env_name reacher-cs285-v0 --add_sl_noise --mpc_horizon 10 --num_agent_train_steps_per_iter 1000 --batch_size 800 --n_iter 15 --video_log_freq -1 --mpc_num_action_sequences 100 --mpc_action_sampling_strategy 'random'
+
+python cs285/scripts/run_hw4_mb.py --exp_name q4_reacher_numseq1000 --env_name reacher-cs285-v0 --add_sl_noise --mpc_horizon 10 --num_agent_train_steps_per_iter 1000 --batch_size 800 --n_iter 15 --video_log_freq -1 --mpc_num_action_sequences 1000 --mpc_action_sampling_strategy 'random'
+
+
+python cs285/scripts/run_hw4_mb.py --exp_name q4_reacher_ensemble1 --env_name reacher-cs285-v0 --ensemble_size 1 --add_sl_noise --mpc_horizon 10 --num_agent_train_steps_per_iter 1000 --batch_size 800 --n_iter 15 --video_log_freq -1 --mpc_action_sampling_strategy 'random'
+
+python cs285/scripts/run_hw4_mb.py --exp_name q4_reacher_ensemble3 --env_name reacher-cs285-v0 --ensemble_size 3 --add_sl_noise --mpc_horizon 10 --num_agent_train_steps_per_iter 1000 --batch_size 800 --n_iter 15 --video_log_freq -1 --mpc_action_sampling_strategy 'random'
+
+python cs285/scripts/run_hw4_mb.py --exp_name q4_reacher_ensemble5 --env_name reacher-cs285-v0 --ensemble_size 5 --add_sl_noise --mpc_horizon 10 --num_agent_train_steps_per_iter 1000 --batch_size 800 --n_iter 15 --video_log_freq -1 --mpc_action_sampling_strategy 'random'</code></pre>
+<p>Generate your plots by extracting the corresponding performance numbers from your saved tensorboard eventfiles. Use titles and legends.</p>
+<p>Data put in</p>
+<pre><code>hw4_q4_reacher_ensemble1_reacher-cs285-v0_29-10-2022_11-46-43
+hw4_q4_reacher_ensemble5_reacher-cs285-v0_29-10-2022_11-46-44
+hw4_q4_reacher_ensemble3_reacher-cs285-v0_29-10-2022_11-46-44
+
+hw4_q4_reacher_numseq100_reacher-cs285-v0_29-10-2022_11-46-44
+hw4_q4_reacher_numseq1000_reacher-cs285-v0_29-10-2022_11-46-44
+
+hw4_q4_reacher_horizon5_reacher-cs285-v0_29-10-2022_11-46-43
+hw4_q4_reacher_horizon15_reacher-cs285-v0_29-10-2022_11-46-43
+hw4_q4_reacher_horizon30_reacher-cs285-v0_29-10-2022_11-46-43</code></pre>
+<div class="cell" data-execution_count="33">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>q4_e1 <span class="op">=</span> read_tb(base, <span class="st">'hw4_q4_reacher_ensemble1_reacher-cs285-v0_29-10-2022_11-46-43'</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>q4_e3 <span class="op">=</span> read_tb(base, <span class="st">'hw4_q4_reacher_ensemble3_reacher-cs285-v0_29-10-2022_11-46-44'</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>q4_e5 <span class="op">=</span> read_tb(base, <span class="st">'hw4_q4_reacher_ensemble5_reacher-cs285-v0_29-10-2022_11-46-44'</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>dfs <span class="op">=</span> [(q4_e1, <span class="st">"ensemble 1"</span>), (q4_e3, <span class="st">"ensemble 3"</span>), (q4_e5, <span class="st">"ensemble 5"</span>)]</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> df, label <span class="kw">in</span> dfs:</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    xs<span class="op">=</span><span class="bu">range</span>(<span class="bu">len</span>(get_data_array(df, <span class="st">"Eval_AverageReturn"</span>)))</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    ys<span class="op">=</span>get_data_array(df, <span class="st">'Eval_AverageReturn'</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    yerrs<span class="op">=</span>get_data_array(df, <span class="st">'Eval_StdReturn'</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    plt.errorbar(xs, ys, yerr<span class="op">=</span>yerrs, label<span class="op">=</span>label)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"""Effect of ensemble size. The ranking between best ensemble size is </span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="st">consistently 5 &gt; 3 &gt; 1 over all iterations of training. </span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="st">The training time scales roughly linearly with ensemble size."""</span>)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<p><img src="report_files/figure-html/cell-5-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="34">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>q4_n100 <span class="op">=</span> read_tb(base, <span class="st">'hw4_q4_reacher_numseq100_reacher-cs285-v0_29-10-2022_11-46-44'</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>q4_n1000 <span class="op">=</span> read_tb(base, <span class="st">'hw4_q4_reacher_numseq1000_reacher-cs285-v0_29-10-2022_11-46-44'</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>dfs <span class="op">=</span> [(q4_n100, <span class="st">"numseq 100"</span>), (q4_n1000, <span class="st">"numseq 1000"</span>)]</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> df, label <span class="kw">in</span> dfs:</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    xs<span class="op">=</span><span class="bu">range</span>(<span class="bu">len</span>(get_data_array(df, <span class="st">"Eval_AverageReturn"</span>)))</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    ys<span class="op">=</span>get_data_array(df, <span class="st">'Eval_AverageReturn'</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    yerrs<span class="op">=</span>get_data_array(df, <span class="st">'Eval_StdReturn'</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    plt.errorbar(xs, ys, yerr<span class="op">=</span>yerrs, label<span class="op">=</span>label)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">""" Effect of the number of candidate action sequences. The reward is </span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="st">higher at first for 1000 samples, but their gap disappears. </span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="st">The training time is insensitive to this number."""</span>)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<p><img src="report_files/figure-html/cell-6-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="36">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>q4_h5 <span class="op">=</span> read_tb(base, <span class="st">'hw4_q4_reacher_horizon5_reacher-cs285-v0_29-10-2022_11-46-43'</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>q4_h10 <span class="op">=</span> read_tb(base, <span class="st">'hw4_q4_reacher_horizon15_reacher-cs285-v0_29-10-2022_11-46-43'</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>q4_h15 <span class="op">=</span> read_tb(base, <span class="st">'hw4_q4_reacher_horizon30_reacher-cs285-v0_29-10-2022_11-46-43'</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>dfs <span class="op">=</span> [(q4_h5, <span class="st">"horizon 5"</span>), (q4_h10, <span class="st">"horizon 10"</span>), (q4_h15, <span class="st">"horizon 15"</span>)]</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> df, label <span class="kw">in</span> dfs:</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    xs<span class="op">=</span><span class="bu">range</span>(<span class="bu">len</span>(get_data_array(df, <span class="st">"Eval_AverageReturn"</span>)))</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    ys<span class="op">=</span>get_data_array(df, <span class="st">'Eval_AverageReturn'</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    yerrs<span class="op">=</span>get_data_array(df, <span class="st">'Eval_StdReturn'</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    plt.errorbar(xs, ys, yerr<span class="op">=</span>yerrs, label<span class="op">=</span>label)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"""Efffect of planning horizon. The ranking between best horizon </span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="st">length is consistently 15 &gt; 30 &gt; 5 over all iterations of training. </span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="st">The training time scales roughly linearly with planning horizon."""</span>)</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<p><img src="report_files/figure-html/cell-7-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Summary of findings:</p>
+<ul>
+<li>The model performs better with larger ensemble than with a smaller one. 5 heads is better than 3, which is better than 1.</li>
+<li>The model performs better with intermediate planning horizon. Too long, and the noise in the model dominates. Too short, and the actions are short-sighted.</li>
+<li>The model performs about as badly with 100 random candidate action sequences as 1000. We are unclear about the reason.</li>
+<li>Most of the time is spent on model rollouts (which calls a neural network), rather than on evaluating trajectories (which calls much simpler arithmetic functions). This explains why the training time scales roughly linearly with ensemble size and horizon length, but is insensitive to number of candidate action sequences.</li>
+</ul>
+</section>
+<section id="problem-5-compare-mbrl-using-random-shooting-and-cem-on-the-cheetah-env" class="level2">
+<h2 class="anchored" data-anchor-id="problem-5-compare-mbrl-using-random-shooting-and-cem-on-the-cheetah-env">Problem 5: Compare MBRL using random-shooting and CEM on the cheetah env</h2>
+<p>Because CEM can be much slower than random-shooting, we will only run MBRL for 5 iterations for this problem. We will try two hyperparameter settings for CEM and compare their performance to random-shooting.</p>
+<pre><code>python cs285/scripts/run_hw4_mb.py --exp_name q5_cheetah_random --env_name 'cheetah-cs285-v0' --mpc_horizon 15 --add_sl_noise --num_agent_train_steps_per_iter 1500 --batch_size_initial 5000 --batch_size 5000 --n_iter 5 --video_log_freq -1 --mpc_action_sampling_strategy 'random'
+
+python cs285/scripts/run_hw4_mb.py --exp_name q5_cheetah_cem_2 --env_name 'cheetah-cs285-v0' --mpc_horizon 15 --add_sl_noise --num_agent_train_steps_per_iter 1500 --batch_size_initial 5000 --batch_size 5000 --n_iter 5 --video_log_freq -1 --mpc_action_sampling_strategy 'cem' --cem_iterations 2
+
+python cs285/scripts/run_hw4_mb.py --exp_name q5_cheetah_cem_4 --env_name 'cheetah-cs285-v0' --mpc_horizon 15 --add_sl_noise --num_agent_train_steps_per_iter 1500 --batch_size_initial 5000 --batch_size 5000 --n_iter 5 --video_log_freq -1 --mpc_action_sampling_strategy 'cem' --cem_iterations 4</code></pre>
+<p>Data put in</p>
+<pre><code>hw4_q5_cheetah_random_cheetah-cs285-v0_30-10-2022_12-33-49
+hw4_q5_cheetah_cem_2_cheetah-cs285-v0_30-10-2022_12-33-49
+hw4_q5_cheetah_cem_4_cheetah-cs285-v0_30-10-2022_12-33-49</code></pre>
+<div class="cell" data-execution_count="38">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>q5_r <span class="op">=</span> read_tb(base, <span class="st">'hw4_q5_cheetah_random_cheetah-cs285-v0_30-10-2022_12-33-49'</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>q5_cem2 <span class="op">=</span> read_tb(base, <span class="st">'hw4_q5_cheetah_cem_2_cheetah-cs285-v0_30-10-2022_12-33-49'</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>q5_cem4 <span class="op">=</span> read_tb(base, <span class="st">'hw4_q5_cheetah_cem_4_cheetah-cs285-v0_30-10-2022_12-33-49'</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>dfs <span class="op">=</span> [(q5_r, <span class="st">"random"</span>), (q5_cem2, <span class="st">"CEM 2"</span>), (q5_cem4, <span class="st">"CEM 4"</span>)]</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> df, label <span class="kw">in</span> dfs:</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    xs<span class="op">=</span><span class="bu">range</span>(<span class="bu">len</span>(get_data_array(df, <span class="st">"Eval_AverageReturn"</span>)))</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    ys<span class="op">=</span>get_data_array(df, <span class="st">'Eval_AverageReturn'</span>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    yerrs<span class="op">=</span>get_data_array(df, <span class="st">'Eval_StdReturn'</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    plt.errorbar(xs, ys, yerr<span class="op">=</span>yerrs, label<span class="op">=</span>label)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"""Comparison between random-shooting with CEM.</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="st">The ranking between sampling strategies is consistently</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="st">CEM 4 &gt; CEM 2 &gt; random, across training iterations."""</span>)</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<p><img src="report_files/figure-html/cell-8-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="problem-6-dyna-with-10-step-rollouts-and-sac-agent" class="level2">
+<h2 class="anchored" data-anchor-id="problem-6-dyna-with-10-step-rollouts-and-sac-agent">Problem 6: Dyna with 10-step rollouts and SAC agent</h2>
+<p>Method: use the learned model to generate additional samples to train a SAC agent.</p>
+<p>We will try three settings (each setting corresponds to a command below):</p>
+<ol type="1">
+<li>Model-free SAC baseline: no additional rollouts from the learned model.</li>
+<li>Dyna: add single-step rollouts from the model to the replay buffer and incorporate additional gradient steps per real world step.</li>
+<li>MBPO: add in 10-step rollouts from the model to the replay buffer and incorporate additional gradient steps per real world step.</li>
+</ol>
+<pre><code>python cs285/scripts/run_hw4_mbpo.py --exp_name q6_cheetah_rlen0 --env_name 'cheetah-cs285-v0' --add_sl_noise --num_agent_train_steps_per_iter 1500 --batch_size_initial 5000 --batch_size 5000 --n_iter 10 --video_log_freq -1 --sac_discount 0.99 --sac_n_layers 2 --sac_size 256 --sac_batch_size 1500 --sac_learning_rate 0.0003 --sac_init_temperature 0.1 --sac_n_iter 1000 --mbpo_rollout_length 0
+
+python cs285/scripts/run_hw4_mbpo.py --exp_name q6_cheetah_rlen1 --env_name 'cheetah-cs285-v0' --add_sl_noise --num_agent_train_steps_per_iter 1500 --batch_size_initial 5000 --batch_size 5000 --n_iter 10 --video_log_freq -1 --sac_discount 0.99 --sac_n_layers 2 --sac_size 256 --sac_batch_size 1500 --sac_learning_rate 0.0003 --sac_init_temperature 0.1 --sac_n_iter 5000 --mbpo_rollout_length 1
+
+python cs285/scripts/run_hw4_mbpo.py --exp_name q6_cheetah_rlen10 --env_name 'cheetah-cs285-v0' --add_sl_noise --num_agent_train_steps_per_iter 1500 --batch_size_initial 5000 --batch_size 5000 --n_iter 10 --video_log_freq -1 --sac_discount 0.99 --sac_n_layers 2 --sac_size 256 --sac_batch_size 1500 --sac_learning_rate 0.0003 --sac_init_temperature 0.1 --sac_n_iter 5000 --mbpo_rollout_length 10</code></pre>
+<p>Data put in</p>
+<pre><code>hw4_q6_cheetah_rlen0_cheetah-cs285-v0_01-11-2022_02-22-21
+hw4_q6_cheetah_rlen1_cheetah-cs285-v0_01-11-2022_02-27-56
+hw4_q6_cheetah_rlen10_cheetah-cs285-v0_01-11-2022_02-31-33</code></pre>
+<div class="cell" data-execution_count="40">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>q6_r0 <span class="op">=</span> read_tb(base, <span class="st">'hw4_q6_cheetah_rlen0_cheetah-cs285-v0_01-11-2022_02-22-21'</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>q6_r1 <span class="op">=</span> read_tb(base, <span class="st">'hw4_q6_cheetah_rlen1_cheetah-cs285-v0_01-11-2022_02-27-56'</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>q6_r10 <span class="op">=</span> read_tb(base, <span class="st">'hw4_q6_cheetah_rlen10_cheetah-cs285-v0_01-11-2022_02-31-33'</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>dfs <span class="op">=</span> [(q6_r0, <span class="st">"model-free SAC"</span>), (q6_r1, <span class="st">"Dyna"</span>), (q6_r10, <span class="st">"10-step MBPO"</span>)]</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> df, label <span class="kw">in</span> dfs:</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    xs<span class="op">=</span><span class="bu">range</span>(<span class="bu">len</span>(get_data_array(df, <span class="st">"Eval_AverageReturn"</span>)))</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    ys<span class="op">=</span>get_data_array(df, <span class="st">'Eval_AverageReturn'</span>)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    yerrs<span class="op">=</span>get_data_array(df, <span class="st">'Eval_StdReturn'</span>)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    plt.errorbar(xs, ys, yerr<span class="op">=</span>yerrs, label<span class="op">=</span>label)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"""Comparison between random-shooting with CEM and SAC. </span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="st">The evaluation return is consistently increasing </span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="st">with longer rollout lengths, from 0, 1, to 10."""</span>)</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<p><img src="report_files/figure-html/cell-9-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
