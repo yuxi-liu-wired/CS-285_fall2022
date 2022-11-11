@@ -12,20 +12,19 @@ class ArgMaxPolicy(object):
         self.critic = critic
 
     def get_action(self, obs):
-        # MJ: changed the dimension check to a 3
         if len(obs.shape) > 3:
             observation = obs
         else:
             observation = obs[None]
 
-        ## <DONE> return the action that maxinmizes the Q-value 
-        # at the current observation as the output
         q_values = self.critic.qa_values(observation)
 
-        if self.use_boltzmann:
-            distribution = np.exp(q_values) / np.sum(np.exp(q_values))
+        if self.use_boltzmann: # boltzmann sampling
+            # distribution = np.exp(q_values) / np.sum(np.exp(q_values))
+            distribution = np.exp(q_values) 
+            distribution /= distribution.sum()
             action = self.sample_discrete(distribution)
-        else:
+        else: # always argmax 
             action = q_values.argmax(-1)
 
         return action[0]

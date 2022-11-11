@@ -54,9 +54,9 @@ class ReplayBuffer(object):
                 [self.concatenated_rews, concatenated_rews]
             )[-self.max_size:]
             if isinstance(unconcatenated_rews, list):
-                self.unconcatenated_rews += unconcatenated_rews  # TODO keep only latest max_size around
+                self.unconcatenated_rews += unconcatenated_rews
             else:
-                self.unconcatenated_rews.append(unconcatenated_rews)  # TODO keep only latest max_size around
+                self.unconcatenated_rews.append(unconcatenated_rews)
 
         print (self.terminals.sum())
     ########################################

@@ -43,8 +43,25 @@ class CQLCritic(BaseCritic):
         self.cql_alpha = hparams['cql_alpha']
 
     def dqn_loss(self, ob_no, ac_na, next_ob_no, reward_n, terminal_n):
-        """ Implement DQN Loss """
+        ob_no = ptu.from_numpy(ob_no)
+        ac_na = ptu.from_numpy(ac_na).to(torch.long)
+        next_ob_no = ptu.from_numpy(next_ob_no)
+        reward_n = ptu.from_numpy(reward_n)
+        terminal_n = ptu.from_numpy(terminal_n)
 
+        qa_t_values = self.q_net(ob_no)
+        q_t_values = torch.gather(qa_t_values, 1, ac_na.unsqueeze(1)).squeeze(1)
+        
+        qa_tp1_values = self.q_net_target(next_ob_no)
+        if self.double_q:
+            next_actions = self.q_net(next_ob_no).argmax(dim=1)
+            q_tp1 = torch.gather(qa_tp1_values, 1, next_actions.unsqueeze(1)).squeeze(1)
+        else:
+            q_tp1, _ = qa_tp1_values.max(dim=1)
+
+        target = reward_n + self.gamma * q_tp1 * (1 - terminal_n)
+        target = target.detach()
+        loss = self.loss(q_t_values, target)
         return loss, qa_t_values, q_t_values
 
 
@@ -62,7 +79,7 @@ class CQLCritic(BaseCritic):
                 terminal_n: length: sum_of_path_lengths. Each element in terminal_n is either 1 if the episode ended
                     at that timestep of 0 if the episode did not end
             returns:
-                nothing
+                info: dictionary of logging information
         """
         ob_no = ptu.from_numpy(ob_no)
         ac_na = ptu.from_numpy(ac_na).to(torch.long)
@@ -71,25 +88,31 @@ class CQLCritic(BaseCritic):
         terminal_n = ptu.from_numpy(terminal_n)
 
         # Compute the DQN Loss 
-        loss, qa_t_values, q_t_values = self.dqn_loss(
+        dqn_loss, qa_t_values, q_t_values = self.dqn_loss(
             ob_no, ac_na, next_ob_no, reward_n, terminal_n
             )
         
-        # CQL Implementation
-        # TODO: Implement CQL as described in the pdf and paper
-        # Hint: After calculating cql_loss, augment the loss appropriately
-        q_t_logsumexp = None
-        cql_loss = None
-
-        info = {'Training Loss': ptu.to_numpy(loss)}
-
-        # TODO: Uncomment these lines after implementing CQL
-        # info['CQL Loss'] = ptu.to_numpy(cql_loss)
-        # info['Data q-values'] = ptu.to_numpy(q_t_values).mean()
-        # info['OOD q-values'] = ptu.to_numpy(q_t_logsumexp).mean()
+        # Compute the CQL loss
+        q_t_logsumexp = torch.logsumexp(qa_t_values, dim=1)
+        assert q_t_logsumexp.shape == q_t_values.shape
+        cql_loss = (q_t_logsumexp - q_t_values).mean()
         
+        # Optimize
+        loss = self.cql_alpha * cql_loss + dqn_loss
+        
+        self.optimizer.zero_grad()
+        loss.backward()
+        utils.clip_grad_value_(self.q_net.parameters(), self.grad_norm_clipping)
+        self.optimizer.step()
         self.learning_rate_scheduler.step()
 
+        # Logging
+        info = {}
+        info['Training Loss'] = ptu.to_numpy(dqn_loss) # Yes, "Training loss" means merely DQN loss.
+        info['CQL Loss'] = ptu.to_numpy(cql_loss)
+        info['Data q-values'] = ptu.to_numpy(q_t_values).mean()
+        info['OOD q-values'] = ptu.to_numpy(q_t_logsumexp).mean()
+        
         return info
 
     def update_target_network(self):

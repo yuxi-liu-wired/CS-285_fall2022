@@ -149,7 +149,6 @@ class PreprocessAtari(nn.Module):
 
 
 def create_atari_q_network(ob_dim, num_actions):
-    # TODO: diivde input by 255
     return nn.Sequential(
         PreprocessAtari(),
         nn.Conv2d(in_channels=4, out_channels=32, kernel_size=8, stride=4),
