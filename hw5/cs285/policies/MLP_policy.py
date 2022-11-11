@@ -159,18 +159,25 @@ class MLPPolicyAWAC(MLPPolicy):
         self.lambda_awac = lambda_awac
         super().__init__(ac_dim, ob_dim, n_layers, size, discrete, learning_rate, training, nn_baseline, **kwargs)
     
-    def update(self, observations, actions, adv_n=None):
-        if adv_n is None:
-            assert False
-        if isinstance(observations, np.ndarray):
-            observations = ptu.from_numpy(observations)
-        if isinstance(actions, np.ndarray):
-            actions = ptu.from_numpy(actions)
+    def update(self, ob_no, ac_n, adv_n):
+        samples_n = ob_no.shape[0]
+        assert ob_no.shape == (samples_n, self.ob_dim)
+        assert ac_n.shape == adv_n.shape == (samples_n,)
+        
+        if isinstance(ob_no, np.ndarray):
+            ob_no = ptu.from_numpy(ob_no)
+        if isinstance(ac_n, np.ndarray):
+            ac_n = ptu.from_numpy(ac_n)
         if isinstance(adv_n, np.ndarray):
             adv_n = ptu.from_numpy(adv_n)
 
-        # TODO update the policy network utilizing AWAC update
-
-        actor_loss = None
+        log_pi_t_n = self(ob_no).log_prob(ac_n)
+        assert log_pi_t_n.shape == (samples_n,)
+    
+        loss = -(torch.exp(adv_n / self.lambda_awac) * log_pi_t_n).mean()
         
-        return actor_loss.item()
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        
+        return loss.item()
