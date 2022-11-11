@@ -3,14 +3,20 @@ from .base_exploration_model import BaseExplorationModel
 import torch.optim as optim
 from torch import nn
 import torch
+import numpy as np
 
-def init_method_1(model):
-    model.weight.data.uniform_()
-    model.bias.data.uniform_()
+def init_method_uniform(model):
+    radius = 1.73205 # sqrt(3), making uniform(-r, r) have std 1
+    for module in model:
+        if isinstance(module, nn.Linear):
+            module.weight.data.uniform_(-radius, radius)
+            module.bias.data.uniform_(-radius, radius)
 
-def init_method_2(model):
-    model.weight.data.normal_()
-    model.bias.data.normal_()
+def init_method_normal(model):
+    for module in model:
+        if isinstance(module, nn.Linear):
+            module.weight.data.normal_()
+            module.bias.data.normal_()
 
 
 class RNDModel(nn.Module, BaseExplorationModel):
@@ -21,18 +27,20 @@ class RNDModel(nn.Module, BaseExplorationModel):
         self.n_layers = hparams['rnd_n_layers']
         self.size = hparams['rnd_size']
 
-        # the random function we are trying to learn. Fixed.
+        # the fixed random function we are trying to learn
         self.f = ptu.build_mlp(input_size=self.ob_dim,
                                 output_size=self.output_size,
                                 n_layers=self.n_layers, size=self.size)
-        # the function we are using to learn f. Learned.
+        # the learned function we are using to learn f
         self.f_hat = ptu.build_mlp(input_size=self.ob_dim,
                                 output_size=self.output_size,
                                 n_layers=self.n_layers, size=self.size)
         
         # They must be initialized differently to avoid trivial learning
-        init_method_1(self.f)
-        init_method_2(self.f_hat)
+        # init_method_normal(self.f)
+        # init_method_uniform(self.f_hat)
+        init_method_normal(self.f_hat)
+        init_method_uniform(self.f)
         
         self.optimizer_spec = optimizer_spec
         self.optimizer = self.optimizer_spec.constructor(
@@ -46,10 +54,11 @@ class RNDModel(nn.Module, BaseExplorationModel):
         Returns:
             torch array: L2 prediction error, with f(ob_no) detached, but f_hat(ob_no) attached.
         """
-        # detach the output of self.f, but not that of self.f_hat
-        target = self.f(ob_no).detach() 
-        pred = self.f_hat(ob_no)
-        return nn.MSELoss()(pred, target)
+        target = self.f(ob_no).detach() # target value f(o), detached
+        pred = self.f_hat(ob_no)        # predicted value f_hat(o), attached
+        l2_loss = ((pred - target)**2).sum(dim=1)
+        assert l2_loss.shape == (ob_no.shape[0],)
+        return l2_loss
 
     def forward_np(self, ob_no):
         ob_no = ptu.from_numpy(ob_no)
@@ -57,6 +66,8 @@ class RNDModel(nn.Module, BaseExplorationModel):
         return ptu.to_numpy(error)
 
     def update(self, ob_no):
+        if isinstance(ob_no, np.ndarray):
+            ob_no = ptu.from_numpy(ob_no)
         loss = self(ob_no).sum() # Take the mean prediction error across the batch
         
         assert loss.shape == ()

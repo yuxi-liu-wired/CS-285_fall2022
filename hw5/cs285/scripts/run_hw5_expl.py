@@ -73,6 +73,8 @@ def main():
     parser.add_argument('--save_params', action='store_true')
 
     parser.add_argument('--use_boltzmann', action='store_true')
+    
+    parser.add_argument('--num_timesteps', type=int, default=50000)
 
     args = parser.parse_args()
 
@@ -83,7 +85,7 @@ def main():
     params['num_critic_updates_per_agent_update'] = 1
     params['exploit_weight_schedule'] = ConstantSchedule(1.0)
     params['video_log_freq'] = -1 # This param is not used for DQN
-    params['num_timesteps'] = 50000
+    # params['num_timesteps'] = 50000
     params['learning_starts'] = 2000
     params['eps'] = 0.2
     ##################################

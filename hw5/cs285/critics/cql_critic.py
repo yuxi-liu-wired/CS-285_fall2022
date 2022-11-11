@@ -42,13 +42,7 @@ class CQLCritic(BaseCritic):
         self.q_net_target.to(ptu.device)
         self.cql_alpha = hparams['cql_alpha']
 
-    def dqn_loss(self, ob_no, ac_na, next_ob_no, reward_n, terminal_n):
-        ob_no = ptu.from_numpy(ob_no)
-        ac_na = ptu.from_numpy(ac_na).to(torch.long)
-        next_ob_no = ptu.from_numpy(next_ob_no)
-        reward_n = ptu.from_numpy(reward_n)
-        terminal_n = ptu.from_numpy(terminal_n)
-
+    def _dqn_loss(self, ob_no, ac_na, next_ob_no, reward_n, terminal_n):
         qa_t_values = self.q_net(ob_no)
         q_t_values = torch.gather(qa_t_values, 1, ac_na.unsqueeze(1)).squeeze(1)
         
@@ -88,7 +82,7 @@ class CQLCritic(BaseCritic):
         terminal_n = ptu.from_numpy(terminal_n)
 
         # Compute the DQN Loss 
-        dqn_loss, qa_t_values, q_t_values = self.dqn_loss(
+        dqn_loss, qa_t_values, q_t_values = self._dqn_loss(
             ob_no, ac_na, next_ob_no, reward_n, terminal_n
             )
         

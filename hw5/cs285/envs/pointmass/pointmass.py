@@ -391,7 +391,7 @@ class Pointmass(gym.Env):
     return best_action
 
   def _discretize_state(self, state, resolution=1.0):
-    (i, j) = np.floor(resolution * state).astype(np.int)
+    (i, j) = np.floor(resolution * state).astype(int)
     # Round down to the nearest cell if at the boundary.
     if i == self._height:
       i -= 1

@@ -114,7 +114,7 @@ class AWACAgent(DQNAgent):
             exploit_weight = self.exploit_weight_schedule.value(self.t)
 
             # Exploration reward on observation
-            expl_bonus = self.exploration_model.forward(next_ob_no)
+            expl_bonus = self.exploration_model.forward_np(next_ob_no)
             
             if self.normalize_rnd:
                 rew_mean = expl_bonus.mean()

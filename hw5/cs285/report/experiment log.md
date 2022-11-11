@@ -18,19 +18,22 @@ Try scaled and shifted rewards for CQL for better performance.
 
 ### Eval
 
-[ ] `PointmassEasy-v0`, 100 episodes mean reward `-25`, within `num_exploration_steps + 4000` iters.
-[ ] $(s_t, a_t)$ density on this easy environment is more uniformly spread over the reachable parts of the environment (that are not occupied by walls) with RND as compared to random exploration where most of the density would be concentrated around the $(s_0)$.
+`PointmassEasy-v0`, 100 episodes mean reward `-25`, within `num_exploration_steps + 4000` iters.
+
+$(s_t, a_t)$ density on this easy environment is more uniformly spread over the reachable parts of the environment (that are not occupied by walls) with RND as compared to random exploration where most of the density would be concentrated around the $(s_0)$.
 
 * state density heatmaps: `rl_trainer.py` with `dump_density_graphs`; `logger` with `log_figures`. See directory `experiment log`.
-* compare RND exploration to random (epsilongreedy) exploration.
+* compare RND exploration to random (epsilon-greedy) exploration.
 * Filelist:
 1. all state density plots
-2. a comparative evaluation of the learning curves 
-obtained via RND and random exploration in your report.
+2. a comparative evaluation of the learning curves obtained via RND and random exploration in your report.
 
-|![](images/1_1.png)|
-|:--:|
 | <b>Fig 1.1 State density plots of RND and random exploration.</b>|
+
+||Random|RND|
+|--|--|--|
+|Easy|![](images/1_random_easy_curr_state_density.png)|![](images/1_rnd_easy_curr_state_density.png)|
+|Medium|![](images/1_random_medium_curr_state_density.png)|![](images/1_rnd_medium_curr_state_density.png)|
 
 
 |![](images/1_2.png)|
@@ -40,10 +43,19 @@ obtained via RND and random exploration in your report.
 The possible environments are: `PointmassEasy-v0`, `PointmassMedium-v0`, `PointmassHard-v0`.
 
 ```
-python cs285/scripts/run_hw5_expl.py --env_name {env1} --use_rnd --unsupervised_exploration --exp_name q1_env1_rnd
-python cs285/scripts/run_hw5_expl.py --env_name {env1}           --unsupervised_exploration --exp_name q1_env1_random
-python cs285/scripts/run_hw5_expl.py --env_name {env2} --use_rnd --unsupervised_exploration --exp_name q1_env2_rnd
-python cs285/scripts/run_hw5_expl.py --env_name {env2}           --unsupervised_exploration --exp_name q1_env2_random
+python cs285/scripts/run_hw5_expl.py --no_gpu --num_timesteps 10000 --env_name PointmassEasy-v0 --use_rnd --unsupervised_exploration --exp_name q1_env1_rnd
+python cs285/scripts/run_hw5_expl.py --no_gpu --num_timesteps 10000 --env_name PointmassEasy-v0           --unsupervised_exploration --exp_name q1_env1_random
+python cs285/scripts/run_hw5_expl.py --no_gpu --num_timesteps 10000 --env_name PointmassMedium-v0 --use_rnd --unsupervised_exploration --exp_name q1_env2_rnd
+python cs285/scripts/run_hw5_expl.py --no_gpu --num_timesteps 10000 --env_name PointmassMedium-v0           --unsupervised_exploration --exp_name q1_env2_random
+```
+
+Data put into
+
+```
+hw5_expl_q1_env1_rnd_PointmassEasy-v0_11-11-2022_14-10-43
+hw5_expl_q1_env2_random_PointmassMedium-v0_11-11-2022_14-10-43
+hw5_expl_q1_env2_rnd_PointmassMedium-v0_11-11-2022_14-10-43
+hw5_expl_q1_env1_random_PointmassEasy-v0_11-11-2022_14-10-43
 ```
 
 ## Part 1': Pure exploration by another algorithm

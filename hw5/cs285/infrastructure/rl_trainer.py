@@ -407,6 +407,15 @@ class RL_Trainer(object):
         obs = np.stack([ii.flatten(), jj.flatten()], axis=1)
         density = self.agent.exploration_model.forward_np(obs)
         density = density.reshape(ii.shape)
+        
+        # debug
+        # m = self.agent.exploration_model
+        # w_0 = m.f[0].weight
+        # w_h = m.f_hat[0].weight
+        # x = ptu.from_numpy(obs)
+        # l2 = (m(x)**2).sum()
+        # breakpoint()
+        
         plt.imshow(density[::-1])
         plt.colorbar()
         plt.title('RND Value')
