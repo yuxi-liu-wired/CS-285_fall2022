@@ -2,7 +2,7 @@ import shlex, subprocess
 
 commands = []
 command_stem = [
-"python cs285/scripts/run_hw5_expl.py --env_name {env} --use_rnd --unsupervised_exploration --offline_exploitation --cql_alpha={a} --exp_name q2_alpha{a}"
+"python cs285/scripts/run_hw5_expl.py --no_gpu --env_name {env} --use_rnd --unsupervised_exploration --offline_exploitation --cql_alpha={a} --exp_name q2_alpha{a}"
 ]
 
 # (optional) scaled and shifted rewards for CQL
