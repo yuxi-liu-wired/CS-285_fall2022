@@ -42,10 +42,7 @@ class IQLCritic(BaseCritic):
         self.q_net.to(ptu.device)
         self.q_net_target.to(ptu.device)
         
-        # TODO define value function
-        # HINT: see Q_net definition above and optimizer below
-        ### YOUR CODE HERE ###
-        self.v_net = None
+        self.v_net = network_initializer(self.ob_dim, 1)
 
         self.v_optimizer = self.optimizer_spec.constructor(
             self.v_net.parameters(),
@@ -57,11 +54,12 @@ class IQLCritic(BaseCritic):
         )
         self.iql_expectile = hparams['iql_expectile']
 
-    def expectile_loss(self, diff):
+    def expectile_loss(self, x):
         """
         Implement expectile loss on the difference between q and v
         """
-        pass
+        losses = (self.iql_expectile - (x < 0)).abs() * (x ** 2)
+        return losses.mean()
 
     def update_v(self, ob_no, ac_na):
         """
@@ -70,9 +68,13 @@ class IQLCritic(BaseCritic):
         ob_no = ptu.from_numpy(ob_no)
         ac_na = ptu.from_numpy(ac_na).to(torch.long)
         
-
-        ### YOUR CODE HERE ###
-        value_loss = None
+        qa_t_n = self.q_net_target(ob_no)
+        q_t_n = torch.gather(qa_t_n, 1, ac_na.type(torch.int64).unsqueeze(1))
+        q_t_n = q_t_n.detach()
+        
+        v_t_n = self.v_net(ob_no)
+        
+        value_loss = self.expectile_loss(q_t_n - v_t_n)
         
         assert value_loss.shape == ()
         self.v_optimizer.zero_grad()
@@ -94,8 +96,19 @@ class IQLCritic(BaseCritic):
         reward_n = ptu.from_numpy(reward_n)
         terminal_n = ptu.from_numpy(terminal_n)
         
-        ### YOUR CODE HERE ###
-        loss = None
+        qa_t_values = self.q_net(ob_no)
+        q_t_values = torch.gather(qa_t_values, 1, ac_na.unsqueeze(1)).squeeze(1)
+        qa_tp1_values = self.q_net_target(next_ob_no)
+
+        if self.double_q:
+            next_actions = self.q_net(next_ob_no).argmax(dim=1)
+            q_tp1 = torch.gather(qa_tp1_values, 1, next_actions.unsqueeze(1)).squeeze(1)
+        else:
+            q_tp1, _ = qa_tp1_values.max(dim=1)
+
+        target = reward_n + self.gamma * q_tp1 * (1 - terminal_n)
+        target = target.detach()
+        loss = self.loss(q_t_values, target)
 
         assert loss.shape == ()
         self.optimizer.zero_grad()

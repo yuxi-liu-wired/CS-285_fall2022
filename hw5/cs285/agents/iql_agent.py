@@ -71,66 +71,71 @@ class IQLAgent(DQNAgent):
         log = {}
 
         if self.t > self.num_exploration_steps:
-            # TODO: After exploration is over, set the actor to optimize the extrinsic critic
-            #HINT: Look at method ArgMaxPolicy.set_critic
+            # exploration is over; set the actor to optimize the exploitation critic
+            self.actor.set_critic(self.exploitation_critic)
 
-        if (self.t > self.learning_starts
+        if (        self.t > self.learning_starts
                 and self.t % self.learning_freq == 0
                 and self.replay_buffer.can_sample(self.batch_size)
         ):
 
-            # TODO: Get Reward Weights
-            # Get the current explore reward weight and exploit reward weight
-            explore_weight = None
-            exploit_weight = None 
+            # Get Reward Weights
+            explore_weight = self.explore_weight_schedule.value(self.t)
+            exploit_weight = self.exploit_weight_schedule.value(self.t)
 
-            # TODO: Run Exploration Model #
-            # Evaluate the exploration model on s to get the exploration bonus
-            # HINT: Normalize the exploration bonus, as RND values vary highly in magnitude
-            expl_bonus = None
+            # Exploration reward on observation
+            expl_bonus = self.exploration_model.forward(next_ob_no)
+            
+            if self.normalize_rnd:
+                rew_mean = expl_bonus.mean()
+                rew_std = expl_bonus.std()
 
-            # TODO: Reward Calculations #
-            # Calculate mixed rewards, which will be passed into the exploration critic
-            # HINT: See doc for definition of mixed_reward
-            mixed_reward = None
+                # Normalize the exploration bonus, as RND values vary highly in magnitude.
+                expl_bonus = normalize(expl_bonus, rew_mean, rew_std)
+                
+                # exponential moving average
+                self.running_rnd_rew_mean = self.running_rnd_rew_mean * self.rnd_gamma + rew_mean * (1 - self.rnd_gamma)
+                self.running_rnd_rew_std = self.running_rnd_rew_std * self.rnd_gamma + rew_std * (1 - self.rnd_gamma)
+            
+            # Reward Calculations
+            assert expl_bonus.shape == re_n.shape
+            mixed_reward = explore_weight * expl_bonus + exploit_weight * re_n
+            assert mixed_reward.shape == re_n.shape
 
-            # TODO: Calculate the environment reward
-            # HINT: For part 1, env_reward is just 're_n'
-            #       After this, env_reward is 're_n' shifted by self.exploit_rew_shift,
-            #       and scaled by self.exploit_rew_scale
-            env_reward = None
+            # Shift and scale 're_n' during exploitation phase
+            if (not self.offline_exploitation) or (self.t <= self.num_exploration_steps):
+                env_reward = re_n
+            else:
+                env_reward = (re_n + self.exploit_rew_shift) * self.exploit_rew_scale
 
-            # TODO: Update Critics And Exploration Model #
-            # 1): Update the exploration model (based off s')
-            # 2): Update the exploration critic (based off mixed_reward)
+            # Update Exploration Model and Critics
+
+            # Update the exploration model (based off s')
+            expl_model_loss = self.exploration_model.update(next_ob_no)
+            # Update the exploration critic (based off mixed_reward)
+            exploration_critic_loss = self.exploration_critic.update(ob_no, ac_na, next_ob_no, mixed_reward, terminal_n)
+
+            exploitation_critic_loss = {}
             # 3): a) Update the exploitation critic's Value function
+            exploitation_critic_loss['Training V Loss'] = self.exploitation_critic.update_v(ob_no, ac_na)['Training V Loss']
             # 3): b) Update the exploitation critic's Q function (based off env_reward)
-            expl_model_loss = None
-            exploration_critic_loss = None 
-            exploitation_critic_loss = None
-            exploitation_critic_loss.update(TODO)
+            exploitation_critic_loss['Training Q Loss'] = self.exploitation_critic.update_q(ob_no, ac_na, next_ob_no, env_reward, terminal_n)['Training Q Loss']
 
+            # Update AWAC actor
+            adv_n = self.estimate_advantage(ob_no, ac_na, re_n, next_ob_no, terminal_n)
+            actor_loss = self.awac_actor.update(ob_no, ac_na, adv_n)
 
-
-            # TODO: update actor as in AWAC
-            # 1): Estimate the advantage
-            # 2): Calculate the awac actor loss
-            advantage = None
-            actor_loss = None
-
-            # TODO: Update Target Networks #
+            # Update Target Networks
             if self.num_param_updates % self.target_update_freq == 0:
-                #  Update the exploitation and exploration target networks
-                pass
+                self.exploration_critic.update_target_network()
+                self.exploitation_critic.update_target_network()
 
-            # Logging #
+            # Logging
             log['Exploration Critic Loss'] = exploration_critic_loss['Training Loss']
             log['Exploitation Critic V Loss'] = exploitation_critic_loss['Training Q Loss']
             log['Exploitation Critic Q Loss'] = exploitation_critic_loss['Training V Loss']
             log['Exploration Model Loss'] = expl_model_loss
-
-            # <DONE>: Uncomment these lines after completing awac
-            # log['Actor Loss'] = actor_loss
+            log['Actor Loss'] = actor_loss
 
             self.num_param_updates += 1
 

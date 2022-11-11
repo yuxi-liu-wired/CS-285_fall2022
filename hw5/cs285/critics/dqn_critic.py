@@ -76,7 +76,8 @@ class DQNCritic(BaseCritic):
         target = reward_n + self.gamma * q_tp1 * (1 - terminal_n)
         target = target.detach()
         loss = self.loss(q_t_values, target)
-    
+
+        assert loss.shape == ()
         self.optimizer.zero_grad()
         loss.backward()
         utils.clip_grad_value_(self.q_net.parameters(), self.grad_norm_clipping)
