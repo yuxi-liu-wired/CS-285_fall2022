@@ -45,17 +45,20 @@ class IQLAgent(DQNAgent):
         self.exploit_rew_scale = agent_params['exploit_rew_scale']
         self.eps = agent_params['eps']
 
+        self.running_rnd_rew_mean = 0
         self.running_rnd_rew_std = 1
         self.normalize_rnd = normalize_rnd
         self.rnd_gamma = rnd_gamma
 
-    def get_qvals(self, critic, obs, action=None, use_v=False):
+    def get_qvals(self, critic, ob_no, ac_na=None, use_v=False):
         if use_v:
-            q_value = critic.v_net(obs)
+            q_values = critic.v_net(ob_no).squeeze(1)
         else:
-            qa_values = critic.q_net_target(obs)
-            q_value = torch.gather(qa_values, 1, action.type(torch.int64).unsqueeze(1))
-        return q_value
+            qa_values = critic.q_net_target(ob_no)
+            q_values = torch.gather(qa_values, 1, ac_na.type(torch.int64).unsqueeze(1)).squeeze(1)
+            
+        assert q_values.shape == (ob_no.shape[0],)
+        return q_values
 
     def estimate_advantage(self, ob_no, ac_na, re_n, next_ob_no, terminal_n, n_actions=10):
         ob_no = ptu.from_numpy(ob_no)

@@ -4,9 +4,9 @@ import torch.optim as optim
 from torch.nn import utils
 from torch import nn
 import pdb
-import numpy as np
 
 from cs285.infrastructure import pytorch_util as ptu
+
 
 class IQLCritic(BaseCritic):
 
@@ -29,7 +29,6 @@ class IQLCritic(BaseCritic):
         network_initializer = hparams['q_func']
         self.q_net = network_initializer(self.ob_dim, self.ac_dim)
         self.q_net_target = network_initializer(self.ob_dim, self.ac_dim)
-
         self.optimizer = self.optimizer_spec.constructor(
             self.q_net.parameters(),
             **self.optimizer_spec.optim_kwargs
@@ -38,7 +37,7 @@ class IQLCritic(BaseCritic):
             self.optimizer,
             self.optimizer_spec.learning_rate_schedule,
         )
-        self.mse_loss = nn.MSELoss()
+        self.loss = nn.MSELoss()
         self.q_net.to(ptu.device)
         self.q_net_target.to(ptu.device)
         
@@ -58,8 +57,9 @@ class IQLCritic(BaseCritic):
         """
         Implement expectile loss on the difference between q and v
         """
-        losses = (self.iql_expectile - (x < 0)).abs() * (x ** 2)
-        return losses.mean()
+        expectile_losses = (x ** 2) * \
+            torch.abs(self.iql_expectile - (x < 0).type(torch.int64))
+        return expectile_losses.mean()
 
     def update_v(self, ob_no, ac_na):
         """

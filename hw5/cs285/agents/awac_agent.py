@@ -44,6 +44,7 @@ class AWACAgent(DQNAgent):
         self.exploit_rew_scale = agent_params['exploit_rew_scale']
         self.eps = agent_params['eps']
 
+        self.running_rnd_rew_mean = 0
         self.running_rnd_rew_std = 1
         self.normalize_rnd = normalize_rnd
         self.rnd_gamma = rnd_gamma
@@ -51,17 +52,16 @@ class AWACAgent(DQNAgent):
     def get_qvals(self, critic, ob_no, ac_na):
         if self.agent_params['discrete']:
             qa_values = critic.q_net_target(ob_no)
-            # q_value = torch.gather(qa_values, 1, action.type(torch.int64).unsqueeze(1))
-            q_value = torch.gather(qa_values, 1, ac_na.unsqueeze(1)).squeeze(1)
-            return q_value
+            q_values = torch.gather(qa_values, 1, ac_na.type(torch.int64).unsqueeze(1)).squeeze(1)
+            
         else:
             obs_action = torch.cat([ob_no, ac_na], dim=1)
             assert obs_action.shape == (ob_no.shape[0], self.ob_dim + self.ac_dim)
             
             q_values = critic.q_net_target(obs_action).squeeze(1)
-            assert q_values.shape == (ob_no.shape[0],)
-
-            return q_values
+            
+        assert q_values.shape == (ob_no.shape[0],)
+        return q_values
 
     def estimate_advantage(self, ob_no, ac_na, re_n, next_ob_no, terminal_n, n_actions=10):
         samples_n = ob_no.shape[0]
@@ -151,7 +151,7 @@ class AWACAgent(DQNAgent):
             adv_n = self.estimate_advantage(ob_no, ac_na, re_n, next_ob_no, terminal_n)
             actor_loss = self.awac_actor.update(ob_no, ac_na, adv_n)
 
-            # Update Target Networks
+            # Update critic target networks
             if self.num_param_updates % self.target_update_freq == 0:
                 self.exploration_critic.update_target_network()
                 self.exploitation_critic.update_target_network()

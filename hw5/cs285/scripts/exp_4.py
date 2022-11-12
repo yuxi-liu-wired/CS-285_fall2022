@@ -12,7 +12,7 @@ awac_l = [0.1,1,2,10,20,50]
 commands = []
 for command in command_stem:
     for l in awac_l:
-        commands.append = command.format(l=l)
+        commands.append(command.format(l=l))
 
 if __name__ == "__main__":
     for command in commands:

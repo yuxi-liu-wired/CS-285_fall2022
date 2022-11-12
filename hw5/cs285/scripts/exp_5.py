@@ -15,7 +15,7 @@ awac_l = ?
 commands = []
 for command in command_stem:
     for tau in iql_tau:
-        commands.append = command.format(l=awac_l, t=tau)
+        commands.append(command.format(l=awac_l, t=tau))
 
 if __name__ == "__main__":
     for command in commands:
