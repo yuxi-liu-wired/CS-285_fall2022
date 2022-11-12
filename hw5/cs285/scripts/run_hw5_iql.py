@@ -138,4 +138,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import warnings
+    with warnings.catch_warnings():
+        warnings.resetwarnings()
+        warnings.filterwarnings('ignore', category=DeprecationWarning, module='gym', append=True)
+        main()

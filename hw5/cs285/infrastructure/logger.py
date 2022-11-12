@@ -1,5 +1,11 @@
 import os
-from tensorboardX import SummaryWriter
+
+import warnings
+with warnings.catch_warnings():
+    warnings.resetwarnings()
+    warnings.filterwarnings("ignore", module='tensorboardX', append=True)
+    from tensorboardX import SummaryWriter
+
 import numpy as np
 
 class Logger:

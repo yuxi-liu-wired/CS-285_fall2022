@@ -469,7 +469,7 @@ class Pointmass(gym.Env):
             g.add_edge((i, j), (i + di, j + dj))
 
     # dist[i, j, k, l] is path from (i, j) -> (k, l)
-    dist = np.full((height, width, height, width), np.float('inf'))
+    dist = np.full((height, width, height, width), float('inf'))
     for ((i1, j1), dist_dict) in nx.shortest_path_length(g):
       for ((i2, j2), d) in dist_dict.items():
         dist[i1, j1, i2, j2] = d
@@ -530,7 +530,7 @@ class Pointmass(gym.Env):
     state_index = np.random.choice(num_candidate_states)
     state = np.array([candidate_states[0][state_index],
                       candidate_states[1][state_index]],
-                     dtype=np.float)
+                     dtype=float)
     state += np.random.uniform(size=2)
     assert not self._is_blocked(state)
     return state

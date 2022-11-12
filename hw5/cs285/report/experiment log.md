@@ -91,6 +91,15 @@ python cs285/scripts/run_hw5_expl.py --no_gpu --env_name PointmassMedium-v0 --ex
 python cs285/scripts/run_hw5_expl.py --no_gpu --env_name PointmassMedium-v0 --exp_name q2_cql --use_rnd --unsupervised_exploration --offline_exploitation --cql_alpha=0.1
 ```
 
+The CQL managed to pass, but DQN did not!
+
+Data put into
+
+```
+?
+hw5_expl_q2_cql_PointmassMedium-v0_11-11-2022_15-06-45
+```
+
 Examine the difference between the Q-values on state-action tuples in the dataset learned by CQL vs DQN.
 
 Does CQL give rise to Q-values that underestimate the Q-values learned via a standard DQN? Why?
