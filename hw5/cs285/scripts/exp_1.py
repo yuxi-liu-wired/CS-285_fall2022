@@ -4,10 +4,10 @@ env1 = "PointmassEasy-v0"
 env2 = "PointmassMedium-v0"
 
 commands = [
-"python cs285/scripts/run_hw5_expl.py --no_gpu --num_timesteps 10000 --env_name {env1} --use_rnd --unsupervised_exploration --exp_name q1_env1_rnd".format(env1=env1, env2=env2),
-"python cs285/scripts/run_hw5_expl.py --no_gpu --num_timesteps 10000 --env_name {env1}           --unsupervised_exploration --exp_name q1_env1_random".format(env1=env1, env2=env2),
-"python cs285/scripts/run_hw5_expl.py --no_gpu --num_timesteps 10000 --env_name {env2} --use_rnd --unsupervised_exploration --exp_name q1_env2_rnd".format(env1=env1, env2=env2),
-"python cs285/scripts/run_hw5_expl.py --no_gpu --num_timesteps 10000 --env_name {env2}           --unsupervised_exploration --exp_name q1_env2_random".format(env1=env1, env2=env2),
+"python cs285/scripts/run_hw5_expl.py --no_gpu --env_name {env1} --use_rnd --unsupervised_exploration --exp_name q1_env1_rnd".format(env1=env1, env2=env2),
+"python cs285/scripts/run_hw5_expl.py --no_gpu --env_name {env1}           --unsupervised_exploration --exp_name q1_env1_random".format(env1=env1, env2=env2),
+"python cs285/scripts/run_hw5_expl.py --no_gpu --env_name {env2} --use_rnd --unsupervised_exploration --exp_name q1_env2_rnd".format(env1=env1, env2=env2),
+"python cs285/scripts/run_hw5_expl.py --no_gpu --env_name {env2}           --unsupervised_exploration --exp_name q1_env2_random".format(env1=env1, env2=env2),
 ]
 
 if __name__ == "__main__":
