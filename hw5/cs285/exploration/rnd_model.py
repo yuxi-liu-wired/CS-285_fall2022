@@ -68,7 +68,7 @@ class RNDModel(nn.Module, BaseExplorationModel):
     def update(self, ob_no):
         if isinstance(ob_no, np.ndarray):
             ob_no = ptu.from_numpy(ob_no)
-        loss = self(ob_no).sum() # Take the mean prediction error across the batch
+        loss = self(ob_no).mean() # Take the mean prediction error across the batch
         
         assert loss.shape == ()
         self.optimizer.zero_grad()
