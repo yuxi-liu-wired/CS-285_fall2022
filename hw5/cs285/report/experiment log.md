@@ -101,16 +101,11 @@ python cs285/scripts/run_hw5_expl.py --no_gpu --env_name PointmassMedium-v0 --un
 python cs285/scripts/run_hw5_expl.py --no_gpu --env_name PointmassHard-v0 --unsupervised_exploration <add arguments for your method> --exp_name q1_alg_hard
 ```
 
-## Part 2.1: Offline learning on exploration data
-
-* offline RL on RND dataset
-* compare resulting policy is to the optimal policy.
-
-[ ] Implement the conservative Q-learning algorithm in this question which primarily needs to be added in critic/cql_critic.py and you need to use the CQL critic as the extrinsic critic in `agents/explore_or_exploit_agent.py`.
+## Part 2.1: Offline learning (CQL) on exploration data
 
 ### Evaluate it and compare it to a standard DQN critic
 
-[ ] Write down the logic for disabling data collection in `agents/explore_or_exploit_agent.py` after exploitation begins and only evaluate the performance of the extrinsic critic after training on the data collected by the RND critic.
+Make sure to disable data collection in `agents/explore_or_exploit_agent.py` after exploitation begins. This can be checked in the `replay buffer size` in the Tensorboard logging files.
 
 [ ] run DQN and CQL, on `PointmassMedium-v0`, at the default value of `num_exploration_steps = 10000`. DQN is $\alpha_{CQL} = 0$, and CQL is $\alpha_{CQL} = 0.1$.
 
@@ -126,19 +121,17 @@ hw5_expl_q2_dqn_PointmassMedium-v0_13-11-2022_02-43-07
 hw5_expl_q2_cql_PointmassMedium-v0_13-11-2022_02-38-51
 ```
 
-Examine the difference between the Q-values on state-action tuples in the dataset learned by CQL vs DQN.
+Examine the difference between the Q-values on state-action tuples in the dataset learned by CQL vs DQN. Does CQL give rise to Q-values that underestimate the Q-values learned via a standard DQN? Why?
 
-Does CQL give rise to Q-values that underestimate the Q-values learned via a standard DQN? Why?
+CQL gives a lower Q-value. This is expected because CQL is conservative, and all else being equal, would push down on all . In particular, 
 
 Try the next experiment, then reason about a common cause behind both of these phenomena.
 
 ### Evaluate transformed reward function for training the exploitation critic
 
-On `Pointmass??-v0` (your choice) test the performance of CQL with reward transform `shift = 1, scale = 100`. Is it better or worse? What do you think is the reason behind this difference in performance, if any?
+On `PointmassMedium-v0` test the performance of CQL with reward transform `shift = 1, scale = 100`. Is it better or worse? What do you think is the reason behind this difference in performance, if any?
 
-Examine the performance of CQL when utilizing a transformed reward function for training the exploitation critic. Do not change any code in the environment class, instead make this change in `agents/explore_or_exploit_agent.py`.
-
-The transformed reward function is given by: `r(s, a) = (r(s, a) + shift) × scale`. The choice of shift and scale is up to you, but we used `shift = 1, scale = 100`.
+I have no idea what's the reason or common cause. I don't see any common cause behind it all. It's all so random and nonsensical.
 
 ## Part 2.2 amount of exploration data
 

@@ -2,15 +2,14 @@ import shlex, subprocess
 
 commands = []
 command_stem = [
-"python cs285/scripts/run_hw5_expl.py --no_gpu --env_name {env} --use_rnd --unsupervised_exploration --offline_exploitation --cql_alpha={a} --exp_name q2_alpha{a}"
+"python cs285/scripts/run_hw5_expl.py --no_gpu --env_name {env} --use_rnd --unsupervised_exploration --offline_exploitation --cql_alpha={a} --exp_name q2_alpha{a}_seed{s} --seed {s}"
 ]
 
-# (optional) scaled and shifted rewards for CQL
-
 env = "PointmassMedium-v0"
-for s in command_stem:
+for stem in command_stem:
     for a in [0.02, 0.1, 0.5]:
-        commands.append(s.format(env=env, a=a))
+        for s in range(5):
+            commands.append(stem.format(env=env, a=a, s=s))
 
 if __name__ == "__main__":
     for command in commands:

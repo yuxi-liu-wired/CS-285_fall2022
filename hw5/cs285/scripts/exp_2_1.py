@@ -1,9 +1,17 @@
 import shlex, subprocess
 
-commands = [
-"python cs285/scripts/run_hw5_expl.py --no_gpu --env_name PointmassMedium-v0 --exp_name q2_dqn --use_rnd --unsupervised_exploration --offline_exploitation --cql_alpha=0",
-"python cs285/scripts/run_hw5_expl.py --no_gpu --env_name PointmassMedium-v0 --exp_name q2_cql --use_rnd --unsupervised_exploration --offline_exploitation --cql_alpha=0.1",
+command_stem = [
+"python cs285/scripts/run_hw5_expl.py --no_gpu --env_name PointmassMedium-v0 --exp_name q2_dqn_seed{s} --use_rnd --unsupervised_exploration --offline_exploitation --cql_alpha=0 --seed {s}",
+"python cs285/scripts/run_hw5_expl.py --no_gpu --env_name PointmassMedium-v0 --exp_name q2_dqn_ss_seed{s} --use_rnd --exploit_rew_shift 1 --exploit_rew_scale 100 --unsupervised_exploration --offline_exploitation --cql_alpha=0 --seed {s}",
+"python cs285/scripts/run_hw5_expl.py --no_gpu --env_name PointmassMedium-v0 --exp_name q2_cql_seed{s} --use_rnd --unsupervised_exploration --offline_exploitation --cql_alpha=0.1 --seed {s}",
+"python cs285/scripts/run_hw5_expl.py --no_gpu --env_name PointmassMedium-v0 --exp_name q2_cql_ss_seed{s} --use_rnd --exploit_rew_shift 1 --exploit_rew_scale 100 --unsupervised_exploration --offline_exploitation --cql_alpha=0.1 --seed {s}",
 ]
+# "ss" means "scaled and shifted"
+
+commands = []
+for stem in command_stem:
+    for s in range(5):
+        commands.append(stem.format(s=s))
 
 if __name__ == "__main__":
     for command in commands:
