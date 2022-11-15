@@ -49,16 +49,15 @@ class AWACAgent(DQNAgent):
         self.normalize_rnd = normalize_rnd
         self.rnd_gamma = rnd_gamma
 
-    def get_qvals(self, critic, ob_no, ac_na):
+    def _get_qvals(self, critic, ob_no, ac_na):
+        # Get the online critic Q value. NOT the target critic Q value
         if self.agent_params['discrete']:
-            qa_values = critic.q_net_target(ob_no)
+            qa_values = critic.q_net(ob_no)
             q_values = torch.gather(qa_values, 1, ac_na.type(torch.int64).unsqueeze(1)).squeeze(1)
-            
         else:
             obs_action = torch.cat([ob_no, ac_na], dim=1)
             assert obs_action.shape == (ob_no.shape[0], self.ob_dim + self.ac_dim)
-            
-            q_values = critic.q_net_target(obs_action).squeeze(1)
+            q_values = critic.q_net(obs_action).squeeze(1)
             
         assert q_values.shape == (ob_no.shape[0],)
         return q_values
@@ -70,7 +69,10 @@ class AWACAgent(DQNAgent):
         re_n = ptu.from_numpy(re_n)
         next_ob_no = ptu.from_numpy(next_ob_no)
         terminal_n = ptu.from_numpy(terminal_n)
-
+        
+        # The tutor said: use the q_net for estimating the advantage,
+        # the target Q is only used to update the q_net and do double Q-learning.
+        
         # Compute (when discrete) or estimate (when continuous) value V(s)
         # Use the exploitation critic.
         ac_dist = self.awac_actor(ob_no)
@@ -78,7 +80,7 @@ class AWACAgent(DQNAgent):
             # explicit summation
             assert ac_na.shape == (samples_n,)
             ac_probs = ac_dist.probs
-            qa_values = self.exploitation_critic.q_net_target(ob_no)
+            qa_values = self.exploitation_critic.q_net(ob_no)
             assert ac_probs.shape == qa_values.shape == (samples_n, self.agent_params['ac_dim'])
             v_pi = (qa_values * ac_probs).sum(dim=1)
         else: 
@@ -88,11 +90,11 @@ class AWACAgent(DQNAgent):
             for _ in range(n_actions):
                 ac_samples = ac_dist.sample()
                 assert ac_samples.shape == ac_na.shape 
-                v_pi += self.get_qvals(self.exploitation_critic, ob_no, ac_na)
+                v_pi += self._get_qvals(self.exploitation_critic, ob_no, ac_na)
             v_pi /= n_actions
         assert v_pi.shape == (samples_n,)
 
-        q_vals = self.get_qvals(self.exploitation_critic, ob_no, ac_na)
+        q_vals = self._get_qvals(self.exploitation_critic, ob_no, ac_na)
 
         return q_vals - v_pi
 

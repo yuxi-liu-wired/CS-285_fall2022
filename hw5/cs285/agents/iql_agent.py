@@ -50,11 +50,11 @@ class IQLAgent(DQNAgent):
         self.normalize_rnd = normalize_rnd
         self.rnd_gamma = rnd_gamma
 
-    def get_qvals(self, critic, ob_no, ac_na=None, use_v=False):
+    def _get_qvals(self, critic, ob_no, ac_na=None, use_v=False):
         if use_v:
             q_values = critic.v_net(ob_no).squeeze(1)
         else:
-            qa_values = critic.q_net_target(ob_no)
+            qa_values = critic.q_net(ob_no)
             q_values = torch.gather(qa_values, 1, ac_na.type(torch.int64).unsqueeze(1)).squeeze(1)
             
         assert q_values.shape == (ob_no.shape[0],)
@@ -67,8 +67,9 @@ class IQLAgent(DQNAgent):
         next_ob_no = ptu.from_numpy(next_ob_no)
         terminal_n = ptu.from_numpy(terminal_n)
 
-        v_pi = self.get_qvals(self.exploitation_critic, ob_no, use_v=True)
-        return self.get_qvals(self.exploitation_critic, ob_no, ac_na) - v_pi
+        q_vals = self._get_qvals(self.exploitation_critic, ob_no, ac_na, use_v=False)
+        v_pi   = self._get_qvals(self.exploitation_critic, ob_no,        use_v=True)
+        return q_vals - v_pi
 
     def train(self, ob_no, ac_na, re_n, next_ob_no, terminal_n):
         log = {}
