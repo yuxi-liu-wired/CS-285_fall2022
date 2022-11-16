@@ -7,7 +7,7 @@ command_stem = [
 "python cs285/scripts/run_hw5_iql.py --no_gpu --env_name PointmassMedium-v0 --exp_name q5_iql_medium_unsupervised_lam{l}_tau{t} --unsupervised_exploration --use_rnd --num_exploration_steps=20000 --awac_lambda={l} --iql_expectile={t}",
 ]
 
-awac_l = [0.1, 20, 20, 0.1] # easy-sup, easy-unsup, medium-sup, medium-unsup
+awac_l = [20, 2, 20, 50] # easy-sup, easy-unsup, medium-sup, medium-unsup
 iql_tau = [0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99]
 
 commands = []

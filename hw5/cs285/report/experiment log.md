@@ -242,15 +242,25 @@ The learning curves successfully passed the autograder by a comfortable margin.
 | PointmassEasy   	| > -30       	|  -19 	    |
 | PointmassMedium 	| > -60       	|  -35	    |
 
-* For both environments, the learning curves for unsupervised learning are higher than supervised learning.
+* For both environments, the learning curves for supervised learning are higher than unsupervised learning.
 * The best lambda is actually pretty complicated, with nonlinear dependence:
 
-| best lambda | supervised | unsupervised |
+| best lambda | unsupervised | supervised |
 |-------------|------------|--------------|
-| Easy        | 0.1        | 20           |
-| Medium      | 20         | 0.1          |
+| Easy        | 2        | 20           |
+| Medium      | 50         | 20          |
 
-Explanation: $\lambda$ is the "temperature" of the advantage-weighting. At high $\lambda$, it effectively doesn't care about advantage, meaning that it gives roughly equal weighting to all -- and we end up with uniform random strategy. At low $\lambda$, it becomes more greedy. At $\lambda \to 0$ limit, we obtain the perfectly maximizing strategy (assuming we have perfect data coverage and perfect convergence).
+For the Easy environments, the learning curves plateau too fast and too consistently, so we zoom into the first 10k steps before screenshotting the learning curves.
+
+
+||Unsupervised|Supervised|
+|--|--|--|
+|Easy|![](images/4_easy_unsup.png)|![](images/4_easy_sup.png)|
+|Medium|![](images/4_medium_unsup.png)|![](images/4_medium_sup.png)|
+
+Theoretical explanation: $\lambda$ is the "temperature" of the advantage-weighting. At high $\lambda$, it effectively doesn't care about advantage, meaning that it gives roughly equal weighting to all -- and we end up with uniform random strategy. At low $\lambda$, it becomes more greedy. At $\lambda \to 0$ limit, we obtain the perfectly maximizing strategy (assuming we have perfect data coverage and perfect convergence).
+
+However, in practice, the learning curves have no clear relationship with $\lambda$. It is not the case that the learning curves are monotonically improving, or degrading, or mono-modal. I see no simple relationship between the learning curves and $\lambda$ whatsoever.
 
 ## Part 5: Offline Learning with IQL
 
