@@ -401,6 +401,8 @@ class RL_Trainer(object):
         plt.colorbar()
         plt.title('State Density')
         self.fig.savefig(filepath('state_density'), bbox_inches='tight')
+        if itr < self.agent.num_exploration_steps:
+            self.fig.savefig(filepath('state_density_exp'), bbox_inches='tight')
 
         plt.clf()
         ii, jj = np.meshgrid(np.linspace(0, 1), np.linspace(0, 1))

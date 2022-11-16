@@ -96,8 +96,10 @@ Ideas:
 
 Compare to RND, explain the trends. The heatmaps and trajectory visualizations will likely be helpful in understanding the behavior here.
 
+Since we are using just gridworld, we don't have to do anything fancy. Just a direct count-based method should work. It has $r_{explore, t} := N_t(s_t)^{-1/2}$, where $N_t(s_t)$ is the number of counts that state $s_t$ has been observed so far.
+
 ```
-python cs285/scripts/run_hw5_expl.py --no_gpu --env_name PointmassMedium-v0 --unsupervised_exploration <add arguments for your method> --exp_name q1_alg_med
+python cs285/scripts/run_hw5_expl.py --no_gpu --env_name PointmassMedium-v0 --unsupervised_exploration --cbe --exp_name q1_alg_med
 python cs285/scripts/run_hw5_expl.py --no_gpu --env_name PointmassHard-v0 --unsupervised_exploration <add arguments for your method> --exp_name q1_alg_hard
 ```
 
