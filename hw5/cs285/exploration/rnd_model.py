@@ -12,6 +12,12 @@ def init_method_uniform(model):
             module.weight.data.uniform_(-radius, radius)
             module.bias.data.uniform_(-radius, radius)
 
+def init_method_uniform_1(model):
+    for module in model:
+        if isinstance(module, nn.Linear):
+            module.weight.data.uniform_()
+            module.bias.data.uniform_()
+
 def init_method_normal(model):
     for module in model:
         if isinstance(module, nn.Linear):
@@ -41,6 +47,8 @@ class RNDModel(nn.Module, BaseExplorationModel):
         # init_method_uniform(self.f_hat)
         init_method_normal(self.f_hat)
         init_method_uniform(self.f)
+        # init_method_normal(self.f) # TODO: try this initialization as a last resort
+        # init_method_uniform_1(self.f_hat)
         
         self.optimizer_spec = optimizer_spec
         self.optimizer = self.optimizer_spec.constructor(
@@ -56,7 +64,9 @@ class RNDModel(nn.Module, BaseExplorationModel):
         """
         target = self.f(ob_no).detach() # target value f(o), detached
         pred = self.f_hat(ob_no)        # predicted value f_hat(o), attached
-        l2_loss = ((pred - target)**2).sum(dim=1)
+        # l2_loss = ((pred - target)**2).sum(dim=1)
+        l2_loss = torch.sqrt(((pred - target)**2).sum(dim=1)) # TODO idk, but try this
+
         assert l2_loss.shape == (ob_no.shape[0],)
         return l2_loss
 

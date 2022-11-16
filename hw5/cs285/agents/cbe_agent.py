@@ -34,6 +34,7 @@ class CBEAgent(DQNAgent):
         self.exploit_rew_scale = agent_params['exploit_rew_scale']
         self.eps = agent_params['eps']
         
+        self._unnormalize_obs = env._unnormalize_obs
         
         self.state_record = np.zeros(env.walls.shape) # Only works for gridworlds!!
 
@@ -59,8 +60,8 @@ class CBEAgent(DQNAgent):
             # Exploration reward on observation
             expl_bonus = np.zeros((samples_n,))
             for i in range(samples_n):
+                ob = self._unnormalize_obs(ob_no[i,:].astype(int))
                 breakpoint()
-                ob = ob_no[i,:].astype(int)
                 count = self.state_record[ob[0], ob[1]] + 1
                 self.state_record[ob[0], ob[1]] = count
                 expl_bonus[i] = 1/np.sqrt(count)
