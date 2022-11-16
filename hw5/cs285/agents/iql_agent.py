@@ -103,15 +103,11 @@ class IQLAgent(DQNAgent):
             
             # Reward Calculations
             assert expl_bonus.shape == re_n.shape
-            mixed_reward = explore_weight * expl_bonus + exploit_weight * re_n
-            assert mixed_reward.shape == re_n.shape
-
-            # Shift and scale 're_n' during exploitation phase
-            if (not self.offline_exploitation) or (self.t <= self.num_exploration_steps):
-                env_reward = re_n
-            else:
-                env_reward = (re_n + self.exploit_rew_shift) * self.exploit_rew_scale
-
+            env_reward = (re_n + self.exploit_rew_shift) * self.exploit_rew_scale
+            mixed_reward = explore_weight * expl_bonus + exploit_weight * re_n # The tutor said: do not use env_reward here.
+            # https://edstem.org/us/courses/24422/discussion/2082447?comment=4934521
+            assert env_reward.shape == mixed_reward.shape == re_n.shape
+            
             # Update Exploration Model and Critics
 
             # Update the exploration model (based off s')

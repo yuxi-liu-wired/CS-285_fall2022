@@ -68,9 +68,10 @@ class CBEAgent(DQNAgent):
             # Reward Calculations
             assert expl_bonus.shape == re_n.shape
             env_reward = (re_n + self.exploit_rew_shift) * self.exploit_rew_scale
-            mixed_reward = explore_weight * expl_bonus + exploit_weight * re_n
+            mixed_reward = explore_weight * expl_bonus + exploit_weight * re_n # The tutor said: do not use env_reward here.
+            # https://edstem.org/us/courses/24422/discussion/2082447?comment=4934521
             assert env_reward.shape == mixed_reward.shape == re_n.shape
-
+            
             # Update Exploration Model and Critics
 
             # Update the exploration critic (based off mixed_reward)
