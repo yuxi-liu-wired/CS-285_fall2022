@@ -3,6 +3,7 @@ import time
 
 from cs285.infrastructure.rl_trainer import RL_Trainer
 from cs285.agents.explore_or_exploit_agent import ExplorationOrExploitationAgent
+from cs285.agents.cbe_agent import CBEAgent
 from cs285.infrastructure.dqn_utils import get_env_kwargs, PiecewiseSchedule, ConstantSchedule
 
 
@@ -15,6 +16,7 @@ class Q_Trainer(object):
             'num_agent_train_steps_per_iter': params['num_agent_train_steps_per_iter'],
             'num_critic_updates_per_agent_update': params['num_critic_updates_per_agent_update'],
             'train_batch_size': params['batch_size'],
+            'cbe': params['cbe'],
             'double_q': params['double_q'],
             'use_boltzmann': params['use_boltzmann'],
         }
@@ -23,7 +25,10 @@ class Q_Trainer(object):
 
         self.agent_params = {**train_args, **env_args, **params}
 
-        self.params['agent_class'] = ExplorationOrExploitationAgent
+        if train_args['cbe']:
+            self.params['agent_class'] = CBEAgent
+        else:
+            self.params['agent_class'] = ExplorationOrExploitationAgent
         self.params['agent_params'] = self.agent_params
         self.params['train_batch_size'] = params['batch_size']
         self.params['env_wrappers'] = self.agent_params['env_wrappers']
@@ -57,6 +62,7 @@ def main():
     parser.add_argument('--unsupervised_exploration', action='store_true')
 
     parser.add_argument('--offline_exploitation', action='store_true')
+    parser.add_argument('--cbe', action='store_true')
     parser.add_argument('--cql_alpha', type=float, default=0.0)
 
     parser.add_argument('--exploit_rew_shift', type=float, default=0.0)
