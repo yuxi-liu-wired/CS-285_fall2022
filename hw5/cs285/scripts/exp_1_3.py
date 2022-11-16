@@ -9,7 +9,8 @@ command_stem = [
 
 commands = []
 for s in range(6):
-    commands.append(command_stem.format(s=s))
+    for stem in command_stem:
+        commands.append(stem.format(s=s))
 
 if __name__ == "__main__":
     for command in commands:

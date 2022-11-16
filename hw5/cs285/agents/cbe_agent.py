@@ -34,11 +34,11 @@ class CBEAgent(DQNAgent):
         self.exploit_rew_scale = agent_params['exploit_rew_scale']
         self.eps = agent_params['eps']
         
-        self.state_record = {}
+        
+        self.state_record = np.zeros(env.walls.shape) # Only works for gridworlds!!
 
     def train(self, ob_no, ac_na, re_n, next_ob_no, terminal_n):
         log = {}
-        samples_n = ob_no.shape[0]
 
         if self.t > self.num_exploration_steps:
             # exploration is over; set the actor to optimize the exploitation critic
@@ -49,7 +49,8 @@ class CBEAgent(DQNAgent):
                 and self.t % self.learning_freq == 0
                 and self.replay_buffer.can_sample(self.batch_size)
         ):
-
+            samples_n = ob_no.shape[0]
+            
             # Get Reward Weights
             # COMMENT: Until part 3, explore_weight = 1, and exploit_weight = 0
             explore_weight = self.explore_weight_schedule.value(self.t)
@@ -58,12 +59,11 @@ class CBEAgent(DQNAgent):
             # Exploration reward on observation
             expl_bonus = np.zeros((samples_n,))
             for i in range(samples_n):
+                breakpoint()
                 ob = ob_no[i,:].astype(int)
-                if ob not in self.state_record: # update the records
-                    self.state_record[ob] = 1
-                else:
-                    self.state_record[ob] += 1
-                expl_bonus[i] = 1/np.sqrt(self.state_record[ob])
+                count = self.state_record[ob[0], ob[1]] + 1
+                self.state_record[ob[0], ob[1]] = count
+                expl_bonus[i] = 1/np.sqrt(count)
                                     
             # Reward Calculations
             assert expl_bonus.shape == re_n.shape
@@ -98,7 +98,9 @@ class CBEAgent(DQNAgent):
         self.t += 1
         return log
 
-
+    def exploration_values(self):
+        return 1/np.sqrt(self.state_record + 1)
+    
     def step_env(self):
         """
             Step the env and store the transition

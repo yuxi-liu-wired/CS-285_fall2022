@@ -16,6 +16,7 @@ from cs285.infrastructure import utils
 from cs285.infrastructure.logger import Logger
 
 from cs285.agents.explore_or_exploit_agent import ExplorationOrExploitationAgent
+from cs285.agents.cbe_agent import CBEAgent
 from cs285.infrastructure.dqn_utils import (
         get_wrapper_by_name,
         register_custom_envs,
@@ -147,7 +148,7 @@ class RL_Trainer(object):
         self.total_envsteps = 0
         self.start_time = time.time()
 
-        print_period = 1000 if isinstance(self.agent, ExplorationOrExploitationAgent) else 1
+        print_period = 1000 if isinstance(self.agent, ExplorationOrExploitationAgent) or isinstance(self.agent, CBEAgent) else 1
 
         for itr in range(n_iter):
             if itr % print_period == 0:
@@ -168,7 +169,7 @@ class RL_Trainer(object):
                 self.logmetrics = False
 
             # collect trajectories, to be used for training
-            if isinstance(self.agent, ExplorationOrExploitationAgent):
+            if isinstance(self.agent, ExplorationOrExploitationAgent) or isinstance(self.agent, CBEAgent):
                 self.agent.step_env()
                 envsteps_this_batch = 1
                 train_video_paths = None
@@ -191,7 +192,7 @@ class RL_Trainer(object):
                 paths = self.do_relabel_with_expert(expert_policy, paths)
 
             # add collected data to replay buffer
-            if isinstance(self.agent, ExplorationOrExploitationAgent):
+            if isinstance(self.agent, ExplorationOrExploitationAgent) or isinstance(self.agent, CBEAgent):
                 if (not self.agent.offline_exploitation) or (self.agent.t <= self.agent.num_exploration_steps):
                     self.agent.add_to_replay_buffer(paths)
 
@@ -201,14 +202,14 @@ class RL_Trainer(object):
             all_logs = self.train_agent()
 
             # Log densities and output trajectories
-            if isinstance(self.agent, ExplorationOrExploitationAgent) and (itr % print_period == 0):
+            if (isinstance(self.agent, ExplorationOrExploitationAgent) or isinstance(self.agent, CBEAgent)) and (itr % print_period == 0):
                 self.dump_density_graphs(itr)
 
             # log/save
             if self.logvideo or self.logmetrics:
                 # perform logging
                 print('\nBeginning logging procedure...')
-                if isinstance(self.agent, ExplorationOrExploitationAgent):
+                if isinstance(self.agent, ExplorationOrExploitationAgent) or isinstance(self.agent, CBEAgent):
                     self.perform_dqn_logging(all_logs)
                 else:
                     self.perform_logging(itr, paths, eval_policy, train_video_paths, all_logs)
@@ -400,9 +401,10 @@ class RL_Trainer(object):
         plt.imshow(np.rot90(H), interpolation='bicubic')
         plt.colorbar()
         plt.title('State Density')
-        self.fig.savefig(filepath('state_density'), bbox_inches='tight')
         if itr < self.agent.num_exploration_steps:
             self.fig.savefig(filepath('state_density_exp'), bbox_inches='tight')
+        else:
+            self.fig.savefig(filepath('state_density'), bbox_inches='tight')
 
         plt.clf()
         ii, jj = np.meshgrid(np.linspace(0, 1), np.linspace(0, 1))
@@ -410,31 +412,41 @@ class RL_Trainer(object):
         density = self.agent.exploration_model.forward_np(obs)
         density = density.reshape(ii.shape)
         
-        # debug
-        # m = self.agent.exploration_model
-        # w_0 = m.f[0].weight
-        # w_h = m.f_hat[0].weight
-        # x = ptu.from_numpy(obs)
-        # l2 = (m(x)**2).sum()
-        # breakpoint()
-        
-        plt.imshow(density[::-1])
-        plt.colorbar()
-        plt.title('RND Value')
-        self.fig.savefig(filepath('rnd_value'), bbox_inches='tight')
+        if isinstance(self.agent, CBEAgent):
+            plt.clf()
+            exploitation_values = self.agent.exploitation_critic.qa_values(obs).mean(-1)
+            exploitation_values = exploitation_values.reshape(ii.shape)
+            plt.imshow(exploitation_values)
+            plt.colorbar()
+            plt.title('Predicted Exploitation Value')
+            self.fig.savefig(filepath('exploitation_value'), bbox_inches='tight')
 
-        plt.clf()
-        exploitation_values = self.agent.exploitation_critic.qa_values(obs).mean(-1)
-        exploitation_values = exploitation_values.reshape(ii.shape)
-        plt.imshow(exploitation_values[::-1])
-        plt.colorbar()
-        plt.title('Predicted Exploitation Value')
-        self.fig.savefig(filepath('exploitation_value'), bbox_inches='tight')
+            plt.clf()
+            exploration_values = self.agent.exploration_values()
+            breakpoint()
+            plt.imshow(exploration_values)
+            plt.colorbar()
+            plt.title('Predicted Exploration Value')
+            self.fig.savefig(filepath('exploration_value'), bbox_inches='tight')
 
-        plt.clf()
-        exploration_values = self.agent.exploration_critic.qa_values(obs).mean(-1)
-        exploration_values = exploration_values.reshape(ii.shape)
-        plt.imshow(exploration_values[::-1])
-        plt.colorbar()
-        plt.title('Predicted Exploration Value')
-        self.fig.savefig(filepath('exploration_value'), bbox_inches='tight')
+        else:
+            plt.imshow(density[::-1])
+            plt.colorbar()
+            plt.title('RND Value')
+            self.fig.savefig(filepath('rnd_value'), bbox_inches='tight')
+
+            plt.clf()
+            exploitation_values = self.agent.exploitation_critic.qa_values(obs).mean(-1)
+            exploitation_values = exploitation_values.reshape(ii.shape)
+            plt.imshow(exploitation_values[::-1])
+            plt.colorbar()
+            plt.title('Predicted Exploitation Value')
+            self.fig.savefig(filepath('exploitation_value'), bbox_inches='tight')
+
+            plt.clf()
+            exploration_values = self.agent.exploration_critic.qa_values(obs).mean(-1)
+            exploration_values = exploration_values.reshape(ii.shape)
+            plt.imshow(exploration_values[::-1])
+            plt.colorbar()
+            plt.title('Predicted Exploration Value')
+            self.fig.savefig(filepath('exploration_value'), bbox_inches='tight')
