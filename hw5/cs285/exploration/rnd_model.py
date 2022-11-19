@@ -63,6 +63,7 @@ class RNDModel(nn.Module, BaseExplorationModel):
         target = self.f(ob_no).detach() # target value f(o), detached
         pred = self.f_hat(ob_no)        # predicted value f_hat(o), attached
         l2_loss = ((pred - target)**2).sum(dim=1)
+        # l2_loss = torch.linalg.norm(pred - target, dim=1)
 
         assert l2_loss.shape == (ob_no.shape[0],)
         return l2_loss
