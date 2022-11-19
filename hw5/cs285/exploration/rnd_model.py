@@ -43,12 +43,10 @@ class RNDModel(nn.Module, BaseExplorationModel):
                                 n_layers=self.n_layers, size=self.size)
         
         # They must be initialized differently to avoid trivial learning
-        # init_method_normal(self.f)
-        # init_method_uniform(self.f_hat)
-        init_method_normal(self.f_hat)
-        init_method_uniform(self.f)
-        # init_method_normal(self.f) # TODO: try this initialization as a last resort
-        # init_method_uniform_1(self.f_hat)
+        # init_method_normal(self.f_hat)
+        # init_method_uniform(self.f)
+        init_method_normal(self.f) # TODO: try this initialization as a last resort
+        init_method_uniform_1(self.f_hat)
         
         self.optimizer_spec = optimizer_spec
         self.optimizer = self.optimizer_spec.constructor(
@@ -64,8 +62,7 @@ class RNDModel(nn.Module, BaseExplorationModel):
         """
         target = self.f(ob_no).detach() # target value f(o), detached
         pred = self.f_hat(ob_no)        # predicted value f_hat(o), attached
-        # l2_loss = ((pred - target)**2).sum(dim=1)
-        l2_loss = torch.sqrt(((pred - target)**2).sum(dim=1)) # TODO idk, but try this
+        l2_loss = ((pred - target)**2).sum(dim=1)
 
         assert l2_loss.shape == (ob_no.shape[0],)
         return l2_loss
@@ -78,7 +75,8 @@ class RNDModel(nn.Module, BaseExplorationModel):
     def update(self, ob_no):
         if isinstance(ob_no, np.ndarray):
             ob_no = ptu.from_numpy(ob_no)
-        loss = self(ob_no).mean() # Take the mean prediction error across the batch
+        # loss = self(ob_no).mean()
+        loss = torch.sqrt(self(ob_no)).mean() # TODO idk, but try this
         
         assert loss.shape == ()
         self.optimizer.zero_grad()
