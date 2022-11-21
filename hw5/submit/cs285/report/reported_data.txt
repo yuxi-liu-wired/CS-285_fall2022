@@ -1,0 +1,6 @@
+hw5_expl_q1_env1_rnd_PointmassEasy-v0_11-11-2022_14-10-43
+hw5_expl_q1_env2_random_PointmassMedium-v0_11-11-2022_14-10-43
+hw5_expl_q1_env2_rnd_PointmassMedium-v0_11-11-2022_14-10-43
+hw5_expl_q1_env1_random_PointmassEasy-v0_11-11-2022_14-10-43
+hw5_expl_q2_dqn_PointmassMedium-v0?
+hw5_expl_q2_cql_PointmassMedium-v0_11-11-2022_15-06-45
