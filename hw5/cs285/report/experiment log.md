@@ -286,11 +286,6 @@ and `critics/iql_critic.py`, and will build on your implementation of AWAC from 
 
 ### Eval
 
-|                 	| expectation 	| result 	|
-|-----------------	|-------------	|--------	|
-| PointmassEasy   	| > -30       	|        	|
-| PointmassMedium 	| > -50       	|        	|
-
 ```python
 command_stem = [
 "python cs285/scripts/run_hw5_iql.py --no_gpu --env_name PointmassEasy-v0   --exp_name q5_easy_supervised_lam{l}_tau{t}                                    --use_rnd --num_exploration_steps=20000 --awac_lambda={l} --iql_expectile={t}",
